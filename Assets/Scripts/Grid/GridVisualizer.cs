@@ -4,21 +4,42 @@ using UnityEngine;
 public class GridVisualizer : MonoBehaviour
 {
     [Header("Visual Settings")]
-    [SerializeField] private Color gridColor = new Color(0.5f, 0.5f, 0.5f, 0.3f);
-    [SerializeField] private float lineWidth = 0.01f;
+    [SerializeField] private Color gridColor = new Color(0.8f, 0.8f, 0.8f, 0.5f);
+    [SerializeField] private float lineWidth = 0.1f;
+    [SerializeField] private int visibleGridSize = 30;
     
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
+    private Camera mainCamera;
     private GridManager gridManager;
+    private Vector2Int lastCameraGridPos = Vector2Int.zero;
     
     private void Start()
     {
         meshFilter = GetComponent<MeshFilter>();
         meshRenderer = GetComponent<MeshRenderer>();
+        mainCamera = Camera.main;
         gridManager = GridManager.Instance;
         
         CreateGridMaterial();
-        CreateStaticGridMesh();
+        UpdateGridMesh();
+    }
+    
+    private void Update()
+    {
+        if (mainCamera != null && gridManager != null)
+        {
+            Vector3 cameraPos = mainCamera.transform.position;
+            Vector2Int currentCameraGridPos = gridManager.WorldToGridPosition(cameraPos);
+            
+            if (currentCameraGridPos != lastCameraGridPos)
+            {
+                lastCameraGridPos = currentCameraGridPos;
+                Vector3 gridCenterPos = gridManager.GridToWorldPosition(currentCameraGridPos);
+                transform.position = new Vector3(gridCenterPos.x, gridCenterPos.y, 0);
+                UpdateGridMesh();
+            }
+        }
     }
     
     private void CreateGridMaterial()
@@ -29,15 +50,14 @@ public class GridVisualizer : MonoBehaviour
         meshRenderer.sortingOrder = -100;
     }
     
-    private void CreateStaticGridMesh()
+    private void UpdateGridMesh()
     {
         Mesh mesh = new Mesh();
         
         float cellSize = gridManager.CellSize;
-        int width = gridManager.GridWidth;
-        int height = gridManager.GridHeight;
+        int halfSize = visibleGridSize / 2;
         
-        int vertexCount = ((width + 1) * 2 + (height + 1) * 2) * 4;
+        int vertexCount = ((visibleGridSize + 1) * 2 + (visibleGridSize + 1) * 2) * 4;
         Vector3[] vertices = new Vector3[vertexCount];
         int[] triangles = new int[vertexCount / 4 * 6];
         Vector2[] uvs = new Vector2[vertexCount];
@@ -45,13 +65,13 @@ public class GridVisualizer : MonoBehaviour
         int vIndex = 0;
         int tIndex = 0;
         
-        float startX = -width * cellSize / 2f;
-        float startY = -height * cellSize / 2f;
-        float endX = width * cellSize / 2f;
-        float endY = height * cellSize / 2f;
+        float startX = -halfSize * cellSize;
+        float startY = -halfSize * cellSize;
+        float endX = halfSize * cellSize;
+        float endY = halfSize * cellSize;
         
         // Vertical lines
-        for (int i = 0; i <= width; i++)
+        for (int i = 0; i <= visibleGridSize; i++)
         {
             float x = startX + i * cellSize;
             
@@ -63,7 +83,7 @@ public class GridVisualizer : MonoBehaviour
         }
         
         // Horizontal lines
-        for (int i = 0; i <= height; i++)
+        for (int i = 0; i <= visibleGridSize; i++)
         {
             float y = startY + i * cellSize;
             
