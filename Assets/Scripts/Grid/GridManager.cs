@@ -31,8 +31,8 @@ public class GridManager : MonoBehaviour
     
     public Vector2Int WorldToGridPosition(Vector3 worldPosition)
     {
-        int gridX = Mathf.FloorToInt((worldPosition.x - cellSize / 2f) / cellSize);
-        int gridY = Mathf.FloorToInt((worldPosition.y - cellSize / 2f) / cellSize);
+        int gridX = Mathf.FloorToInt(worldPosition.x / cellSize);
+        int gridY = Mathf.FloorToInt(worldPosition.y / cellSize);
         return new Vector2Int(gridX, gridY);
     }
     

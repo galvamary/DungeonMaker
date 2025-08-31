@@ -6,7 +6,7 @@ public class GridVisualizer : MonoBehaviour
     [Header("Visual Settings")]
     [SerializeField] private Color gridColor = new Color(0.8f, 0.8f, 0.8f, 0.5f);
     [SerializeField] private float lineWidth = 0.1f;
-    [SerializeField] private int visibleGridSize = 30;
+    [SerializeField] private int visibleGridSize = 50;  // Moderate size for performance
     
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
@@ -30,15 +30,13 @@ public class GridVisualizer : MonoBehaviour
         if (mainCamera != null && gridManager != null)
         {
             Vector3 cameraPos = mainCamera.transform.position;
-            Vector2Int currentCameraGridPos = gridManager.WorldToGridPosition(cameraPos);
             
-            if (currentCameraGridPos != lastCameraGridPos)
-            {
-                lastCameraGridPos = currentCameraGridPos;
-                Vector3 gridCenterPos = gridManager.GridToWorldPosition(currentCameraGridPos);
-                transform.position = new Vector3(gridCenterPos.x, gridCenterPos.y, 0);
-                UpdateGridMesh();
-            }
+            // Snap grid to nearest grid unit to prevent jumping
+            float cellSize = gridManager.CellSize;
+            float snapX = Mathf.Floor(cameraPos.x / cellSize) * cellSize;
+            float snapY = Mathf.Floor(cameraPos.y / cellSize) * cellSize;
+            
+            transform.position = new Vector3(snapX, snapY, 0);
         }
     }
     
