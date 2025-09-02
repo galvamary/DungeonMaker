@@ -99,6 +99,38 @@ public class RoomManager : MonoBehaviour
         return placedRooms.ContainsKey(gridPosition);
     }
     
+    public void CycleRoomAt(Vector2Int gridPosition)
+    {
+        Room existingRoom = GetRoomAt(gridPosition);
+        
+        if (existingRoom == null)
+        {
+            // Empty -> Battle
+            PlaceRoom(gridPosition, RoomType.Battle);
+        }
+        else
+        {
+            switch (existingRoom.Type)
+            {
+                case RoomType.Battle:
+                    // Battle -> Treasure
+                    RemoveRoom(gridPosition);
+                    PlaceRoom(gridPosition, RoomType.Treasure);
+                    break;
+                    
+                case RoomType.Treasure:
+                    // Treasure -> Empty
+                    RemoveRoom(gridPosition);
+                    break;
+                    
+                default:
+                    // Any other type -> Empty
+                    RemoveRoom(gridPosition);
+                    break;
+            }
+        }
+    }
+    
     private Sprite GetRoomSprite(RoomType roomType)
     {
         switch (roomType)

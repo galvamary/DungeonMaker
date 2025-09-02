@@ -39,10 +39,10 @@ public class GridClickHandler : MonoBehaviour
         
         Debug.Log($"Clicked grid position: {gridPos}");
         
-        // Place room at clicked position
+        // Cycle through room types or remove room
         if (roomManager != null)
         {
-            roomManager.PlaceRoom(gridPos, RoomType.Battle);
+            roomManager.CycleRoomAt(gridPos);
         }
     }
 }
