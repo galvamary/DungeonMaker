@@ -34,6 +34,13 @@ public class RoomManager : MonoBehaviour
         roomContainer = container.transform;
     }
     
+    private void Start()
+    {
+        // Place entrance at (0,0) on start
+        PlaceRoom(new Vector2Int(0, 0), RoomType.Entrance);
+        Debug.Log("Placed entrance room at (0,0)");
+    }
+    
     public bool PlaceRoom(Vector2Int gridPosition, RoomType roomType)
     {
         // Check if position is already occupied
@@ -110,6 +117,13 @@ public class RoomManager : MonoBehaviour
         }
         else
         {
+            // Don't allow changing entrance rooms
+            if (existingRoom.Type == RoomType.Entrance)
+            {
+                Debug.Log("Cannot change entrance room!");
+                return;
+            }
+            
             switch (existingRoom.Type)
             {
                 case RoomType.Battle:
