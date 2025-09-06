@@ -5,8 +5,8 @@ public class RoomManager : MonoBehaviour
 {
     public static RoomManager Instance { get; private set; }
     
-    [Header("Room Prefabs")]
-    [SerializeField] private GameObject roomPrefab;
+    // [Header("Room Prefabs")]
+    // [SerializeField] private GameObject roomPrefab;
     
     [Header("Room Sprites")]
     [SerializeField] private Sprite battleRoomSprite;
@@ -30,7 +30,7 @@ public class RoomManager : MonoBehaviour
         }
         
         // Create container for rooms
-        GameObject container = new GameObject("Rooms");
+         GameObject container = new GameObject("Rooms");
         roomContainer = container.transform;
     }
     
@@ -60,15 +60,15 @@ public class RoomManager : MonoBehaviour
         
         // Create room object
         GameObject roomObj;
-        if (roomPrefab != null)
-        {
-            roomObj = Instantiate(roomPrefab, roomContainer);
-        }
-        else
-        {
+        // if (roomPrefab != null)
+        // {
+        //     roomObj = Instantiate(roomPrefab, roomContainer);
+        // }
+        // else
+        // {
             roomObj = new GameObject($"Room_{roomType}");
             roomObj.transform.SetParent(roomContainer);
-        }
+        // }
         
         // Initialize room component
         Room room = roomObj.GetComponent<Room>();

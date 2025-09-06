@@ -448,11 +448,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 424dac9781740480fa7c6305303c7da4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomPrefab: {fileID: 0}
-  battleRoomSprite: {fileID: -6019556967970964953, guid: d29a896736b0540f49d4b11681b80fe4, type: 3}
-  treasureRoomSprite: {fileID: 0}
+  battleRoomSprite: {fileID: -8688411044103038410, guid: 6ac8da6b725b24ac9aee3ecf76ae0dba, type: 3}
+  treasureRoomSprite: {fileID: 7944354848308197427, guid: 5d8bc251aab164a90a148962506716c9, type: 3}
   bossRoomSprite: {fileID: 0}
-  entranceRoomSprite: {fileID: 0}
+  entranceRoomSprite: {fileID: -8688411044103038410, guid: bf2cc2ae4bd764f17b6bc3fdb3bf7c1a, type: 3}
 --- !u!4 &1773358325
 Transform:
   m_ObjectHideFlags: 0
@@ -475,5 +474,5 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 1212764763}
   - {fileID: 1684818721}
-  - {fileID: 1773358325}
   - {fileID: 1113833942}
+  - {fileID: 1773358325}

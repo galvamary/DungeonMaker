@@ -55,7 +55,7 @@ public class GridVisualizer : MonoBehaviour
         float cellSize = gridManager.CellSize;
         int halfSize = visibleGridSize / 2;
         
-        int vertexCount = ((visibleGridSize + 1) * 2 + (visibleGridSize + 1) * 2) * 4;
+        int vertexCount = ((visibleGridSize + 1) * 2) * 4;
         Vector3[] vertices = new Vector3[vertexCount];
         int[] triangles = new int[vertexCount / 4 * 6];
         Vector2[] uvs = new Vector2[vertexCount];
