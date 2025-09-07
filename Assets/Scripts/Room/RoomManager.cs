@@ -112,6 +112,13 @@ public class RoomManager : MonoBehaviour
         
         if (existingRoom == null)
         {
+            // Check if position is valid for placement
+            if (!IsValidPlacement(gridPosition))
+            {
+                Debug.Log($"Cannot place room at {gridPosition} - must be adjacent to existing room!");
+                return;
+            }
+            
             // Empty -> Battle
             PlaceRoom(gridPosition, RoomType.Battle);
         }
@@ -160,5 +167,82 @@ public class RoomManager : MonoBehaviour
             default:
                 return battleRoomSprite;
         }
+    }
+    
+    private bool IsValidPlacement(Vector2Int position)
+    {
+        // Check if this position is adjacent to any existing room
+        Vector2Int[] adjacentOffsets = new Vector2Int[]
+        {
+            new Vector2Int(0, 1),   // Up
+            new Vector2Int(0, -1),  // Down
+            new Vector2Int(-1, 0),  // Left
+            new Vector2Int(1, 0)    // Right
+        };
+        
+        foreach (var offset in adjacentOffsets)
+        {
+            Vector2Int adjacentPos = position + offset;
+            if (placedRooms.ContainsKey(adjacentPos))
+            {
+                Room adjacentRoom = placedRooms[adjacentPos];
+                
+                // Special rule for entrance: can only connect to its right
+                if (adjacentRoom.Type == RoomType.Entrance)
+                {
+                    // Check if the new position is to the right of entrance
+                    if (position == adjacentRoom.GridPosition + new Vector2Int(1, 0))
+                    {
+                        return true; // Valid: connecting to right of entrance
+                    }
+                    // If we're trying to connect to entrance from other directions, continue checking
+                    continue;
+                }
+                
+                // For non-entrance rooms, any adjacent connection is valid
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    private bool IsConnectedToEntrance(Vector2Int position, HashSet<Vector2Int> visited = null)
+    {
+        // Helper method to check if a position has a path to the entrance
+        if (visited == null)
+            visited = new HashSet<Vector2Int>();
+            
+        if (visited.Contains(position))
+            return false;
+            
+        visited.Add(position);
+        
+        // Check if this is the entrance or adjacent to entrance
+        if (placedRooms.TryGetValue(position, out Room room))
+        {
+            if (room.Type == RoomType.Entrance)
+                return true;
+        }
+        
+        // Check all adjacent rooms
+        Vector2Int[] adjacentOffsets = new Vector2Int[]
+        {
+            new Vector2Int(0, 1),   // Up
+            new Vector2Int(0, -1),  // Down
+            new Vector2Int(-1, 0),  // Left
+            new Vector2Int(1, 0)    // Right
+        };
+        
+        foreach (var offset in adjacentOffsets)
+        {
+            Vector2Int adjacentPos = position + offset;
+            if (placedRooms.ContainsKey(adjacentPos) && IsConnectedToEntrance(adjacentPos, visited))
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }
