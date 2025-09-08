@@ -14,6 +14,11 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Sprite bossRoomSprite;
     [SerializeField] private Sprite entranceRoomSprite;
     
+    [Header("Room Costs")]
+    [SerializeField] private int battleRoomCost = 10;
+    [SerializeField] private int treasureRoomCost = 30;
+    [SerializeField] private int bossRoomCost = 50;
+    
     private Dictionary<Vector2Int, Room> placedRooms = new Dictionary<Vector2Int, Room>();
     private Transform roomContainer;
     
@@ -48,6 +53,20 @@ public class RoomManager : MonoBehaviour
         {
             Debug.Log($"Grid position {gridPosition} is already occupied!");
             return false;
+        }
+        
+        // Check cost for non-entrance rooms
+        if (roomType != RoomType.Entrance)
+        {
+            int cost = GetRoomCost(roomType);
+            if (!GameManager.Instance.CanAfford(cost))
+            {
+                Debug.Log($"Not enough gold to place {roomType} room! Cost: {cost}, Current Gold: {GameManager.Instance.CurrentGold}");
+                return false;
+            }
+            
+            // Deduct cost
+            GameManager.Instance.SpendGold(cost);
         }
         
         // Get sprite for room type
@@ -90,6 +109,14 @@ public class RoomManager : MonoBehaviour
     {
         if (placedRooms.TryGetValue(gridPosition, out Room room))
         {
+            // Refund the cost for non-entrance rooms
+            if (room.Type != RoomType.Entrance)
+            {
+                int refund = GetRoomCost(room.Type);
+                GameManager.Instance.AddGold(refund);
+                Debug.Log($"Refunded {refund} gold for removing {room.Type} room");
+            }
+            
             Destroy(room.gameObject);
             placedRooms.Remove(gridPosition);
         }
@@ -119,6 +146,13 @@ public class RoomManager : MonoBehaviour
                 return;
             }
             
+            // Check if player can afford a battle room
+            if (!GameManager.Instance.CanAfford(battleRoomCost))
+            {
+                Debug.Log($"Not enough gold for Battle room! Cost: {battleRoomCost}, Current Gold: {GameManager.Instance.CurrentGold}");
+                return;
+            }
+            
             // Empty -> Battle
             PlaceRoom(gridPosition, RoomType.Battle);
         }
@@ -135,12 +169,23 @@ public class RoomManager : MonoBehaviour
             {
                 case RoomType.Battle:
                     // Battle -> Treasure
-                    RemoveRoom(gridPosition);
-                    PlaceRoom(gridPosition, RoomType.Treasure);
+                    // Check if player can afford the difference (30 - 10 = 20 more gold)
+                    int upgradeCost = treasureRoomCost - battleRoomCost;
+                    if (!GameManager.Instance.CanAfford(upgradeCost))
+                    {
+                        Debug.Log($"Not enough gold to upgrade to Treasure room! Need {upgradeCost} more gold");
+                        return;
+                    }
+                    
+                    // Spend the difference
+                    GameManager.Instance.SpendGold(upgradeCost);
+                    
+                    // Change sprite without removing the room
+                    existingRoom.Initialize(RoomType.Treasure, gridPosition, GetRoomSprite(RoomType.Treasure));
                     break;
                     
                 case RoomType.Treasure:
-                    // Treasure -> Empty
+                    // Treasure -> Empty (full refund)
                     RemoveRoom(gridPosition);
                     break;
                     
@@ -166,6 +211,21 @@ public class RoomManager : MonoBehaviour
                 return entranceRoomSprite;
             default:
                 return battleRoomSprite;
+        }
+    }
+    
+    private int GetRoomCost(RoomType roomType)
+    {
+        switch (roomType)
+        {
+            case RoomType.Battle:
+                return battleRoomCost;
+            case RoomType.Treasure:
+                return treasureRoomCost;
+            case RoomType.Boss:
+                return bossRoomCost;
+            default:
+                return 0;
         }
     }
     
