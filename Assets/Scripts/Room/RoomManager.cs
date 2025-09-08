@@ -207,6 +207,7 @@ public class RoomManager : MonoBehaviour
         return false;
     }
     
+    // @deprecated
     private bool IsConnectedToEntrance(Vector2Int position, HashSet<Vector2Int> visited = null)
     {
         // Helper method to check if a position has a path to the entrance
