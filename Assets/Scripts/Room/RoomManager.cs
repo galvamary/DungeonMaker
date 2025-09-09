@@ -185,13 +185,12 @@ public class RoomManager : MonoBehaviour
                     break;
                     
                 case RoomType.Treasure:
-                    // Treasure -> Empty (full refund)
-                    RemoveRoom(gridPosition);
+                    // Treasure rooms stay as treasure (no cycling)
+                    Debug.Log("Treasure room cannot be cycled. Use right-click to remove.");
                     break;
                     
                 default:
-                    // Any other type -> Empty
-                    RemoveRoom(gridPosition);
+                    // Any other type stays as is
                     break;
             }
         }

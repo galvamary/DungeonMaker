@@ -22,11 +22,50 @@ public class GridClickHandler : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0)) // Left click
         {
-            HandleGridClick();
+            HandleLeftClick();
+        }
+        else if (Input.GetMouseButtonDown(1)) // Right click
+        {
+            HandleRightClick();
         }
     }
     
-    private void HandleGridClick()
+    private void HandleLeftClick()
+    {
+        Vector2Int gridPos = GetGridPositionFromMouse();
+        
+        Debug.Log($"Left clicked grid position: {gridPos}");
+        
+        // Cycle through room types
+        if (roomManager != null)
+        {
+            roomManager.CycleRoomAt(gridPos);
+        }
+    }
+    
+    private void HandleRightClick()
+    {
+        Vector2Int gridPos = GetGridPositionFromMouse();
+        
+        Debug.Log($"Right clicked grid position: {gridPos}");
+        
+        // Remove room at this position
+        if (roomManager != null)
+        {
+            Room room = roomManager.GetRoomAt(gridPos);
+            if (room != null && room.Type != RoomType.Entrance)
+            {
+                roomManager.RemoveRoom(gridPos);
+                Debug.Log($"Removed room at {gridPos}");
+            }
+            else if (room != null && room.Type == RoomType.Entrance)
+            {
+                Debug.Log("Cannot remove entrance room!");
+            }
+        }
+    }
+    
+    private Vector2Int GetGridPositionFromMouse()
     {
         // Convert mouse position to world position
         Vector3 mousePos = Input.mousePosition;
@@ -35,14 +74,6 @@ public class GridClickHandler : MonoBehaviour
         worldPos.z = 0;
         
         // Convert world position to grid position
-        Vector2Int gridPos = gridManager.WorldToGridPosition(worldPos);
-        
-        Debug.Log($"Clicked grid position: {gridPos}");
-        
-        // Cycle through room types or remove room
-        if (roomManager != null)
-        {
-            roomManager.CycleRoomAt(gridPos);
-        }
+        return gridManager.WorldToGridPosition(worldPos);
     }
 }
