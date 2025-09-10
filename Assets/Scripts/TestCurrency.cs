@@ -10,7 +10,7 @@ public class TestCurrency : MonoBehaviour
             Debug.Log($"Added 100 gold. Current: {GameManager.Instance.CurrentGold}");
         }
         
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             bool success = GameManager.Instance.SpendGold(50);
             if (success)
