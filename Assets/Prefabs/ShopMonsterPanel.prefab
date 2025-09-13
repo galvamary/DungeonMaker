@@ -344,7 +344,7 @@ GameObject:
   - component: {fileID: 9093170587351427047}
   - component: {fileID: 2765244164442237548}
   m_Layer: 5
-  m_Name: ShopMonsterContainer
+  m_Name: ShopMonsterPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

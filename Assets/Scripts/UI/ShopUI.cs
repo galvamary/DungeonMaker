@@ -7,7 +7,6 @@ public class ShopUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private Button shopToggleButton;
-    [SerializeField] private Button closeShopButton;
     [SerializeField] private Transform shopItemContainer;
     [SerializeField] private GameObject shopItemPrefab;
     
@@ -17,31 +16,8 @@ public class ShopUI : MonoBehaviour
         {
             shopPanel.SetActive(false);
         }
-        
-        if (shopToggleButton != null)
-        {
-            shopToggleButton.onClick.AddListener(ToggleShop);
-        }
-        
-        if (closeShopButton != null)
-        {
-            closeShopButton.onClick.AddListener(CloseShop);
-        }
     }
-    
-    private void OnDestroy()
-    {
-        if (shopToggleButton != null)
-        {
-            shopToggleButton.onClick.RemoveListener(ToggleShop);
-        }
-        
-        if (closeShopButton != null)
-        {
-            closeShopButton.onClick.RemoveListener(CloseShop);
-        }
-    }
-    
+ 
     public void ToggleShop()
     {
         if (shopPanel != null)
@@ -60,30 +36,11 @@ public class ShopUI : MonoBehaviour
             }
         }
     }
-    
-    public void OpenShop()
-    {
-        if (shopPanel != null)
-        {
-            shopPanel.SetActive(true);
-            PopulateShopItems();
-            Debug.Log("Shop opened");
-        }
-    }
-    
-    public void CloseShop()
-    {
-        if (shopPanel != null)
-        {
-            shopPanel.SetActive(false);
-            Debug.Log("Shop closed");
-        }
-    }
-    
+
     private void PopulateShopItems()
     {
         if (ShopManager.Instance == null || shopItemContainer == null) return;
-        
+
         foreach (Transform child in shopItemContainer)
         {
             Destroy(child.gameObject);
@@ -102,19 +59,25 @@ public class ShopUI : MonoBehaviour
     
     private void SetupShopItem(GameObject item, MonsterData monster)
     {
-        TextMeshProUGUI nameText = item.transform.Find("NameText")?.GetComponent<TextMeshProUGUI>();
-        TextMeshProUGUI costText = item.transform.Find("CostText")?.GetComponent<TextMeshProUGUI>();
-        Button buyButton = item.transform.Find("BuyButton")?.GetComponent<Button>();
-        Image iconImage = item.transform.Find("Icon")?.GetComponent<Image>();
+        TextMeshProUGUI nameText = item.GetComponentInChildren<TextMeshProUGUI>();
+        Button buyButton = item.GetComponentInChildren<Button>();
+        
+        // ShopMonsterPanel 자체가 아닌 자식 Image 컴포넌트 찾기
+        Image[] images = item.GetComponentsInChildren<Image>();
+        Image iconImage = null;
+        foreach (Image img in images)
+        {
+            // Button의 Image가 아닌 별도의 Image 컴포넌트 찾기
+            if (img.gameObject != item && img.GetComponent<Button>() == null)
+            {
+                iconImage = img;
+                break;
+            }
+        }
         
         if (nameText != null)
         {
             nameText.text = monster.monsterName;
-        }
-        
-        if (costText != null)
-        {
-            costText.text = $"{monster.cost} Gold";
         }
         
         if (iconImage != null && monster.icon != null)
@@ -126,6 +89,12 @@ public class ShopUI : MonoBehaviour
         {
             buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(() => OnBuyButtonClicked(monster));
+            
+            TextMeshProUGUI buttonText = buyButton.GetComponentInChildren<TextMeshProUGUI>();
+            if (buttonText != null)
+            {
+                buttonText.text = $"{monster.cost} Gold";
+            }
         }
     }
     

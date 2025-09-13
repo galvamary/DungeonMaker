@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GridClickHandler : MonoBehaviour
 {
@@ -20,6 +21,12 @@ public class GridClickHandler : MonoBehaviour
     
     private void Update()
     {
+        // UI 위에 마우스가 있으면 그리드 클릭 무시
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+        
         if (Input.GetMouseButtonDown(0)) // Left click
         {
             HandleLeftClick();
