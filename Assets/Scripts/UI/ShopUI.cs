@@ -59,38 +59,46 @@ public class ShopUI : MonoBehaviour
     
     private void SetupShopItem(GameObject item, MonsterData monster)
     {
-        TextMeshProUGUI nameText = item.GetComponentInChildren<TextMeshProUGUI>();
-        Button buyButton = item.GetComponentInChildren<Button>();
+        // 특정 이름으로 자식 요소들 찾기
+        Transform monsterNameTransform = item.transform.Find("MonsterName");
+        Transform imageTransform = item.transform.Find("Image");
+        Transform buyButtonTransform = item.transform.Find("BuyButton");
         
-        // ShopMonsterPanel 자체가 아닌 자식 Image 컴포넌트 찾기
-        Image[] images = item.GetComponentsInChildren<Image>();
-        Image iconImage = null;
-        foreach (Image img in images)
+        // MonsterName 텍스트 설정
+        if (monsterNameTransform != null)
         {
-            // Button의 Image가 아닌 별도의 Image 컴포넌트 찾기
-            if (img.gameObject != item && img.GetComponent<Button>() == null)
+            TextMeshProUGUI nameText = monsterNameTransform.GetComponent<TextMeshProUGUI>();
+            if (nameText != null)
             {
-                iconImage = img;
-                break;
+                nameText.text = monster.monsterName;
             }
         }
         
-        if (nameText != null)
+        // Image 스프라이트 설정
+        if (imageTransform != null)
         {
-            nameText.text = monster.monsterName;
+            Image iconImage = imageTransform.GetComponent<Image>();
+            if (iconImage != null && monster.icon != null)
+            {
+                iconImage.sprite = monster.icon;
+            }
         }
         
-        if (iconImage != null && monster.icon != null)
+        // BuyButton 설정
+        if (buyButtonTransform != null)
         {
-            iconImage.sprite = monster.icon;
+            Button buyButton = buyButtonTransform.GetComponent<Button>();
+            if (buyButton != null)
+            {
+                buyButton.onClick.RemoveAllListeners();
+                buyButton.onClick.AddListener(() => OnBuyButtonClicked(monster));
+            }
         }
         
-        if (buyButton != null)
+        Transform buttonTextTransform = buyButtonTransform.transform.Find("BuyButtonText");
+        if (buttonTextTransform != null)
         {
-            buyButton.onClick.RemoveAllListeners();
-            buyButton.onClick.AddListener(() => OnBuyButtonClicked(monster));
-            
-            TextMeshProUGUI buttonText = buyButton.GetComponentInChildren<TextMeshProUGUI>();
+            TextMeshProUGUI buttonText = buttonTextTransform.GetComponent<TextMeshProUGUI>();
             if (buttonText != null)
             {
                 buttonText.text = $"{monster.cost} Gold";

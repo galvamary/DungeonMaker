@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 820f5e03bec084d76b189c35910d2fde, type: 3}
   m_Name: Skeleton
   m_EditorClassIdentifier: 
-  monsterName: Skeletone
-  icon: {fileID: 0}
-  cost: 100
+  monsterName: Skeleton
+  icon: {fileID: 21300014, guid: 988d560df8d322a468c97243cbfd76e8, type: 3}
+  cost: 7
   health: 10
   attack: 5
   defense: 2
   attackSpeed: 1
-  description: A basic monster for your dungeon.
+  description: A ghoul with all its flesh rotted away, leaving only bones.
   monsterPrefab: {fileID: 0}
