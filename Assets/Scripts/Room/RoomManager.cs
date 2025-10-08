@@ -305,4 +305,16 @@ public class RoomManager : MonoBehaviour
         
         return false;
     }
+
+    public Room GetRoomAtPosition(Vector2Int gridPosition)
+    {
+        placedRooms.TryGetValue(gridPosition, out Room room);
+        return room;
+    }
+
+    public bool PlaceMonsterInRoom(Room room, MonsterData monster)
+    {
+        if (room == null || monster == null) return false;
+        return room.PlaceMonster(monster);
+    }
 }

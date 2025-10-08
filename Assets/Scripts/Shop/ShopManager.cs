@@ -67,4 +67,49 @@ public class ShopManager : MonoBehaviour
     {
         return availableMonsters;
     }
+
+    public bool UseMonsterFromInventory(MonsterData monster)
+    {
+        if (monster == null) return false;
+
+        if (ownedMonsters.ContainsKey(monster) && ownedMonsters[monster] > 0)
+        {
+            ownedMonsters[monster]--;
+
+            // Update inventory UI
+            if (MonsterInventoryUI.Instance != null)
+            {
+                MonsterInventoryUI.Instance.UpdateMonsterInventory(monster, ownedMonsters[monster]);
+            }
+
+            Debug.Log($"Used {monster.monsterName}. Remaining: {ownedMonsters[monster]}");
+            return true;
+        }
+
+        Debug.Log($"No {monster.monsterName} available in inventory");
+        return false;
+    }
+
+    public void ReturnMonsterToInventory(MonsterData monster)
+    {
+        if (monster == null) return;
+
+        // Add monster back to inventory
+        if (ownedMonsters.ContainsKey(monster))
+        {
+            ownedMonsters[monster]++;
+        }
+        else
+        {
+            ownedMonsters[monster] = 1;
+        }
+
+        // Update inventory UI
+        if (MonsterInventoryUI.Instance != null)
+        {
+            MonsterInventoryUI.Instance.UpdateMonsterInventory(monster, ownedMonsters[monster]);
+        }
+
+        Debug.Log($"Returned {monster.monsterName} to inventory. Total: {ownedMonsters[monster]}");
+    }
 }
