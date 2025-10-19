@@ -14,7 +14,7 @@ public class Room : MonoBehaviour
     [Header("Room Properties")]
     [SerializeField] private RoomType roomType;
     [SerializeField] private Vector2Int gridPosition;
-    [SerializeField] private Vector2Int roomSize = new Vector2Int(1, 1); // 1x1 grid cells by default
+    // [SerializeField] private Vector2Int roomSize = new Vector2Int(1, 1); // 1x1 grid cells by default
 
     [Header("Monster")]
     [SerializeField] private List<MonsterData> placedMonsters = new List<MonsterData>();
@@ -25,7 +25,7 @@ public class Room : MonoBehaviour
 
     public RoomType Type => roomType;
     public Vector2Int GridPosition => gridPosition;
-    public Vector2Int Size => roomSize;
+    // public Vector2Int Size => roomSize;
     public List<MonsterData> PlacedMonsters => placedMonsters;
     public bool HasMonster => placedMonsters.Count > 0;
     public bool IsFullOfMonsters => placedMonsters.Count >= MAX_MONSTERS;
@@ -59,30 +59,24 @@ public class Room : MonoBehaviour
         gameObject.name = $"Room_{type}_{position.x}_{position.y}";
     }
     
-    public bool OccupiesPosition(Vector2Int checkPos)
-    {
-        // Check if this room occupies the given grid position
-        for (int x = 0; x < roomSize.x; x++)
-        {
-            for (int y = 0; y < roomSize.y; y++)
-            {
-                if (gridPosition.x + x == checkPos.x && gridPosition.y + y == checkPos.y)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+    // public bool OccupiesPosition(Vector2Int checkPos)
+    // {
+    //     // Check if this room occupies the given grid position
+    //     for (int x = 0; x < roomSize.x; x++)
+    //     {
+    //         for (int y = 0; y < roomSize.y; y++)
+    //         {
+    //             if (gridPosition.x + x == checkPos.x && gridPosition.y + y == checkPos.y)
+    //             {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     return false;
+    // }
 
     public bool PlaceMonster(MonsterData monster)
     {
-        if (roomType == RoomType.Entrance)
-        {
-            Debug.Log("Cannot place monsters in entrance room");
-            return false;
-        }
-
         if (IsFullOfMonsters)
         {
             Debug.Log($"Room is full! Already has {MAX_MONSTERS} monsters");
@@ -146,10 +140,6 @@ public class Room : MonoBehaviour
 
         // Scale the monster
         monsterVisual.transform.localScale = Vector3.one * 2.5f;
-
-        // Add collider for interaction
-        BoxCollider2D collider = monsterVisual.AddComponent<BoxCollider2D>();
-        collider.size = Vector2.one;
 
         // Add drag handler
         MonsterInRoomDragHandler dragHandler = monsterVisual.AddComponent<MonsterInRoomDragHandler>();

@@ -51,7 +51,7 @@ public class MonsterDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler
         dragImage.raycastTarget = false;
 
         RectTransform dragRect = draggedIcon.GetComponent<RectTransform>();
-        dragRect.sizeDelta = new Vector2(50, 50);
+        dragRect.sizeDelta = new Vector2(75, 75);
 
         // Make the original slot semi-transparent
         canvasGroup.alpha = 0.5f;
@@ -83,10 +83,10 @@ public class MonsterDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler
 
         // Check if there's a room at this position
         Room room = RoomManager.Instance.GetRoomAtPosition(gridPos);
-        if (room != null && room.Type != RoomType.Entrance)
+        if (room != null && room.Type != RoomType.Entrance && room.Type != RoomType.Treasure)
         {
             // Place the monster in the room
-            if (RoomManager.Instance.PlaceMonsterInRoom(room, monsterData))
+            if (room.PlaceMonster(monsterData))
             {
                 // Decrease monster count in inventory
                 ShopManager.Instance.UseMonsterFromInventory(monsterData);

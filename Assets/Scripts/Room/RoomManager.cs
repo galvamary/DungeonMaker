@@ -311,10 +311,4 @@ public class RoomManager : MonoBehaviour
         placedRooms.TryGetValue(gridPosition, out Room room);
         return room;
     }
-
-    public bool PlaceMonsterInRoom(Room room, MonsterData monster)
-    {
-        if (room == null || monster == null) return false;
-        return room.PlaceMonster(monster);
-    }
 }

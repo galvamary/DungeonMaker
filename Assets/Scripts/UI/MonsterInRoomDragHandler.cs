@@ -50,7 +50,7 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
             dragImage.raycastTarget = false;
 
             RectTransform dragRect = draggedIcon.GetComponent<RectTransform>();
-            dragRect.sizeDelta = new Vector2(50, 50);
+            dragRect.sizeDelta = new Vector2(75, 75);
         }
 
         // Make the original monster semi-transparent
@@ -108,7 +108,7 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
         Vector2Int gridPos = GridManager.Instance.WorldToGridPosition(worldPos);
         Room targetRoom = RoomManager.Instance.GetRoomAtPosition(gridPos);
 
-        if (targetRoom != null && targetRoom != parentRoom && targetRoom.Type != RoomType.Entrance)
+        if (targetRoom != null && targetRoom != parentRoom && targetRoom.Type != RoomType.Entrance && targetRoom.Type != RoomType.Treasure)
         {
             // Try to move monster to another room
             if (!targetRoom.IsFullOfMonsters)
