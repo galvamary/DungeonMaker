@@ -141,6 +141,10 @@ public class Room : MonoBehaviour
         // Scale the monster
         monsterVisual.transform.localScale = Vector3.one * 2.5f;
 
+        // Add collider for interaction
+        BoxCollider2D collider = monsterVisual.AddComponent<BoxCollider2D>();
+        collider.size = new Vector2(0.26f, 0.21f);
+
         // Add drag handler
         MonsterInRoomDragHandler dragHandler = monsterVisual.AddComponent<MonsterInRoomDragHandler>();
         dragHandler.Initialize(monster, this, monsterVisuals.Count);

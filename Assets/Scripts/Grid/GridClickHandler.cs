@@ -39,10 +39,16 @@ public class GridClickHandler : MonoBehaviour
     
     private void HandleLeftClick()
     {
+        // Check if we clicked on a monster first
+        if (IsClickOnMonster())
+        {
+            return; // Don't process room click if clicking on monster
+        }
+
         Vector2Int gridPos = GetGridPositionFromMouse();
-        
+
         Debug.Log($"Left clicked grid position: {gridPos}");
-        
+
         // Cycle through room types
         if (roomManager != null)
         {
@@ -79,8 +85,30 @@ public class GridClickHandler : MonoBehaviour
         mousePos.z = -mainCamera.transform.position.z;
         Vector3 worldPos = mainCamera.ScreenToWorldPoint(mousePos);
         worldPos.z = 0;
-        
+
         // Convert world position to grid position
         return gridManager.WorldToGridPosition(worldPos);
+    }
+
+    private bool IsClickOnMonster()
+    {
+        // Raycast to check if we clicked on a monster
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = -mainCamera.transform.position.z;
+        Vector3 worldPos = mainCamera.ScreenToWorldPoint(mousePos);
+
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero, 0f);
+
+        if (hit.collider != null)
+        {
+            // Check if the collider belongs to a monster
+            MonsterInRoomDragHandler monsterDragHandler = hit.collider.GetComponent<MonsterInRoomDragHandler>();
+            if (monsterDragHandler != null)
+            {
+                return true; // Clicked on a monster
+            }
+        }
+
+        return false; // Didn't click on a monster
     }
 }

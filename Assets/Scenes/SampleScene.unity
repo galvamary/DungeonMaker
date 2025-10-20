@@ -38,12 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -362,7 +362,6 @@ GameObject:
   - component: {fileID: 687066117}
   - component: {fileID: 687066116}
   - component: {fileID: 687066115}
-  - component: {fileID: 687066121}
   - component: {fileID: 687066120}
   - component: {fileID: 687066119}
   m_Layer: 5
@@ -488,21 +487,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goldText: {fileID: 2055302416}
   goldFormat: 'Gold: {0}'
---- !u!114 &687066121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 687066114}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4b541111b8f04d4296764e188159bd8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  inventoryPanel: {fileID: 1527559705}
-  inventoryItemContainer: {fileID: 1661485582}
-  inventoryItemPrefab: {fileID: 4640834513342501083, guid: 8bb25308b09854fe7853a6fec06566ea, type: 3}
 --- !u!1 &702867555
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,6 +976,7 @@ GameObject:
   - component: {fileID: 1527559706}
   - component: {fileID: 1527559708}
   - component: {fileID: 1527559707}
+  - component: {fileID: 1527559709}
   m_Layer: 5
   m_Name: MonsterInventory
   m_TagString: Untagged
@@ -1057,6 +1042,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1527559705}
   m_CullTransparentMesh: 1
+--- !u!114 &1527559709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1527559705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4b541111b8f04d4296764e188159bd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryPanel: {fileID: 1527559705}
+  inventoryItemContainer: {fileID: 1661485582}
+  inventoryItemPrefab: {fileID: 4640834513342501083, guid: 8bb25308b09854fe7853a6fec06566ea, type: 3}
 --- !u!1 &1626360484
 GameObject:
   m_ObjectHideFlags: 0
@@ -1216,6 +1216,9 @@ MeshRenderer:
   m_RayTraceProcedural: 0
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1237,6 +1240,7 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0

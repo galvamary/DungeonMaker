@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+public class MonsterInRoomDragHandler : MonoBehaviour
 {
     private MonsterData monsterData;
     private Room parentRoom;
@@ -11,6 +11,7 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
     private Canvas canvas;
     private SpriteRenderer spriteRenderer;
     private Color originalColor;
+    private bool isDragging = false;
 
     private void Awake()
     {
@@ -28,14 +29,11 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
         monsterIndex = index;
     }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // Optional: Handle click events if needed
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
+    private void OnMouseDown()
     {
         if (monsterData == null) return;
+
+        isDragging = true;
 
         // Create a drag icon that follows the mouse
         draggedIcon = new GameObject("DraggedMonster");
@@ -51,6 +49,7 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
 
             RectTransform dragRect = draggedIcon.GetComponent<RectTransform>();
             dragRect.sizeDelta = new Vector2(75, 75);
+            dragRect.position = Input.mousePosition;
         }
 
         // Make the original monster semi-transparent
@@ -61,20 +60,23 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
         }
     }
 
-    public void OnDrag(PointerEventData eventData)
+    private void OnMouseDrag()
     {
-        if (draggedIcon == null) return;
+        if (!isDragging || draggedIcon == null) return;
 
         // Update the drag icon position
         RectTransform dragRect = draggedIcon.GetComponent<RectTransform>();
         if (dragRect != null)
         {
-            dragRect.position = eventData.position;
+            dragRect.position = Input.mousePosition;
         }
     }
 
-    public void OnEndDrag(PointerEventData eventData)
+    private void OnMouseUp()
     {
+        if (!isDragging) return;
+        isDragging = false;
+
         if (draggedIcon != null)
         {
             Destroy(draggedIcon);
@@ -88,13 +90,18 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
 
         if (monsterData == null || parentRoom == null) return;
 
-        // Check if we dropped on the inventory panel
-        GameObject droppedOn = eventData.pointerCurrentRaycast.gameObject;
-
-        if (droppedOn != null)
+        // Check if we dropped on the inventory panel using raycast
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
-            // Check if dropped on inventory or inventory item
-            MonsterInventoryUI inventoryUI = droppedOn.GetComponentInParent<MonsterInventoryUI>();
+            position = Input.mousePosition
+        };
+
+        var results = new System.Collections.Generic.List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (var result in results)
+        {
+            MonsterInventoryUI inventoryUI = result.gameObject.GetComponentInParent<MonsterInventoryUI>();
             if (inventoryUI != null)
             {
                 // Return monster to inventory
@@ -104,7 +111,9 @@ public class MonsterInRoomDragHandler : MonoBehaviour, IBeginDragHandler, IDragH
         }
 
         // Check if dropped on another room
-        Vector2 worldPos = mainCamera.ScreenToWorldPoint(eventData.position);
+        Vector3 mousePos = Input.mousePosition;
+        mousePos.z = -mainCamera.transform.position.z;
+        Vector2 worldPos = mainCamera.ScreenToWorldPoint(mousePos);
         Vector2Int gridPos = GridManager.Instance.WorldToGridPosition(worldPos);
         Room targetRoom = RoomManager.Instance.GetRoomAtPosition(gridPos);
 
