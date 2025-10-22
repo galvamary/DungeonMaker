@@ -109,6 +109,16 @@ public class RoomManager : MonoBehaviour
     {
         if (placedRooms.TryGetValue(gridPosition, out Room room))
         {
+            // Return all monsters in this room to inventory
+            if (room.HasMonster)
+            {
+                foreach (MonsterData monster in room.PlacedMonsters)
+                {
+                    ShopManager.Instance.ReturnMonsterToInventory(monster);
+                    Debug.Log($"Returned {monster.monsterName} to inventory");
+                }
+            }
+
             // Refund the cost for non-entrance rooms
             if (room.Type != RoomType.Entrance)
             {
@@ -116,7 +126,7 @@ public class RoomManager : MonoBehaviour
                 GameManager.Instance.AddGold(refund);
                 Debug.Log($"Refunded {refund} gold for removing {room.Type} room");
             }
-            
+
             Destroy(room.gameObject);
             placedRooms.Remove(gridPosition);
         }
