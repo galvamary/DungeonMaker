@@ -42,7 +42,7 @@ public class GridClickHandler : MonoBehaviour
         // Check if we clicked on a monster first
         if (IsClickOnMonster())
         {
-            return; // Don't process room click if clicking on monster
+            return; // Don't process room click if clicking on monster (for dragging)
         }
 
         Vector2Int gridPos = GetGridPositionFromMouse();

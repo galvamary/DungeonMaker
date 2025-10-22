@@ -164,7 +164,14 @@ public class RoomManager : MonoBehaviour
                 Debug.Log("Cannot change entrance room!");
                 return;
             }
-            
+
+            // Don't allow changing rooms with monsters
+            if (existingRoom.HasMonster)
+            {
+                Debug.Log("Cannot change room type while monsters are placed! Remove monsters first.");
+                return;
+            }
+
             switch (existingRoom.Type)
             {
                 case RoomType.Battle:
