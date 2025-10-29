@@ -31,6 +31,12 @@ public class MonsterInRoomDragHandler : MonoBehaviour
 
     private void OnMouseDown()
     {
+        // Don't allow dragging during exploration phase
+        if (GameStateManager.Instance != null && !GameStateManager.Instance.IsPreparationPhase)
+        {
+            return;
+        }
+
         if (monsterData == null) return;
 
         isDragging = true;
