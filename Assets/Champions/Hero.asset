@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af150dab6da1a40c99c6cf3170b7de64, type: 3}
+  m_Name: Hero
+  m_EditorClassIdentifier: Assembly-CSharp::ChampionData
+  championName: Hero
+  icon: {fileID: -6146700129834819302, guid: cd66a7d31ae8e431da39b3bbf28bb037, type: 3}
+  maxHealth: 100
+  attack: 10
+  defense: 5
+  goldReward: 50

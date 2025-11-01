@@ -21,6 +21,9 @@ public class GameStateManager : MonoBehaviour
     [Header("Camera References")]
     [SerializeField] private CameraController cameraController;
 
+    [Header("Champion References")]
+    [SerializeField] private ChampionSpawner championSpawner;
+
     public GamePhase CurrentPhase => currentPhase;
     public bool IsPreparationPhase => currentPhase == GamePhase.Preparation;
 
@@ -68,7 +71,17 @@ public class GameStateManager : MonoBehaviour
 
         // Note: Monster dragging is disabled by checking IsPreparationPhase in MonsterInRoomDragHandler
 
-        // TODO: Start hero spawning and pathfinding
+        // Spawn champion at entrance
+        if (championSpawner != null)
+        {
+            championSpawner.SpawnChampionAtEntrance();
+        }
+        else
+        {
+            Debug.LogWarning("ChampionSpawner not assigned!");
+        }
+
+        // TODO: Start hero pathfinding and combat
     }
 
     public void ReturnToPreparation()
@@ -81,6 +94,12 @@ public class GameStateManager : MonoBehaviour
 
         currentPhase = GamePhase.Preparation;
         Debug.Log("Returning to preparation phase!");
+
+        // Clear current champion
+        if (championSpawner != null)
+        {
+            championSpawner.ClearCurrentChampion();
+        }
 
         SetPreparationPhase();
     }
