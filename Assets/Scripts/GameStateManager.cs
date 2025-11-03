@@ -66,22 +66,30 @@ public class GameStateManager : MonoBehaviour
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();
         if (clickHandler != null) clickHandler.enabled = false;
 
-        // Disable camera movement
-        if (cameraController != null) cameraController.enabled = false;
-
         // Note: Monster dragging is disabled by checking IsPreparationPhase in MonsterInRoomDragHandler
 
         // Spawn champion at entrance
+        Champion champion = null;
         if (championSpawner != null)
         {
-            championSpawner.SpawnChampionAtEntrance();
+            champion = championSpawner.SpawnChampionAtEntrance();
         }
         else
         {
             Debug.LogWarning("ChampionSpawner not assigned!");
         }
 
-        // TODO: Start hero pathfinding and combat
+        // Focus camera on champion and reset zoom
+        if (cameraController != null && champion != null)
+        {
+            cameraController.FocusOnPosition(champion.transform.position);
+            cameraController.ResetToDefaultZoom();
+        }
+
+        // Disable camera movement
+        if (cameraController != null) cameraController.enabled = false;
+
+        // TODO: Start champion pathfinding and combat
     }
 
     public void ReturnToPreparation()

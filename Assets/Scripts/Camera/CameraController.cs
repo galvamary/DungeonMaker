@@ -9,8 +9,9 @@ public class CameraController : MonoBehaviour
     [Header("Zoom Settings")]
     [SerializeField] private float zoomSpeed = 5f;
     [SerializeField] private float minZoom = 3f;
-    [SerializeField] private float maxZoom = 20f;
-    
+    [SerializeField] private float maxZoom = 10f;
+    [SerializeField] private float defaultZoom = 3f;
+
     private Camera cam;
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetPosition;
@@ -22,7 +23,30 @@ public class CameraController : MonoBehaviour
         
         if (cam != null)
         {
-            cam.orthographicSize = 5f;  // 화면 높이를 10 유닛으로 줄여서 격자가 더 크게 보이도록
+            cam.orthographicSize = defaultZoom;
+        }
+    }
+
+    public void FocusOnPosition(Vector3 position)
+    {
+        // Set camera position to focus on target
+        targetPosition = new Vector3(position.x, position.y, transform.position.z);
+        transform.position = targetPosition;
+    }
+
+    public void SetZoom(float zoom)
+    {
+        if (cam != null)
+        {
+            cam.orthographicSize = Mathf.Clamp(zoom, minZoom, maxZoom);
+        }
+    }
+
+    public void ResetToDefaultZoom()
+    {
+        if (cam != null)
+        {
+            cam.orthographicSize = defaultZoom;
         }
     }
     
