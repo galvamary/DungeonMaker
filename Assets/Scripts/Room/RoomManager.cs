@@ -328,4 +328,71 @@ public class RoomManager : MonoBehaviour
         placedRooms.TryGetValue(gridPosition, out Room room);
         return room;
     }
+
+    public Room GetEntranceRoom()
+    {
+        foreach (var room in placedRooms.Values)
+        {
+            if (room.Type == RoomType.Entrance)
+            {
+                return room;
+            }
+        }
+        return null;
+    }
+
+    public Room GetTreasureRoom()
+    {
+        foreach (var room in placedRooms.Values)
+        {
+            if (room.Type == RoomType.Treasure)
+            {
+                return room;
+            }
+        }
+        return null;
+    }
+
+    public bool AreAllRoomsConnected()
+    {
+        if (placedRooms.Count == 0) return false;
+
+        // Find entrance room as starting point
+        Room entranceRoom = GetEntranceRoom();
+        if (entranceRoom == null) return false;
+
+        // BFS to find all connected rooms
+        HashSet<Vector2Int> visited = new HashSet<Vector2Int>();
+        System.Collections.Generic.Queue<Vector2Int> queue = new System.Collections.Generic.Queue<Vector2Int>();
+
+        queue.Enqueue(entranceRoom.GridPosition);
+        visited.Add(entranceRoom.GridPosition);
+
+        Vector2Int[] directions = new Vector2Int[]
+        {
+            new Vector2Int(0, 1),   // Up
+            new Vector2Int(0, -1),  // Down
+            new Vector2Int(-1, 0),  // Left
+            new Vector2Int(1, 0)    // Right
+        };
+
+        while (queue.Count > 0)
+        {
+            Vector2Int current = queue.Dequeue();
+
+            foreach (var direction in directions)
+            {
+                Vector2Int neighbor = current + direction;
+
+                if (placedRooms.ContainsKey(neighbor) && !visited.Contains(neighbor))
+                {
+                    visited.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+        }
+
+        // Check if all rooms were visited
+        return visited.Count == placedRooms.Count;
+    }
 }

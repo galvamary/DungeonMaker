@@ -23,6 +23,7 @@ public class GameStateManager : MonoBehaviour
 
     [Header("Champion References")]
     [SerializeField] private ChampionSpawner championSpawner;
+    [SerializeField] private ChampionPathfinder championPathfinder;
 
     public GamePhase CurrentPhase => currentPhase;
     public bool IsPreparationPhase => currentPhase == GamePhase.Preparation;
@@ -51,6 +52,20 @@ public class GameStateManager : MonoBehaviour
         if (currentPhase == GamePhase.Exploration)
         {
             Debug.Log("Already in exploration phase!");
+            return;
+        }
+
+        // Check if treasure room exists
+        if (RoomManager.Instance != null && RoomManager.Instance.GetTreasureRoom() == null)
+        {
+            Debug.LogWarning("Cannot start exploration! You must build at least one Treasure room.");
+            return;
+        }
+
+        // Check if all rooms are connected
+        if (RoomManager.Instance != null && !RoomManager.Instance.AreAllRoomsConnected())
+        {
+            Debug.LogWarning("Cannot start exploration! All rooms must be connected to the entrance.");
             return;
         }
 
@@ -89,7 +104,15 @@ public class GameStateManager : MonoBehaviour
         // Disable camera movement
         if (cameraController != null) cameraController.enabled = false;
 
-        // TODO: Start champion pathfinding and combat
+        // Start champion exploration
+        if (championPathfinder != null && champion != null)
+        {
+            championPathfinder.StartExploration(champion);
+        }
+        else
+        {
+            Debug.LogWarning("ChampionPathfinder not assigned!");
+        }
     }
 
     public void ReturnToPreparation()
@@ -102,6 +125,12 @@ public class GameStateManager : MonoBehaviour
 
         currentPhase = GamePhase.Preparation;
         Debug.Log("Returning to preparation phase!");
+
+        // Stop champion exploration
+        if (championPathfinder != null)
+        {
+            championPathfinder.StopExploration();
+        }
 
         // Clear current champion
         if (championSpawner != null)

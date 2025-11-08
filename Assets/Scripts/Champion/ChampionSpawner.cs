@@ -31,8 +31,8 @@ public class ChampionSpawner : MonoBehaviour
 
     public Champion SpawnChampionAtEntrance()
     {
-        // Find the entrance room
-        Room entranceRoom = FindEntranceRoom();
+        // Find the entrance room using RoomManager
+        Room entranceRoom = RoomManager.Instance?.GetEntranceRoom();
         if (entranceRoom == null)
         {
             Debug.LogError("No entrance room found! Cannot spawn champion.");
@@ -61,20 +61,6 @@ public class ChampionSpawner : MonoBehaviour
         Debug.Log($"Spawned champion '{selectedChampion.championName}' at entrance room");
 
         return champion;
-    }
-
-    private Room FindEntranceRoom()
-    {
-        // Find all rooms and look for entrance
-        Room[] allRooms = FindObjectsOfType<Room>();
-        foreach (Room room in allRooms)
-        {
-            if (room.Type == RoomType.Entrance)
-            {
-                return room;
-            }
-        }
-        return null;
     }
 
     public Champion GetCurrentChampion()
