@@ -40,6 +40,8 @@ public class ChampionPathfinder : MonoBehaviour
 
         while (isExploring && champion != null && champion.IsAlive)
         {
+            yield return new WaitForSeconds(moveDelay);
+
             // Mark current room as visited
             visitedRooms.Add(currentRoom);
 
@@ -75,7 +77,6 @@ public class ChampionPathfinder : MonoBehaviour
                 champion.MoveToRoom(nextRoom);
                 currentRoom = nextRoom;
 
-                yield return new WaitForSeconds(moveDelay);
             }
             else
             {
@@ -86,8 +87,6 @@ public class ChampionPathfinder : MonoBehaviour
                     Debug.Log($"{champion.Data.championName} backtracking from {currentRoom.GridPosition} to {previousRoom.GridPosition}");
                     champion.MoveToRoom(previousRoom);
                     currentRoom = previousRoom;
-
-                    yield return new WaitForSeconds(moveDelay);
                 }
                 else
                 {
@@ -130,7 +129,112 @@ public class ChampionPathfinder : MonoBehaviour
     private void OnTreasureFound()
     {
         isExploring = false;
-        Debug.Log($"{champion.Data.championName} successfully completed the dungeon!");
+        Debug.Log($"{champion.Data.championName} found the treasure! Now returning to entrance...");
+
+        // Start returning to entrance using shortest path
+        StartCoroutine(ReturnToEntranceCoroutine());
+    }
+
+    private IEnumerator ReturnToEntranceCoroutine()
+    {
+        Room entranceRoom = RoomManager.Instance.GetEntranceRoom();
+        if (entranceRoom == null)
+        {
+            Debug.LogError("Cannot find entrance room to return to!");
+            yield break;
+        }
+
+        // Find shortest path from current room to entrance using BFS
+        List<Room> pathToEntrance = FindShortestPath(champion.CurrentRoom, entranceRoom);
+
+        if (pathToEntrance == null || pathToEntrance.Count == 0)
+        {
+            Debug.LogError("No path found to entrance!");
+            yield break;
+        }
+
+        // Follow the path back to entrance
+        foreach (Room nextRoom in pathToEntrance)
+        {
+            yield return new WaitForSeconds(moveDelay);
+            Debug.Log($"{champion.Data.championName} returning to entrance: moving to {nextRoom.GridPosition}");
+            champion.MoveToRoom(nextRoom);
+        }
+
+        // Reached entrance
+        OnDungeonCompleted();
+    }
+
+    private List<Room> FindShortestPath(Room start, Room end)
+    {
+        // BFS to find shortest path
+        Queue<Room> queue = new Queue<Room>();
+        Dictionary<Room, Room> cameFrom = new Dictionary<Room, Room>();
+        HashSet<Room> visited = new HashSet<Room>();
+
+        queue.Enqueue(start);
+        visited.Add(start);
+        cameFrom[start] = null;
+
+        while (queue.Count > 0)
+        {
+            Room current = queue.Dequeue();
+
+            // Found the target
+            if (current == end)
+            {
+                return ReconstructPath(cameFrom, start, end);
+            }
+
+            // Check all adjacent rooms
+            Vector2Int currentPos = current.GridPosition;
+            Vector2Int[] directions = new Vector2Int[]
+            {
+                new Vector2Int(0, 1),   // Up
+                new Vector2Int(0, -1),  // Down
+                new Vector2Int(-1, 0),  // Left
+                new Vector2Int(1, 0)    // Right
+            };
+
+            foreach (var direction in directions)
+            {
+                Vector2Int neighborPos = currentPos + direction;
+                Room neighborRoom = RoomManager.Instance?.GetRoomAtPosition(neighborPos);
+
+                if (neighborRoom != null && !visited.Contains(neighborRoom))
+                {
+                    visited.Add(neighborRoom);
+                    cameFrom[neighborRoom] = current;
+                    queue.Enqueue(neighborRoom);
+                }
+            }
+        }
+
+        // No path found
+        return null;
+    }
+
+    private List<Room> ReconstructPath(Dictionary<Room, Room> cameFrom, Room start, Room end)
+    {
+        List<Room> path = new List<Room>();
+        Room current = end;
+
+        // Build path backwards from end to start
+        while (current != start)
+        {
+            path.Add(current);
+            current = cameFrom[current];
+        }
+
+        // Reverse to get path from start to end
+        path.Reverse();
+
+        return path;
+    }
+
+    private void OnDungeonCompleted()
+    {
+        Debug.Log($"{champion.Data.championName} successfully completed the dungeon and returned to entrance!");
 
         // TODO: Show victory UI, give rewards, etc.
     }
