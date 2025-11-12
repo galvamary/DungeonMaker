@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class Champion : MonoBehaviour
 {
@@ -62,10 +63,21 @@ public class Champion : MonoBehaviour
     {
         if (newRoom == null) return;
 
+        StartCoroutine(MoveToRoomWithFade(newRoom));
+    }
+
+    private IEnumerator MoveToRoomWithFade(Room newRoom)
+    {
+        // Fade out (darken screen)
+        if (FadeEffect.Instance != null)
+        {
+            yield return FadeEffect.Instance.FadeOut();
+        }
+
+        // Move champion and camera during dark screen
         currentRoom = newRoom;
         transform.position = newRoom.transform.position;
 
-        // Move camera to follow champion
         CameraController cameraController = FindFirstObjectByType<CameraController>();
         if (cameraController != null)
         {
@@ -73,6 +85,15 @@ public class Champion : MonoBehaviour
         }
 
         Debug.Log($"{championData.championName} moved to room at {newRoom.GridPosition}");
+
+        // Wait while screen is completely black
+        yield return new WaitForSeconds(0.5f);
+
+        // Fade in (brighten screen)
+        if (FadeEffect.Instance != null)
+        {
+            yield return FadeEffect.Instance.FadeIn();
+        }
     }
 
     private void Die()

@@ -102,6 +102,12 @@ public class GameStateManager : MonoBehaviour
             cameraController.DisableManualControl();
         }
 
+        // Enable fade image for exploration phase
+        if (FadeEffect.Instance != null)
+        {
+            FadeEffect.Instance.EnableFadeImage();
+        }
+
         // Start champion exploration
         if (championPathfinder != null && champion != null)
         {
@@ -154,6 +160,12 @@ public class GameStateManager : MonoBehaviour
         if (cameraController != null)
         {
             cameraController.EnableManualControl();
+        }
+
+        // Disable fade image for preparation phase (so it doesn't block grid clicks)
+        if (FadeEffect.Instance != null)
+        {
+            FadeEffect.Instance.DisableFadeImage();
         }
 
         // Note: Monster dragging is automatically enabled when IsPreparationPhase is true
