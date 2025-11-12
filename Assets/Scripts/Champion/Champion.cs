@@ -65,6 +65,13 @@ public class Champion : MonoBehaviour
         currentRoom = newRoom;
         transform.position = newRoom.transform.position;
 
+        // Move camera to follow champion
+        CameraController cameraController = FindFirstObjectByType<CameraController>();
+        if (cameraController != null)
+        {
+            cameraController.FocusOnPosition(transform.position);
+        }
+
         Debug.Log($"{championData.championName} moved to room at {newRoom.GridPosition}");
     }
 

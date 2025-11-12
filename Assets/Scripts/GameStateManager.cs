@@ -94,15 +94,13 @@ public class GameStateManager : MonoBehaviour
             Debug.LogWarning("ChampionSpawner not assigned!");
         }
 
-        // Focus camera on champion and reset zoom
+        // Focus camera on champion and disable manual control
         if (cameraController != null && champion != null)
         {
             cameraController.FocusOnPosition(champion.transform.position);
             cameraController.ResetToDefaultZoom();
+            cameraController.DisableManualControl();
         }
-
-        // Disable camera movement
-        if (cameraController != null) cameraController.enabled = false;
 
         // Start champion exploration
         if (championPathfinder != null && champion != null)
@@ -152,8 +150,11 @@ public class GameStateManager : MonoBehaviour
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();
         if (clickHandler != null) clickHandler.enabled = true;
 
-        // Enable camera movement
-        if (cameraController != null) cameraController.enabled = true;
+        // Enable manual camera control
+        if (cameraController != null)
+        {
+            cameraController.EnableManualControl();
+        }
 
         // Note: Monster dragging is automatically enabled when IsPreparationPhase is true
     }

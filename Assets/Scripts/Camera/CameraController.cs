@@ -15,6 +15,7 @@ public class CameraController : MonoBehaviour
     private Camera cam;
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetPosition;
+    private bool isManualControlEnabled = true;
     
     private void Start()
     {
@@ -32,6 +33,16 @@ public class CameraController : MonoBehaviour
         // Set camera position to focus on target
         targetPosition = new Vector3(position.x, position.y, transform.position.z);
         transform.position = targetPosition;
+    }
+
+    public void EnableManualControl()
+    {
+        isManualControlEnabled = true;
+    }
+
+    public void DisableManualControl()
+    {
+        isManualControlEnabled = false;
     }
 
     public void SetZoom(float zoom)
@@ -58,12 +69,15 @@ public class CameraController : MonoBehaviour
     
     private void HandleMovement()
     {
+        if (!isManualControlEnabled) return;
+
+        // Manual camera movement with keyboard
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
-        
+
         Vector3 movement = new Vector3(horizontal, vertical, 0) * moveSpeed * Time.deltaTime;
         targetPosition += movement;
-        
+
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
     }
     
