@@ -40,7 +40,7 @@ public class ChampionPathfinder : MonoBehaviour
 
         while (isExploring && champion != null && champion.IsAlive)
         {
-            yield return new WaitForSeconds(moveDelay);
+            
 
             // Mark current room as visited
             visitedRooms.Add(currentRoom);
@@ -58,7 +58,6 @@ public class ChampionPathfinder : MonoBehaviour
             {
                 Debug.Log($"{champion.Data.championName} encountered monsters in room at {currentRoom.GridPosition}!");
                 // TODO: Implement combat
-                yield return new WaitForSeconds(moveDelay);
             }
 
             // Get unvisited adjacent rooms
@@ -95,6 +94,7 @@ public class ChampionPathfinder : MonoBehaviour
                     yield break;
                 }
             }
+            yield return new WaitForSeconds(moveDelay);
         }
     }
 
@@ -144,6 +144,9 @@ public class ChampionPathfinder : MonoBehaviour
             yield break;
         }
 
+        // Remember treasure room to convert it later
+        Room treasureRoom = champion.CurrentRoom;
+
         // Find shortest path from current room to entrance using BFS
         List<Room> pathToEntrance = FindShortestPath(champion.CurrentRoom, entranceRoom);
 
@@ -156,9 +159,19 @@ public class ChampionPathfinder : MonoBehaviour
         // Follow the path back to entrance
         foreach (Room nextRoom in pathToEntrance)
         {
-            yield return new WaitForSeconds(moveDelay);
             Debug.Log($"{champion.Data.championName} returning to entrance: moving to {nextRoom.GridPosition}");
             champion.MoveToRoom(nextRoom);
+            yield return new WaitForSeconds(moveDelay);
+        }
+
+        // Convert treasure room to battle room after champion leaves
+        if (treasureRoom != null && treasureRoom.Type == RoomType.Treasure)
+        {
+            Sprite battleSprite = RoomManager.Instance?.GetRoomSprite(RoomType.Battle);
+            if (battleSprite != null)
+            {
+                treasureRoom.ChangeRoomType(RoomType.Battle, battleSprite);
+            }
         }
 
         // Reached entrance
@@ -235,8 +248,13 @@ public class ChampionPathfinder : MonoBehaviour
     private void OnDungeonCompleted()
     {
         Debug.Log($"{champion.Data.championName} successfully completed the dungeon and returned to entrance!");
+        Debug.Log("Player defeated! Champion escaped with the treasure!");
 
-        // TODO: Show victory UI, give rewards, etc.
+        // Show defeat UI
+        if (DefeatUI.Instance != null)
+        {
+            DefeatUI.Instance.ShowDefeat();
+        }
     }
 
     public bool IsExploring => isExploring;

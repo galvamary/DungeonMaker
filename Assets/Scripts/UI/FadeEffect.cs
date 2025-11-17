@@ -50,15 +50,6 @@ public class FadeEffect : MonoBehaviour
         }
     }
 
-    public IEnumerator FadeOutAndIn()
-    {
-        // Fade out (darken)
-        yield return StartCoroutine(FadeOut());
-
-        // Fade in (brighten)
-        yield return StartCoroutine(FadeIn());
-    }
-
     public IEnumerator FadeOut()
     {
         if (fadeImage == null) yield break;
@@ -71,7 +62,7 @@ public class FadeEffect : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / fadeDuration;
             // Use SmoothStep for smoother transition
-            color.a = Mathf.Lerp(0f, 1f, t);
+            color.a = Mathf.SmoothStep(0f, 1f, t);
             fadeImage.color = color;
             yield return null;
         }
@@ -92,7 +83,7 @@ public class FadeEffect : MonoBehaviour
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / fadeDuration;
             // Use SmoothStep for smoother transition
-            color.a = Mathf.Lerp(1f, 0f, t);
+            color.a = Mathf.SmoothStep(1f, 0f, t);
             fadeImage.color = color;
             yield return null;
         }

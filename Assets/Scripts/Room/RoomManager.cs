@@ -213,7 +213,7 @@ public class RoomManager : MonoBehaviour
         }
     }
     
-    private Sprite GetRoomSprite(RoomType roomType)
+    public Sprite GetRoomSprite(RoomType roomType)
     {
         switch (roomType)
         {

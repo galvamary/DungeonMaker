@@ -189,4 +189,17 @@ public class Room : MonoBehaviour
                 return Vector3.zero;
         }
     }
+
+    public void ChangeRoomType(RoomType newType, Sprite newSprite)
+    {
+        roomType = newType;
+
+        if (spriteRenderer != null && newSprite != null)
+        {
+            spriteRenderer.sprite = newSprite;
+        }
+
+        gameObject.name = $"Room_{newType}_{gridPosition.x}_{gridPosition.y}";
+        Debug.Log($"Room at {gridPosition} changed from Treasure to {newType}");
+    }
 }
