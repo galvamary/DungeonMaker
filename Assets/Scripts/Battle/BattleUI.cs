@@ -1,0 +1,94 @@
+using UnityEngine;
+using UnityEngine.UI;
+using System.Collections;
+
+public class BattleUI : MonoBehaviour
+{
+    public static BattleUI Instance { get; private set; }
+
+    [Header("UI References")]
+    [SerializeField] private Image battleBackgroundImage;
+
+    [Header("Animation Settings")]
+    [SerializeField] private float fadeDuration = 0.5f;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private void Start()
+    {
+        // Hide battle background at start
+        if (battleBackgroundImage != null)
+        {
+            battleBackgroundImage.gameObject.SetActive(false);
+        }
+    }
+
+    public void ShowBattleBackground()
+    {
+        if (battleBackgroundImage != null)
+        {
+            battleBackgroundImage.gameObject.SetActive(true);
+            StartCoroutine(FadeInBackground());
+        }
+    }
+
+    public void HideBattleBackground()
+    {
+        StartCoroutine(FadeOutAndHide());
+    }
+
+    private IEnumerator FadeInBackground()
+    {
+        if (battleBackgroundImage == null) yield break;
+
+        float elapsedTime = 0f;
+        Color color = battleBackgroundImage.color;
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / fadeDuration;
+            color.a = Mathf.SmoothStep(0f, 1f, t);
+            battleBackgroundImage.color = color;
+            yield return null;
+        }
+
+        color.a = 1f;
+        battleBackgroundImage.color = color;
+    }
+
+    private IEnumerator FadeOutAndHide()
+    {
+        if (battleBackgroundImage == null) yield break;
+
+        float elapsedTime = 0f;
+        Color color = battleBackgroundImage.color;
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float t = elapsedTime / fadeDuration;
+            color.a = Mathf.SmoothStep(1f, 0f, t);
+            battleBackgroundImage.color = color;
+            yield return null;
+        }
+
+        color.a = 0f;
+        battleBackgroundImage.color = color;
+
+        if (battleBackgroundImage != null)
+        {
+            battleBackgroundImage.gameObject.SetActive(false);
+        }
+    }
+}

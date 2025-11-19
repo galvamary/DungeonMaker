@@ -57,7 +57,22 @@ public class ChampionPathfinder : MonoBehaviour
             if (currentRoom.HasMonster)
             {
                 Debug.Log($"{champion.Data.championName} encountered monsters in room at {currentRoom.GridPosition}!");
-                // TODO: Implement combat
+
+                // Start battle
+                if (BattleManager.Instance != null)
+                {
+                    BattleManager.Instance.StartBattle(champion, currentRoom);
+
+                    // Wait for battle to finish
+                    yield return new WaitUntil(() => !BattleManager.Instance.IsBattleActive);
+
+                    // Check if champion survived
+                    if (!champion.IsAlive)
+                    {
+                        Debug.Log($"{champion.Data.championName} was defeated in battle!");
+                        yield break;
+                    }
+                }
             }
 
             // Get unvisited adjacent rooms

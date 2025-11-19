@@ -83,6 +83,9 @@ public class CameraController : MonoBehaviour
     
     private void HandleZoom()
     {
+
+        if (!isManualControlEnabled) return;
+
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         
         if (scroll != 0 && cam != null)

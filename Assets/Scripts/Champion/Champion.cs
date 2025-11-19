@@ -54,7 +54,7 @@ public class Champion : MonoBehaviour
         }
 
         // Scale the champion
-        transform.localScale = Vector3.one * 0.2f;
+        transform.localScale = Vector3.one * 2.5f;
 
         gameObject.name = $"Champion_{data.championName}";
     }
