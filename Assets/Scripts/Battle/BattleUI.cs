@@ -9,8 +9,15 @@ public class BattleUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Image battleBackgroundImage;
 
+    [Header("Entity Position Containers")]
+    [SerializeField] private RectTransform championPositionContainer;
+    [SerializeField] private RectTransform[] monsterPositionContainers = new RectTransform[3];
+
     [Header("Animation Settings")]
     [SerializeField] private float fadeDuration = 0.5f;
+
+    public RectTransform ChampionPositionContainer => championPositionContainer;
+    public RectTransform[] MonsterPositionContainers => monsterPositionContainers;
 
     private void Awake()
     {

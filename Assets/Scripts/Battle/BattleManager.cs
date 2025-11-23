@@ -16,15 +16,6 @@ public class BattleManager : MonoBehaviour
     private BattleEntity championEntity;
     private List<BattleEntity> monsterEntities = new List<BattleEntity>();
 
-    [Header("Battle Positions")]
-    [SerializeField] private Vector3 championPosition = new Vector3(-3f, 0f, 0f);
-    [SerializeField] private readonly Vector3[] monsterPositions =
-    {
-        new Vector3(3f, 1.5f, 0f),   // Top
-        new Vector3(3f, 0f, 0f),      // Middle
-        new Vector3(3f, -1.5f, 0f)    // Bottom
-    };
-
     public bool IsBattleActive => isBattleActive;
 
     private void Awake()
@@ -78,47 +69,83 @@ public class BattleManager : MonoBehaviour
         // Clear any existing entities
         ClearBattleEntities();
 
-        // Spawn champion entity
-        GameObject championObj = new GameObject("ChampionEntity");
-        championEntity = championObj.AddComponent<BattleEntity>();
-        championEntity.InitializeFromChampion(currentChampion);
-        championEntity.SetPosition(championPosition);
+        if (BattleUI.Instance == null)
+        {
+            Debug.LogError("BattleUI instance not found!");
+            yield break;
+        }
 
-        Debug.Log($"Champion spawned at {championPosition}");
+        // Spawn champion entity
+        RectTransform championContainer = BattleUI.Instance.ChampionPositionContainer;
+        if (championContainer != null)
+        {
+            GameObject championObj = new GameObject("ChampionEntity", typeof(RectTransform));
+            championEntity = championObj.AddComponent<BattleEntity>();
+            championEntity.InitializeFromChampion(currentChampion);
+
+            // Set as child of position container
+            RectTransform rectTransform = championObj.GetComponent<RectTransform>();
+            rectTransform.SetParent(championContainer);
+            rectTransform.localPosition = Vector3.zero;
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.sizeDelta = new Vector2(100, 100);
+            rectTransform.eulerAngles = new Vector3(0f, 180f, 0f);
+
+            Debug.Log($"Champion spawned at {championContainer.position}");
+        }
+        else
+        {
+            Debug.LogError("Champion position container is not assigned in BattleUI!");
+        }
 
         // Spawn monster entities
+        RectTransform[] monsterContainers = BattleUI.Instance.MonsterPositionContainers;
         for (int i = 0; i < currentMonsters.Count; i++)
         {
-            GameObject monsterObj = new GameObject($"MonsterEntity_{i}");
-            BattleEntity monsterEntity = monsterObj.AddComponent<BattleEntity>();
-            monsterEntity.InitializeFromMonster(currentMonsters[i]);
+            RectTransform containerTransform = GetMonsterPositionContainer(i, currentMonsters.Count, monsterContainers);
 
-            // Position based on monster count
-            Vector3 position = GetMonsterBattlePosition(i, currentMonsters.Count);
-            monsterEntity.SetPosition(position);
+            if (containerTransform != null)
+            {
+                GameObject monsterObj = new GameObject($"MonsterEntity_{i}", typeof(RectTransform));
+                BattleEntity monsterEntity = monsterObj.AddComponent<BattleEntity>();
+                monsterEntity.InitializeFromMonster(currentMonsters[i]);
 
-            monsterEntities.Add(monsterEntity);
-            Debug.Log($"Monster {currentMonsters[i].monsterName} spawned at {position}");
+                // Set as child of position container
+                RectTransform rectTransform = monsterObj.GetComponent<RectTransform>();
+                rectTransform.SetParent(containerTransform);
+                rectTransform.localPosition = Vector3.zero;
+                rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                rectTransform.sizeDelta = new Vector2(100, 100);
+
+                monsterEntities.Add(monsterEntity);
+                Debug.Log($"Monster {currentMonsters[i].monsterName} spawned at {containerTransform.position}");
+            }
+            else
+            {
+                Debug.LogError($"Monster position container {i} is not assigned in BattleUI!");
+            }
         }
 
         Debug.Log($"Battle entities spawned: 1 champion vs {monsterEntities.Count} monsters");
     }
 
-    private Vector3 GetMonsterBattlePosition(int index, int totalCount)
+    private RectTransform GetMonsterPositionContainer(int index, int totalCount, RectTransform[] containers)
     {
         switch (totalCount)
         {
             case 1:
-                // Single monster in middle position
-                return monsterPositions[1];
+                // Single monster in middle position (index 1)
+                return containers[1];
             case 2:
-                // Two monsters: top and bottom
-                return (index == 0) ? monsterPositions[0] : monsterPositions[2];
+                // Two monsters: top (0) and bottom (2)
+                return (index == 0) ? containers[0] : containers[2];
             case 3:
                 // Three monsters: use all positions
-                return monsterPositions[index];
+                return containers[index];
             default:
-                return monsterPositions[1]; // Fallback to middle
+                return containers[1]; // Fallback to middle
         }
     }
 

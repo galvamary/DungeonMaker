@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleEntity : MonoBehaviour
 {
@@ -12,7 +13,8 @@ public class BattleEntity : MonoBehaviour
     private bool isChampion;
 
     [Header("Visual")]
-    private SpriteRenderer spriteRenderer;
+    private RectTransform rectTransform;
+    private Image uiImage;
 
     public string EntityName => entityName;
     public int CurrentHealth => currentHealth;
@@ -24,10 +26,11 @@ public class BattleEntity : MonoBehaviour
 
     private void Awake()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
+        rectTransform = GetComponent<RectTransform>();
+        uiImage = GetComponent<Image>();
+        if (uiImage == null)
         {
-            spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+            uiImage = gameObject.AddComponent<Image>();
         }
     }
 
@@ -59,14 +62,17 @@ public class BattleEntity : MonoBehaviour
 
     private void SetupVisual()
     {
-        if (spriteRenderer != null && entitySprite != null)
+        if (uiImage != null && entitySprite != null)
         {
-            spriteRenderer.sprite = entitySprite;
-            spriteRenderer.sortingOrder = 10; // High order to be above battle background
+            uiImage.sprite = entitySprite;
+            uiImage.preserveAspect = true;
         }
 
         // Scale based on type
-        transform.localScale = Vector3.one * (isChampion ? 1.2f : 1.0f);
+        if (rectTransform != null)
+        {
+            rectTransform.localScale = Vector3.one * (isChampion ? 2.5f : 2f);
+        }
 
         gameObject.name = $"BattleEntity_{entityName}";
     }
@@ -89,10 +95,5 @@ public class BattleEntity : MonoBehaviour
     {
         Debug.Log($"{entityName} has been defeated!");
         // Visual effect can be added here
-    }
-
-    public void SetPosition(Vector3 position)
-    {
-        transform.position = position;
     }
 }
