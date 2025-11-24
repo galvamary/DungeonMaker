@@ -10,6 +10,7 @@ public class BattleEntity : MonoBehaviour
     private int maxHealth;
     private int attack;
     private int defense;
+    private int speed;
     private bool isChampion;
 
     [Header("Visual")]
@@ -21,6 +22,7 @@ public class BattleEntity : MonoBehaviour
     public int MaxHealth => maxHealth;
     public int Attack => attack;
     public int Defense => defense;
+    public int Speed => speed;
     public bool IsChampion => isChampion;
     public bool IsAlive => currentHealth > 0;
 
@@ -42,6 +44,7 @@ public class BattleEntity : MonoBehaviour
         maxHealth = champion.Data.maxHealth;
         attack = champion.Attack;
         defense = champion.Defense;
+        speed = champion.Data.speed;
         isChampion = true;
 
         SetupVisual();
@@ -55,6 +58,7 @@ public class BattleEntity : MonoBehaviour
         maxHealth = monster.health;
         attack = monster.attack;
         defense = monster.defense;
+        speed = monster.speed;
         isChampion = false;
 
         SetupVisual();

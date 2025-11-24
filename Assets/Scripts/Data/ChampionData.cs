@@ -11,6 +11,7 @@ public class ChampionData : ScriptableObject
     public int maxHealth = 100;
     public int attack = 10;
     public int defense = 5;
+    public int speed = 5;
 
     [Header("Rewards")]
     public int goldReward = 50;

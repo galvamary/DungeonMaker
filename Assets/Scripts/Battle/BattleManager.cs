@@ -16,7 +16,12 @@ public class BattleManager : MonoBehaviour
     private BattleEntity championEntity;
     private List<BattleEntity> monsterEntities = new List<BattleEntity>();
 
+    [Header("Turn System")]
+    private List<BattleEntity> turnOrder = new List<BattleEntity>();
+    private int currentTurnIndex = 0;
+
     public bool IsBattleActive => isBattleActive;
+    public BattleEntity CurrentTurnEntity => turnOrder.Count > 0 && currentTurnIndex < turnOrder.Count ? turnOrder[currentTurnIndex] : null;
 
     private void Awake()
     {
@@ -129,6 +134,9 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log($"Battle entities spawned: 1 champion vs {monsterEntities.Count} monsters");
+
+        // Initialize turn order
+        InitializeTurnOrder();
     }
 
     private RectTransform GetMonsterPositionContainer(int index, int totalCount, RectTransform[] containers)
@@ -147,6 +155,114 @@ public class BattleManager : MonoBehaviour
             default:
                 return containers[1]; // Fallback to middle
         }
+    }
+
+    private void InitializeTurnOrder()
+    {
+        turnOrder.Clear();
+        currentTurnIndex = 0;
+
+        // Add all alive entities to turn order
+        if (championEntity != null && championEntity.IsAlive)
+        {
+            turnOrder.Add(championEntity);
+        }
+
+        foreach (var monster in monsterEntities)
+        {
+            if (monster != null && monster.IsAlive)
+            {
+                turnOrder.Add(monster);
+            }
+        }
+
+        // Sort by speed (descending - highest speed goes first)
+        turnOrder.Sort((a, b) => b.Speed.CompareTo(a.Speed));
+
+        Debug.Log("Turn order initialized:");
+        for (int i = 0; i < turnOrder.Count; i++)
+        {
+            Debug.Log($"{i + 1}. {turnOrder[i].EntityName} (Speed: {turnOrder[i].Speed})");
+        }
+
+        // Start first turn
+        if (turnOrder.Count > 0)
+        {
+            StartTurn();
+        }
+    }
+
+    private void StartTurn()
+    {
+        BattleEntity currentEntity = CurrentTurnEntity;
+        if (currentEntity == null || !currentEntity.IsAlive)
+        {
+            NextTurn();
+            return;
+        }
+
+        Debug.Log($"=== {currentEntity.EntityName}'s turn (Speed: {currentEntity.Speed}) ===");
+
+        // TODO: Show turn UI and handle player/AI input
+    }
+
+    public void NextTurn()
+    {
+        currentTurnIndex++;
+
+        // If we've gone through all entities, start a new round
+        if (currentTurnIndex >= turnOrder.Count)
+        {
+            currentTurnIndex = 0;
+            Debug.Log("--- New Round ---");
+        }
+
+        // Check battle end conditions
+        if (CheckBattleEnd())
+        {
+            return;
+        }
+
+        // Skip dead entities
+        BattleEntity currentEntity = CurrentTurnEntity;
+        if (currentEntity != null && !currentEntity.IsAlive)
+        {
+            NextTurn();
+            return;
+        }
+
+        StartTurn();
+    }
+
+    private bool CheckBattleEnd()
+    {
+        bool championAlive = championEntity != null && championEntity.IsAlive;
+        bool anyMonsterAlive = false;
+
+        foreach (var monster in monsterEntities)
+        {
+            if (monster != null && monster.IsAlive)
+            {
+                anyMonsterAlive = true;
+                break;
+            }
+        }
+
+        if (!championAlive)
+        {
+            Debug.Log("All champions defeated! Monsters win!");
+            EndBattle(false);
+            return true;
+        }
+
+        if (!anyMonsterAlive)
+        {
+            Debug.Log("All monsters defeated! Champion wins!");
+            EndBattle(true);
+            return true;
+        }
+
+        return false;
     }
 
     private void ClearBattleEntities()
