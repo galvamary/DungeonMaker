@@ -8,6 +8,8 @@ public class BattleEntity : MonoBehaviour
     private Sprite entitySprite;
     private int currentHealth;
     private int maxHealth;
+    private int currentMP;
+    private int maxMP;
     private int attack;
     private int defense;
     private int speed;
@@ -20,6 +22,8 @@ public class BattleEntity : MonoBehaviour
     public string EntityName => entityName;
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
+    public int CurrentMP => currentMP;
+    public int MaxMP => maxMP;
     public int Attack => attack;
     public int Defense => defense;
     public int Speed => speed;
@@ -42,8 +46,10 @@ public class BattleEntity : MonoBehaviour
         entitySprite = champion.Data.icon;
         currentHealth = champion.CurrentHealth;
         maxHealth = champion.Data.maxHealth;
-        attack = champion.Attack;
-        defense = champion.Defense;
+        currentMP = champion.CurrentMP;
+        maxMP = champion.Data.maxMP;
+        attack = champion.Data.attack;
+        defense = champion.Data.defense;
         speed = champion.Data.speed;
         isChampion = true;
 
@@ -54,8 +60,10 @@ public class BattleEntity : MonoBehaviour
     {
         entityName = monster.monsterName;
         entitySprite = monster.icon;
-        currentHealth = monster.health;
-        maxHealth = monster.health;
+        currentHealth = monster.maxHealth;
+        maxHealth = monster.maxHealth;
+        currentMP = monster.maxMP;
+        maxMP = monster.maxMP;
         attack = monster.attack;
         defense = monster.defense;
         speed = monster.speed;
@@ -83,11 +91,10 @@ public class BattleEntity : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        int actualDamage = Mathf.Max(1, damage - defense);
-        currentHealth -= actualDamage;
+        currentHealth -= damage;
         currentHealth = Mathf.Max(0, currentHealth);
 
-        Debug.Log($"{entityName} took {actualDamage} damage! Remaining health: {currentHealth}/{maxHealth}");
+        Debug.Log($"{entityName} took {damage} damage! Remaining health: {currentHealth}/{maxHealth}");
 
         if (!IsAlive)
         {
@@ -99,5 +106,32 @@ public class BattleEntity : MonoBehaviour
     {
         Debug.Log($"{entityName} has been defeated!");
         // Visual effect can be added here
+    }
+
+    public void PerformBasicAttack(BattleEntity target)
+    {
+        if (target == null || !target.IsAlive)
+        {
+            Debug.LogWarning($"{entityName} tried to attack a dead or null target!");
+            return;
+        }
+
+        Debug.Log($"{entityName} attacks {target.EntityName}!");
+
+        // Calculate damage: attacker's attack - target's defense (minimum 1 damage)
+        int damage = Mathf.Max(1, attack - target.Defense);
+        target.TakeDamage(damage);
+    }
+
+    public bool CanUseMP(int mpCost)
+    {
+        return currentMP >= mpCost;
+    }
+
+    public void UseMP(int mpCost)
+    {
+        currentMP -= mpCost;
+        currentMP = Mathf.Max(0, currentMP);
+        Debug.Log($"{entityName} used {mpCost} MP. Remaining MP: {currentMP}/{maxMP}");
     }
 }

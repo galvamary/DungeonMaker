@@ -8,16 +8,13 @@ public class Champion : MonoBehaviour
 
     [Header("Current Stats")]
     private int currentHealth;
-    private int attack;
-    private int defense;
-
+    private int currentMP;
     private SpriteRenderer spriteRenderer;
     private Room currentRoom;
 
     public ChampionData Data => championData;
     public int CurrentHealth => currentHealth;
-    public int Attack => attack;
-    public int Defense => defense;
+    public int CurrentMP => currentMP;
     public Room CurrentRoom => currentRoom;
     public bool IsAlive => currentHealth > 0;
 
@@ -37,8 +34,7 @@ public class Champion : MonoBehaviour
 
         // Initialize stats
         currentHealth = data.maxHealth;
-        attack = data.attack;
-        defense = data.defense;
+        currentMP = data.maxMP;
 
         // Set visual
         if (spriteRenderer != null && data.icon != null)

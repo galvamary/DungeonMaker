@@ -9,11 +9,11 @@ public class MonsterData : ScriptableObject
     public int cost = 100;
     
     [Header("Stats")]
-    public int health = 10;
+    public int maxHealth = 10;
+    public int maxMP = 0;
     public int attack = 5;
     public int defense = 2;
     public int speed = 3;
-    public float attackSpeed = 1.0f;
     
     [Header("Description")]
     [TextArea(3, 5)]

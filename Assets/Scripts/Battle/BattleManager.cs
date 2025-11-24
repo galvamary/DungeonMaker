@@ -203,7 +203,51 @@ public class BattleManager : MonoBehaviour
 
         Debug.Log($"=== {currentEntity.EntityName}'s turn (Speed: {currentEntity.Speed}) ===");
 
-        // TODO: Show turn UI and handle player/AI input
+        // Champion uses AI, Monsters are controlled by player
+        if (currentEntity.IsChampion)
+        {
+            StartCoroutine(ExecuteChampionTurn(currentEntity));
+        }
+        else
+        {
+            // TODO: Show monster action UI for player to choose
+            Debug.Log("Waiting for player input for monster turn...");
+        }
+    }
+
+    private IEnumerator ExecuteChampionTurn(BattleEntity champion)
+    {
+        // Wait a bit for visual clarity
+        yield return new WaitForSeconds(0.5f);
+
+        // Champion AI: Always perform basic attack on random target
+        List<BattleEntity> aliveMonsters = new List<BattleEntity>();
+        foreach (var monster in monsterEntities)
+        {
+            if (monster != null && monster.IsAlive)
+            {
+                aliveMonsters.Add(monster);
+            }
+        }
+
+        if (aliveMonsters.Count > 0)
+        {
+            // Select random target
+            int randomIndex = Random.Range(0, aliveMonsters.Count);
+            BattleEntity target = aliveMonsters[randomIndex];
+
+            // Perform basic attack
+            champion.PerformBasicAttack(target);
+        }
+        else
+        {
+            Debug.LogWarning("No alive monsters to attack!");
+        }
+
+        // Wait a bit before next turn
+        yield return new WaitForSeconds(1.0f);
+
+        NextTurn();
     }
 
     public void NextTurn()

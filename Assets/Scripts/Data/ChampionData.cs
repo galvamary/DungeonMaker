@@ -9,6 +9,7 @@ public class ChampionData : ScriptableObject
 
     [Header("Stats")]
     public int maxHealth = 100;
+    public int maxMP = 50;
     public int attack = 10;
     public int defense = 5;
     public int speed = 5;
