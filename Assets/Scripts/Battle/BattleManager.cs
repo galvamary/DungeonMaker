@@ -220,7 +220,66 @@ public class BattleManager : MonoBehaviour
         // Wait a bit for visual clarity
         yield return new WaitForSeconds(0.5f);
 
-        // Champion AI: Always perform basic attack on random target
+        // Get alive monsters
+        List<BattleEntity> aliveMonsters = GetAliveMonsters();
+
+        if (aliveMonsters.Count == 0)
+        {
+            Debug.LogWarning("No alive monsters to attack!");
+            yield return new WaitForSeconds(1.0f);
+            NextTurn();
+            yield break;
+        }
+
+        // Champion AI: Randomly choose between basic attack and skill
+        SkillData selectedSkill = null;
+
+        // Check if champion has usable special skills
+        if (champion.AvailableSkills != null && champion.AvailableSkills.Count > 0)
+        {
+            // Filter skills that can be used (have enough MP)
+            List<SkillData> usableSkills = new List<SkillData>();
+            foreach (var skill in champion.AvailableSkills)
+            {
+                if (champion.CanUseMP(skill.mpCost))
+                {
+                    usableSkills.Add(skill);
+                }
+            }
+
+            // 50% chance to use special skill if available
+            if (usableSkills.Count > 0 && Random.value > 0.5f)
+            {
+                // Select random special skill
+                selectedSkill = usableSkills[Random.Range(0, usableSkills.Count)];
+            }
+        }
+
+        // If no special skill selected, use basic attack
+        if (selectedSkill == null)
+        {
+            selectedSkill = champion.BasicAttackSkill;
+        }
+
+        // Execute selected skill
+        if (selectedSkill != null)
+        {
+            BattleEntity target = aliveMonsters[Random.Range(0, aliveMonsters.Count)];
+            champion.PerformSkill(selectedSkill, target, aliveMonsters);
+        }
+        else
+        {
+            Debug.LogWarning($"{champion.EntityName} has no basic attack skill assigned!");
+        }
+
+        // Wait a bit before next turn
+        yield return new WaitForSeconds(1.0f);
+
+        NextTurn();
+    }
+
+    private List<BattleEntity> GetAliveMonsters()
+    {
         List<BattleEntity> aliveMonsters = new List<BattleEntity>();
         foreach (var monster in monsterEntities)
         {
@@ -229,25 +288,7 @@ public class BattleManager : MonoBehaviour
                 aliveMonsters.Add(monster);
             }
         }
-
-        if (aliveMonsters.Count > 0)
-        {
-            // Select random target
-            int randomIndex = Random.Range(0, aliveMonsters.Count);
-            BattleEntity target = aliveMonsters[randomIndex];
-
-            // Perform basic attack
-            champion.PerformBasicAttack(target);
-        }
-        else
-        {
-            Debug.LogWarning("No alive monsters to attack!");
-        }
-
-        // Wait a bit before next turn
-        yield return new WaitForSeconds(1.0f);
-
-        NextTurn();
+        return aliveMonsters;
     }
 
     public void NextTurn()

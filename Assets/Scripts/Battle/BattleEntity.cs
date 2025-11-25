@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class BattleEntity : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class BattleEntity : MonoBehaviour
     private int defense;
     private int speed;
     private bool isChampion;
+    private SkillData basicAttackSkill;
+    private List<SkillData> availableSkills = new List<SkillData>();
 
     [Header("Visual")]
     private RectTransform rectTransform;
@@ -29,6 +32,8 @@ public class BattleEntity : MonoBehaviour
     public int Speed => speed;
     public bool IsChampion => isChampion;
     public bool IsAlive => currentHealth > 0;
+    public SkillData BasicAttackSkill => basicAttackSkill;
+    public List<SkillData> AvailableSkills => availableSkills;
 
     private void Awake()
     {
@@ -52,6 +57,14 @@ public class BattleEntity : MonoBehaviour
         defense = champion.Data.defense;
         speed = champion.Data.speed;
         isChampion = true;
+
+        // Copy basic attack and skills
+        basicAttackSkill = champion.Data.basicAttack;
+        availableSkills.Clear();
+        if (champion.Data.skills != null)
+        {
+            availableSkills.AddRange(champion.Data.skills);
+        }
 
         SetupVisual();
     }
@@ -108,21 +121,6 @@ public class BattleEntity : MonoBehaviour
         // Visual effect can be added here
     }
 
-    public void PerformBasicAttack(BattleEntity target)
-    {
-        if (target == null || !target.IsAlive)
-        {
-            Debug.LogWarning($"{entityName} tried to attack a dead or null target!");
-            return;
-        }
-
-        Debug.Log($"{entityName} attacks {target.EntityName}!");
-
-        // Calculate damage: attacker's attack - target's defense (minimum 1 damage)
-        int damage = Mathf.Max(1, attack - target.Defense);
-        target.TakeDamage(damage);
-    }
-
     public bool CanUseMP(int mpCost)
     {
         return currentMP >= mpCost;
@@ -133,5 +131,122 @@ public class BattleEntity : MonoBehaviour
         currentMP -= mpCost;
         currentMP = Mathf.Max(0, currentMP);
         Debug.Log($"{entityName} used {mpCost} MP. Remaining MP: {currentMP}/{maxMP}");
+    }
+
+    public void Heal(int amount)
+    {
+        if (!IsAlive)
+        {
+            Debug.LogWarning($"{entityName} is dead and cannot be healed!");
+            return;
+        }
+
+        currentHealth += amount;
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        Debug.Log($"{entityName} healed {amount} HP. Current HP: {currentHealth}/{maxHealth}");
+    }
+
+    public void RestoreMP(int amount)
+    {
+        currentMP += amount;
+        currentMP = Mathf.Min(currentMP, maxMP);
+        Debug.Log($"{entityName} restored {amount} MP. Current MP: {currentMP}/{maxMP}");
+    }
+
+    public void SetHealth(int health)
+    {
+        currentHealth = Mathf.Clamp(health, 0, maxHealth);
+    }
+
+    public void SetMP(int mp)
+    {
+        currentMP = Mathf.Clamp(mp, 0, maxMP);
+    }
+
+    public void PerformSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets = null)
+    {
+        if (skill == null)
+        {
+            Debug.LogWarning($"{entityName} tried to use a null skill!");
+            return;
+        }
+
+        if (!CanUseMP(skill.mpCost))
+        {
+            Debug.LogWarning($"{entityName} doesn't have enough MP to use {skill.skillName}! (Required: {skill.mpCost}, Current: {currentMP})");
+            return;
+        }
+
+        UseMP(skill.mpCost);
+        Debug.Log($"{entityName} uses {skill.skillName}!");
+
+        switch (skill.skillType)
+        {
+            case SkillType.Attack:
+                ExecuteAttackSkill(skill, target, allTargets);
+                break;
+            case SkillType.Heal:
+                ExecuteHealSkill(skill, target);
+                break;
+            default:
+                Debug.LogWarning($"Skill type {skill.skillType} not implemented yet!");
+                break;
+        }
+    }
+
+    private void ExecuteAttackSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
+    {
+        switch (skill.targetType)
+        {
+            case SkillTarget.SingleEnemy:
+                if (target != null && target.IsAlive)
+                {
+                    // Damage = skill power + attacker's attack - target's defense (minimum 1)
+                    int totalDamage = skill.power + attack;
+                    int damage = Mathf.Max(1, totalDamage - target.Defense);
+                    target.TakeDamage(damage);
+                }
+                break;
+
+            case SkillTarget.AllEnemies:
+                if (allTargets != null)
+                {
+                    foreach (var enemy in allTargets)
+                    {
+                        if (enemy != null && enemy.IsAlive)
+                        {
+                            int totalDamage = skill.power + attack;
+                            int damage = Mathf.Max(1, totalDamage - enemy.Defense);
+                            enemy.TakeDamage(damage);
+                        }
+                    }
+                }
+                break;
+
+            default:
+                Debug.LogWarning($"Target type {skill.targetType} not supported for attack skills!");
+                break;
+        }
+    }
+
+    private void ExecuteHealSkill(SkillData skill, BattleEntity target)
+    {
+        switch (skill.targetType)
+        {
+            case SkillTarget.Self:
+                Heal(skill.power);
+                break;
+
+            case SkillTarget.SingleAlly:
+                if (target != null && target.IsAlive)
+                {
+                    target.Heal(skill.power);
+                }
+                break;
+
+            default:
+                Debug.LogWarning($"Target type {skill.targetType} not supported for heal skills!");
+                break;
+        }
     }
 }
