@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 
 public class BattleEntity : MonoBehaviour
@@ -21,6 +22,7 @@ public class BattleEntity : MonoBehaviour
     [Header("Visual")]
     private RectTransform rectTransform;
     private Image uiImage;
+    private Vector3 originalPosition;
 
     public string EntityName => entityName;
     public int CurrentHealth => currentHealth;
@@ -97,6 +99,8 @@ public class BattleEntity : MonoBehaviour
         if (rectTransform != null)
         {
             rectTransform.localScale = Vector3.one * (isChampion ? 2.5f : 2f);
+            // Save original position for attack animations (world position)
+            originalPosition = rectTransform.position;
         }
 
         gameObject.name = $"BattleEntity_{entityName}";
@@ -163,23 +167,36 @@ public class BattleEntity : MonoBehaviour
         currentMP = Mathf.Clamp(mp, 0, maxMP);
     }
 
-    public void PerformSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets = null)
+    public IEnumerator PerformSkillWithAnimation(SkillData skill, BattleEntity target, List<BattleEntity> allTargets = null)
     {
         if (skill == null)
         {
             Debug.LogWarning($"{entityName} tried to use a null skill!");
-            return;
+            yield break;
         }
 
         if (!CanUseMP(skill.mpCost))
         {
             Debug.LogWarning($"{entityName} doesn't have enough MP to use {skill.skillName}! (Required: {skill.mpCost}, Current: {currentMP})");
-            return;
+            yield break;
         }
 
         UseMP(skill.mpCost);
         Debug.Log($"{entityName} uses {skill.skillName}!");
 
+        // Attack animation - move towards target (only for single-target attack skills)
+        bool movedForAttack = false;
+        if (skill.skillType == SkillType.Attack && skill.targetType == SkillTarget.SingleEnemy && target != null && rectTransform != null)
+        {
+            yield return StartCoroutine(AttackAnimation(target));
+            movedForAttack = true;
+        }
+        else
+        {
+            Debug.Log($"No animation: skillType={skill.skillType}, targetType={skill.targetType}, target={target}, rectTransform={rectTransform}");
+        }
+
+        // Execute skill effect
         switch (skill.skillType)
         {
             case SkillType.Attack:
@@ -192,6 +209,67 @@ public class BattleEntity : MonoBehaviour
                 Debug.LogWarning($"Skill type {skill.skillType} not implemented yet!");
                 break;
         }
+
+        // Wait a bit to see the impact
+        yield return new WaitForSeconds(0.2f);
+
+        // Return to original position (only if moved)
+        if (movedForAttack && rectTransform != null)
+        {
+            yield return StartCoroutine(ReturnToPosition());
+        }
+    }
+
+    private IEnumerator AttackAnimation(BattleEntity target)
+    {
+        if (target.rectTransform == null)
+        {
+            Debug.LogError($"Target {target.EntityName} has no RectTransform!");
+            yield break;
+        }
+
+        Vector3 startPos = rectTransform.position;  // World position
+        Vector3 targetPos = target.rectTransform.position;  // World position
+
+        Debug.Log($"Attack Animation - Start: {startPos}, Target: {targetPos}");
+
+        // Move towards target
+        Vector3 moveDirection = (targetPos - startPos).normalized;
+        Vector3 attackPos = startPos + moveDirection * 100f; // Move 100 units towards target
+
+        Debug.Log($"MoveDirection: {moveDirection}, AttackPos: {attackPos}");
+
+        float duration = 0.15f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            Vector3 newPos = Vector3.Lerp(startPos, attackPos, t);
+            rectTransform.position = newPos;  // Use world position
+            yield return null;
+        }
+
+        rectTransform.position = attackPos;
+        Debug.Log($"Animation complete. Final position: {attackPos}");
+    }
+
+    private IEnumerator ReturnToPosition()
+    {
+        Vector3 startPos = rectTransform.position;  // World position
+        float duration = 0.15f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            rectTransform.position = Vector3.Lerp(startPos, originalPosition, t);  // Use world position
+            yield return null;
+        }
+
+        rectTransform.position = originalPosition;
     }
 
     private void ExecuteAttackSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)

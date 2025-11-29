@@ -264,8 +264,14 @@ public class BattleManager : MonoBehaviour
         // Execute selected skill
         if (selectedSkill != null)
         {
-            BattleEntity target = aliveMonsters[Random.Range(0, aliveMonsters.Count)];
-            champion.PerformSkill(selectedSkill, target, aliveMonsters);
+            // Select target only for single-target skills
+            BattleEntity target = null;
+            if (selectedSkill.targetType == SkillTarget.SingleEnemy || selectedSkill.targetType == SkillTarget.SingleAlly)
+            {
+                target = aliveMonsters[Random.Range(0, aliveMonsters.Count)];
+            }
+
+            yield return champion.StartCoroutine(champion.PerformSkillWithAnimation(selectedSkill, target, aliveMonsters));
         }
         else
         {
@@ -273,7 +279,7 @@ public class BattleManager : MonoBehaviour
         }
 
         // Wait a bit before next turn
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(0.5f);
 
         NextTurn();
     }
