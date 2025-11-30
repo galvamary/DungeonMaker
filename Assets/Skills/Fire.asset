@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 546164c4094ff4f338169725866174fb, type: 3}
   m_Name: Fire
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: fireball
-  icon: {fileID: 0}
+  skillName: Fire
+  icon: {fileID: 21300026, guid: 7384dec0e667b8643bee02d3ecaf659c, type: 3}
   mpCost: 5
   skillType: 0
-  power: 20
+  power: 10
   targetType: 0
   description: 

@@ -37,6 +37,15 @@ public class BattleEntity : MonoBehaviour
     public SkillData BasicAttackSkill => basicAttackSkill;
     public List<SkillData> AvailableSkills => availableSkills;
 
+    public void SaveOriginalPosition()
+    {
+        if (rectTransform != null)
+        {
+            originalPosition = rectTransform.position;
+            Debug.Log($"[{entityName}] SaveOriginalPosition: {originalPosition}");
+        }
+    }
+
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -99,8 +108,7 @@ public class BattleEntity : MonoBehaviour
         if (rectTransform != null)
         {
             rectTransform.localScale = Vector3.one * (isChampion ? 2.5f : 2f);
-            // Save original position for attack animations (world position)
-            originalPosition = rectTransform.position;
+            // Original position will be saved after parent is set in BattleManager
         }
 
         gameObject.name = $"BattleEntity_{entityName}";
@@ -196,6 +204,12 @@ public class BattleEntity : MonoBehaviour
             Debug.Log($"No animation: skillType={skill.skillType}, targetType={skill.targetType}, target={target}, rectTransform={rectTransform}");
         }
 
+        // Show skill effect
+        if (skill.effectPrefab != null)
+        {
+            ShowSkillEffect(skill, target, allTargets);
+        }
+
         // Execute skill effect
         switch (skill.skillType)
         {
@@ -211,7 +225,7 @@ public class BattleEntity : MonoBehaviour
         }
 
         // Wait a bit to see the impact
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.5f);
 
         // Return to original position (only if moved)
         if (movedForAttack && rectTransform != null)
@@ -228,18 +242,17 @@ public class BattleEntity : MonoBehaviour
             yield break;
         }
 
-        Vector3 startPos = rectTransform.position;  // World position
-        Vector3 targetPos = target.rectTransform.position;  // World position
+        Vector3 startPos = rectTransform.position;  // Canvas space position
+        Vector3 targetPos = target.rectTransform.position;  // Canvas space position
 
-        Debug.Log($"Attack Animation - Start: {startPos}, Target: {targetPos}");
+        // Move to target's Y position with offset
+        // Champion attacks from left (Y + offset), Monster attacks from right (Y - offset)
+        float xOffset = isChampion ? 400f : -400f;
+        Vector3 attackPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);
 
-        // Move towards target
-        Vector3 moveDirection = (targetPos - startPos).normalized;
-        Vector3 attackPos = startPos + moveDirection * 100f; // Move 100 units towards target
+        Debug.Log($"Attack Animation - Start: {startPos}, Target: {targetPos}, AttackPos: {attackPos}");
 
-        Debug.Log($"MoveDirection: {moveDirection}, AttackPos: {attackPos}");
-
-        float duration = 0.15f;
+        float duration = 0.2f;
         float elapsed = 0f;
 
         while (elapsed < duration)
@@ -247,29 +260,99 @@ public class BattleEntity : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
             Vector3 newPos = Vector3.Lerp(startPos, attackPos, t);
-            rectTransform.position = newPos;  // Use world position
+            rectTransform.position = newPos;
             yield return null;
         }
 
         rectTransform.position = attackPos;
-        Debug.Log($"Animation complete. Final position: {attackPos}");
     }
 
     private IEnumerator ReturnToPosition()
     {
-        Vector3 startPos = rectTransform.position;  // World position
-        float duration = 0.15f;
+        Vector3 startPos = rectTransform.position;  // Canvas space position
+        Debug.Log($"[{entityName}] ReturnToPosition - From: {startPos}, To: {originalPosition}");
+
+        float duration = 0.2f;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
-            rectTransform.position = Vector3.Lerp(startPos, originalPosition, t);  // Use world position
+            rectTransform.position = Vector3.Lerp(startPos, originalPosition, t);
             yield return null;
         }
 
         rectTransform.position = originalPosition;
+        Debug.Log($"[{entityName}] Return complete. Final position: {rectTransform.position}");
+    }
+
+    private void ShowSkillEffect(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
+    {
+        if (skill.effectPrefab == null)
+            return;
+
+        switch (skill.targetType)
+        {
+            case SkillTarget.SingleEnemy:
+            case SkillTarget.SingleAlly:
+                if (target != null && target.rectTransform != null)
+                {
+                    SpawnEffect(skill.effectPrefab, target.rectTransform.position);
+                }
+                break;
+
+            case SkillTarget.AllEnemies:
+                if (allTargets != null)
+                {
+                    foreach (var enemy in allTargets)
+                    {
+                        if (enemy != null && enemy.IsAlive && enemy.rectTransform != null)
+                        {
+                            SpawnEffect(skill.effectPrefab, enemy.rectTransform.position);
+                        }
+                    }
+                }
+                break;
+
+            case SkillTarget.Self:
+                if (rectTransform != null)
+                {
+                    SpawnEffect(skill.effectPrefab, rectTransform.position);
+                }
+                break;
+        }
+    }
+
+    private void SpawnEffect(GameObject effectPrefab, Vector3 position)
+    {
+        GameObject effect = Instantiate(effectPrefab, position, Quaternion.identity);
+
+        // Set as child of same canvas for proper rendering
+        if (rectTransform != null && rectTransform.parent != null)
+        {
+            Canvas canvas = rectTransform.GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                effect.transform.SetParent(canvas.transform, true);
+                effect.transform.position = position;
+            }
+        }
+
+        // Get animation length and destroy after it completes
+        Animator animator = effect.GetComponent<Animator>();
+        float destroyTime = 1.0f; // Default
+
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+            if (clips.Length > 0)
+            {
+                destroyTime = clips[0].length;
+            }
+        }
+
+        Destroy(effect, destroyTime);
     }
 
     private void ExecuteAttackSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)

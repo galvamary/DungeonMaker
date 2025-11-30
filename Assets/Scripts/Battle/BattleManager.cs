@@ -97,6 +97,9 @@ public class BattleManager : MonoBehaviour
             rectTransform.sizeDelta = new Vector2(100, 100);
             rectTransform.eulerAngles = new Vector3(0f, 180f, 0f);
 
+            // Save original position after parent is set
+            championEntity.SaveOriginalPosition();
+
             Debug.Log($"Champion spawned at {championContainer.position}");
         }
         else
@@ -123,6 +126,9 @@ public class BattleManager : MonoBehaviour
                 rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
                 rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
                 rectTransform.sizeDelta = new Vector2(100, 100);
+
+                // Save original position after parent is set
+                monsterEntity.SaveOriginalPosition();
 
                 monsterEntities.Add(monsterEntity);
                 Debug.Log($"Monster {currentMonsters[i].monsterName} spawned at {containerTransform.position}");

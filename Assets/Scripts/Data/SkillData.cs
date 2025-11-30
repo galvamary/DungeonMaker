@@ -14,6 +14,7 @@ public class SkillData : ScriptableObject
     public SkillType skillType;
     public int power = 20;  // Additional power (0 = use only attack stat for basic attacks)
     public SkillTarget targetType;
+    public GameObject effectPrefab;  // Visual effect prefab
 
     [Header("Description")]
     [TextArea(2, 4)]

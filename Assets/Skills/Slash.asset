@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 546164c4094ff4f338169725866174fb, type: 3}
   m_Name: Slash
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: 
-  icon: {fileID: 0}
-  mpCost: 5
+  skillName: Slash
+  icon: {fileID: 21300000, guid: 47ae1527db7c39f40834c28187b6ffef, type: 3}
+  mpCost: 0
   skillType: 0
-  power: 20
+  power: 0
   targetType: 0
   description: 
