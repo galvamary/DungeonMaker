@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 
 public class BattleEntity : MonoBehaviour
 {
@@ -225,7 +226,7 @@ public class BattleEntity : MonoBehaviour
         }
 
         // Wait a bit to see the impact
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.0f);
 
         // Return to original position (only if moved)
         if (movedForAttack && rectTransform != null)
@@ -342,13 +343,19 @@ public class BattleEntity : MonoBehaviour
         // Get animation length and destroy after it completes
         Animator animator = effect.GetComponent<Animator>();
         float destroyTime = 1.0f; // Default
+        float animationSpeed = 2.0f; // Animation playback speed (increase for faster effects)
 
-        if (animator != null && animator.runtimeAnimatorController != null)
+        if (animator != null)
         {
-            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
-            if (clips.Length > 0)
+            animator.speed = animationSpeed; // Speed up the animation
+
+            if (animator.runtimeAnimatorController != null)
             {
-                destroyTime = clips[0].length;
+                AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+                if (clips.Length > 0)
+                {
+                    destroyTime = clips[0].length / animationSpeed; // Adjust destroy time
+                }
             }
         }
 

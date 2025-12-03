@@ -18,4 +18,5 @@ MonoBehaviour:
   skillType: 0
   power: 0
   targetType: 0
+  effectPrefab: {fileID: 4293164107182059489, guid: 390c95ea3824f47ed928061dfcbe1bae, type: 3}
   description: 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Slime
   m_EditorClassIdentifier: 
   monsterName: Slime
-  icon: {fileID: 21300018, guid: 988d560df8d322a468c97243cbfd76e8, type: 3}
+  icon: {fileID: 3358789739873003512, guid: 2c707d816fc944a9c97c5e52cafe8043, type: 3}
   cost: 5
   maxHealth: 10
   maxMP: 0
