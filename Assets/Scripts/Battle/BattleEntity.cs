@@ -15,15 +15,21 @@ public class BattleEntity : MonoBehaviour
     private int maxMP;
     private int attack;
     private int defense;
+    private int baseDefense; // Store original defense value
     private int speed;
     private bool isChampion;
     private SkillData basicAttackSkill;
     private List<SkillData> availableSkills = new List<SkillData>();
 
+    [Header("Status Effects")]
+    private bool isDefending = false;
+    private int defendingTurnsRemaining = 0;
+
     [Header("Visual")]
     private RectTransform rectTransform;
     private Image uiImage;
     private Vector3 originalPosition;
+    private GameObject defenseIndicator; // Shield icon when defending
 
     public string EntityName => entityName;
     public int CurrentHealth => currentHealth;
@@ -37,6 +43,7 @@ public class BattleEntity : MonoBehaviour
     public bool IsAlive => currentHealth > 0;
     public SkillData BasicAttackSkill => basicAttackSkill;
     public List<SkillData> AvailableSkills => availableSkills;
+    public bool IsDefending => isDefending;
 
     public void SaveOriginalPosition()
     {
@@ -57,6 +64,16 @@ public class BattleEntity : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // Animate defense indicator with pulsing effect
+        if (defenseIndicator != null && defenseIndicator.activeSelf)
+        {
+            float pulse = 1f + Mathf.Sin(Time.time * 3f) * 0.15f;
+            defenseIndicator.transform.localScale = Vector3.one * pulse;
+        }
+    }
+
     public void InitializeFromChampion(Champion champion)
     {
         entityName = champion.Data.championName;
@@ -67,6 +84,7 @@ public class BattleEntity : MonoBehaviour
         maxMP = champion.Data.maxMP;
         attack = champion.Data.attack;
         defense = champion.Data.defense;
+        baseDefense = champion.Data.defense;
         speed = champion.Data.speed;
         isChampion = true;
 
@@ -91,6 +109,7 @@ public class BattleEntity : MonoBehaviour
         maxMP = monster.maxMP;
         attack = monster.attack;
         defense = monster.defense;
+        baseDefense = monster.defense;
         speed = monster.speed;
         isChampion = false;
 
@@ -113,6 +132,75 @@ public class BattleEntity : MonoBehaviour
         }
 
         gameObject.name = $"BattleEntity_{entityName}";
+
+        // Create defense indicator (initially hidden)
+        CreateDefenseIndicator();
+    }
+
+    private void CreateDefenseIndicator()
+    {
+        // Create a child GameObject for the defense shield icon
+        defenseIndicator = new GameObject("DefenseIndicator", typeof(RectTransform));
+        Image shieldImage = defenseIndicator.AddComponent<Image>();
+
+        // Set as child of this entity
+        RectTransform shieldRect = defenseIndicator.GetComponent<RectTransform>();
+        shieldRect.SetParent(rectTransform, false);
+
+        // Position in front of the entity
+        shieldRect.anchorMin = new Vector2(0.5f, 0.5f);
+        shieldRect.anchorMax = new Vector2(0.5f, 0.5f);
+        shieldRect.anchoredPosition = new Vector2(0, 0); // Center on entity
+        shieldRect.sizeDelta = new Vector2(120, 120); // Slightly larger than entity
+
+        // Create a simple shield visual using Unity's built-in sprites
+        // We'll use a circle with blue tint for now
+        shieldImage.sprite = CreateShieldSprite();
+        shieldImage.color = new Color(0.3f, 0.6f, 1f, 0.7f); // Semi-transparent blue
+
+        // Initially hidden
+        defenseIndicator.SetActive(false);
+    }
+
+    private Sprite CreateShieldSprite()
+    {
+        // Create a simple circle texture for the shield
+        int size = 128;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color[] colors = new Color[size * size];
+
+        Vector2 center = new Vector2(size / 2f, size / 2f);
+        float radius = size / 2f - 2f;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                Vector2 pos = new Vector2(x, y);
+                float dist = Vector2.Distance(pos, center);
+
+                if (dist < radius - 10f)
+                {
+                    // Inner transparent area
+                    colors[y * size + x] = Color.clear;
+                }
+                else if (dist < radius)
+                {
+                    // Shield border (bright blue with glow)
+                    float alpha = 1f - (dist - (radius - 10f)) / 10f;
+                    colors[y * size + x] = new Color(0.5f, 0.8f, 1f, alpha);
+                }
+                else
+                {
+                    colors[y * size + x] = Color.clear;
+                }
+            }
+        }
+
+        texture.SetPixels(colors);
+        texture.Apply();
+
+        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
     }
 
     public void TakeDamage(int damage)
@@ -164,6 +252,67 @@ public class BattleEntity : MonoBehaviour
         currentMP += amount;
         currentMP = Mathf.Min(currentMP, maxMP);
         Debug.Log($"{entityName} restored {amount} MP. Current MP: {currentMP}/{maxMP}");
+    }
+
+    // Defense action - doubles defense for 1 turn
+    public void StartDefending()
+    {
+        if (isDefending)
+        {
+            Debug.LogWarning($"{entityName} is already defending!");
+            return;
+        }
+
+        isDefending = true;
+        defendingTurnsRemaining = 1;
+        defense = baseDefense * 2;
+        Debug.Log($"{entityName} takes a defensive stance! Defense: {baseDefense} → {defense}");
+
+        // Show defense indicator
+        if (defenseIndicator != null)
+        {
+            defenseIndicator.SetActive(true);
+        }
+    }
+
+    // Called at the end of each turn to update defense status
+    public void UpdateDefenseStatus()
+    {
+        if (isDefending)
+        {
+            defendingTurnsRemaining--;
+
+            if (defendingTurnsRemaining <= 0)
+            {
+                EndDefending();
+            }
+        }
+    }
+
+    // Reset defense to normal
+    private void EndDefending()
+    {
+        if (!isDefending) return;
+
+        isDefending = false;
+        defendingTurnsRemaining = 0;
+        defense = baseDefense;
+        Debug.Log($"{entityName}'s defensive stance ended. Defense: {defense}");
+
+        // Hide defense indicator
+        if (defenseIndicator != null)
+        {
+            defenseIndicator.SetActive(false);
+        }
+    }
+
+    // Force end defense (e.g., when taking certain actions)
+    public void CancelDefense()
+    {
+        if (isDefending)
+        {
+            EndDefending();
+        }
     }
 
     public void SetHealth(int health)

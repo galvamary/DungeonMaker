@@ -237,57 +237,116 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
-        // Champion AI: Randomly choose between basic attack and skill
-        SkillData selectedSkill = null;
+        // Champion AI: Choose action with weighted probabilities
+        // Basic Attack: 40%, Skill: 40%, Defend: 20%
+        ChampionAction selectedAction = ChooseChampionAction(champion);
 
-        // Check if champion has usable special skills
-        if (champion.AvailableSkills != null && champion.AvailableSkills.Count > 0)
+        switch (selectedAction)
         {
-            // Filter skills that can be used (have enough MP)
-            List<SkillData> usableSkills = new List<SkillData>();
-            foreach (var skill in champion.AvailableSkills)
-            {
-                if (champion.CanUseMP(skill.mpCost))
+            case ChampionAction.BasicAttack:
+                yield return ExecuteChampionAttack(champion, champion.BasicAttackSkill, aliveMonsters);
+                break;
+
+            case ChampionAction.Skill:
+                SkillData selectedSkill = SelectUsableSkill(champion);
+                if (selectedSkill != null)
                 {
-                    usableSkills.Add(skill);
+                    yield return ExecuteChampionAttack(champion, selectedSkill, aliveMonsters);
                 }
-            }
+                else
+                {
+                    // Fallback to basic attack if no usable skill
+                    yield return ExecuteChampionAttack(champion, champion.BasicAttackSkill, aliveMonsters);
+                }
+                break;
 
-            // 50% chance to use special skill if available
-            if (usableSkills.Count > 0 && Random.value > 0.5f)
-            {
-                // Select random special skill
-                selectedSkill = usableSkills[Random.Range(0, usableSkills.Count)];
-            }
-        }
-
-        // If no special skill selected, use basic attack
-        if (selectedSkill == null)
-        {
-            selectedSkill = champion.BasicAttackSkill;
-        }
-
-        // Execute selected skill
-        if (selectedSkill != null)
-        {
-            // Select target only for single-target skills
-            BattleEntity target = null;
-            if (selectedSkill.targetType == SkillTarget.SingleEnemy || selectedSkill.targetType == SkillTarget.SingleAlly)
-            {
-                target = aliveMonsters[Random.Range(0, aliveMonsters.Count)];
-            }
-
-            yield return champion.StartCoroutine(champion.PerformSkillWithAnimation(selectedSkill, target, aliveMonsters));
-        }
-        else
-        {
-            Debug.LogWarning($"{champion.EntityName} has no basic attack skill assigned!");
+            case ChampionAction.Defend:
+                champion.StartDefending();
+                yield return new WaitForSeconds(1.0f);
+                break;
         }
 
         // Wait a bit before next turn
         yield return new WaitForSeconds(0.5f);
 
         NextTurn();
+    }
+
+    // Enum for champion actions
+    private enum ChampionAction
+    {
+        BasicAttack,
+        Skill,
+        Defend
+    }
+
+    // Choose action based on weighted probabilities (4:4:2 ratio)
+    private ChampionAction ChooseChampionAction(BattleEntity champion)
+    {
+        // Total weight: 10 (4 + 4 + 2)
+        float randomValue = Random.Range(0f, 10f);
+
+        if (randomValue < 4f)
+        {
+            // 0-4: Basic Attack (40%)
+            return ChampionAction.BasicAttack;
+        }
+        else if (randomValue < 8f)
+        {
+            // 4-8: Skill (40%)
+            return ChampionAction.Skill;
+        }
+        else
+        {
+            // 8-10: Defend (20%)
+            return ChampionAction.Defend;
+        }
+    }
+
+    // Select a random usable skill
+    private SkillData SelectUsableSkill(BattleEntity champion)
+    {
+        if (champion.AvailableSkills == null || champion.AvailableSkills.Count == 0)
+        {
+            return null;
+        }
+
+        // Filter skills that can be used (have enough MP)
+        List<SkillData> usableSkills = new List<SkillData>();
+        foreach (var skill in champion.AvailableSkills)
+        {
+            if (champion.CanUseMP(skill.mpCost))
+            {
+                usableSkills.Add(skill);
+            }
+        }
+
+        if (usableSkills.Count == 0)
+        {
+            return null;
+        }
+
+        // Return random usable skill
+        return usableSkills[Random.Range(0, usableSkills.Count)];
+    }
+
+    // Execute attack or skill with animation
+    private IEnumerator ExecuteChampionAttack(BattleEntity champion, SkillData skill, List<BattleEntity> aliveMonsters)
+    {
+        if (skill == null)
+        {
+            Debug.LogWarning($"{champion.EntityName} has no skill to use!");
+            yield break;
+        }
+
+        // Select target only for single-target skills
+        BattleEntity target = null;
+        if (skill.targetType == SkillTarget.SingleEnemy || skill.targetType == SkillTarget.SingleAlly)
+        {
+            target = aliveMonsters[Random.Range(0, aliveMonsters.Count)];
+        }
+
+        yield return champion.StartCoroutine(champion.PerformSkillWithAnimation(skill, target, aliveMonsters));
     }
 
     private List<BattleEntity> GetAliveMonsters()
@@ -312,6 +371,9 @@ public class BattleManager : MonoBehaviour
         {
             currentTurnIndex = 0;
             Debug.Log("--- New Round ---");
+
+            // Update defense status for all entities at the start of new round
+            UpdateAllDefenseStatuses();
         }
 
         // Check battle end conditions
@@ -329,6 +391,23 @@ public class BattleManager : MonoBehaviour
         }
 
         StartTurn();
+    }
+
+    // Update defense status for all battle entities
+    private void UpdateAllDefenseStatuses()
+    {
+        if (championEntity != null && championEntity.IsAlive)
+        {
+            championEntity.UpdateDefenseStatus();
+        }
+
+        foreach (var monster in monsterEntities)
+        {
+            if (monster != null && monster.IsAlive)
+            {
+                monster.UpdateDefenseStatus();
+            }
+        }
     }
 
     private bool CheckBattleEnd()
