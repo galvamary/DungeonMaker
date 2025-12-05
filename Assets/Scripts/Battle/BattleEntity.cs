@@ -31,6 +31,9 @@ public class BattleEntity : MonoBehaviour
     private Vector3 originalPosition;
     private GameObject defenseIndicator; // Shield icon when defending
 
+    [Header("Defense Visual")]
+    [SerializeField] private Sprite defenseShieldSprite; // Assign in Inspector or via code
+
     public string EntityName => entityName;
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
@@ -153,54 +156,36 @@ public class BattleEntity : MonoBehaviour
         shieldRect.anchoredPosition = new Vector2(0, 0); // Center on entity
         shieldRect.sizeDelta = new Vector2(120, 120); // Slightly larger than entity
 
-        // Create a simple shield visual using Unity's built-in sprites
-        // We'll use a circle with blue tint for now
-        shieldImage.sprite = CreateShieldSprite();
-        shieldImage.color = new Color(0.3f, 0.6f, 1f, 0.7f); // Semi-transparent blue
+        // Use the assigned shield sprite
+        if (defenseShieldSprite != null)
+        {
+            shieldImage.sprite = defenseShieldSprite;
+            shieldImage.preserveAspect = true;
+        }
+        else
+        {
+            Debug.LogWarning($"{entityName}: No defense shield sprite assigned! Please assign one in the Inspector or via SetDefenseShieldSprite()");
+        }
 
         // Initially hidden
         defenseIndicator.SetActive(false);
     }
 
-    private Sprite CreateShieldSprite()
+    // Method to set defense shield sprite via code
+    public void SetDefenseShieldSprite(Sprite sprite)
     {
-        // Create a simple circle texture for the shield
-        int size = 128;
-        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        Color[] colors = new Color[size * size];
+        defenseShieldSprite = sprite;
 
-        Vector2 center = new Vector2(size / 2f, size / 2f);
-        float radius = size / 2f - 2f;
-
-        for (int y = 0; y < size; y++)
+        // Update existing indicator if it exists
+        if (defenseIndicator != null)
         {
-            for (int x = 0; x < size; x++)
+            Image shieldImage = defenseIndicator.GetComponent<Image>();
+            if (shieldImage != null)
             {
-                Vector2 pos = new Vector2(x, y);
-                float dist = Vector2.Distance(pos, center);
-
-                if (dist < radius - 10f)
-                {
-                    // Inner transparent area
-                    colors[y * size + x] = Color.clear;
-                }
-                else if (dist < radius)
-                {
-                    // Shield border (bright blue with glow)
-                    float alpha = 1f - (dist - (radius - 10f)) / 10f;
-                    colors[y * size + x] = new Color(0.5f, 0.8f, 1f, alpha);
-                }
-                else
-                {
-                    colors[y * size + x] = Color.clear;
-                }
+                shieldImage.sprite = sprite;
+                shieldImage.preserveAspect = true;
             }
         }
-
-        texture.SetPixels(colors);
-        texture.Apply();
-
-        return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
     }
 
     public void TakeDamage(int damage)

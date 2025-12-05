@@ -12,6 +12,9 @@ public class BattleManager : MonoBehaviour
     private List<MonsterData> currentMonsters;
     private Room currentRoom;
 
+    [Header("UI Sprites")]
+    [SerializeField] private Sprite defenseShieldSprite; // Assign defense shield sprite in Inspector
+
     [Header("Battle Entities")]
     private BattleEntity championEntity;
     private List<BattleEntity> monsterEntities = new List<BattleEntity>();
@@ -86,6 +89,13 @@ public class BattleManager : MonoBehaviour
         {
             GameObject championObj = new GameObject("ChampionEntity", typeof(RectTransform));
             championEntity = championObj.AddComponent<BattleEntity>();
+
+            // Set defense shield sprite before initialization
+            if (defenseShieldSprite != null)
+            {
+                championEntity.SetDefenseShieldSprite(defenseShieldSprite);
+            }
+
             championEntity.InitializeFromChampion(currentChampion);
 
             // Set as child of position container
@@ -117,6 +127,13 @@ public class BattleManager : MonoBehaviour
             {
                 GameObject monsterObj = new GameObject($"MonsterEntity_{i}", typeof(RectTransform));
                 BattleEntity monsterEntity = monsterObj.AddComponent<BattleEntity>();
+
+                // Set defense shield sprite before initialization
+                if (defenseShieldSprite != null)
+                {
+                    monsterEntity.SetDefenseShieldSprite(defenseShieldSprite);
+                }
+
                 monsterEntity.InitializeFromMonster(currentMonsters[i]);
 
                 // Set as child of position container
