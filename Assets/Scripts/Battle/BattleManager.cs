@@ -301,7 +301,8 @@ public class BattleManager : MonoBehaviour
     private ChampionAction ChooseChampionAction(BattleEntity champion)
     {
         // Total weight: 10 (4 + 4 + 2)
-        float randomValue = Random.Range(0f, 10f);
+        // float randomValue = Random.Range(0f, 10f);
+        float randomValue = 10f;
 
         if (randomValue < 4f)
         {

@@ -2670,6 +2670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2077548e4f4b4175be44272d5099537, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
+  defenseShieldSprite: {fileID: 2389193319765324094, guid: 572bcfa9479a8438ab879f8d4e012980, type: 3}
 --- !u!4 &1814275574
 Transform:
   m_ObjectHideFlags: 0

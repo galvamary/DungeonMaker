@@ -72,7 +72,7 @@ public class BattleEntity : MonoBehaviour
         // Animate defense indicator with pulsing effect
         if (defenseIndicator != null && defenseIndicator.activeSelf)
         {
-            float pulse = 1f + Mathf.Sin(Time.time * 3f) * 0.15f;
+            float pulse = 1f + Mathf.Sin(Time.time * 3f) * 0.05f;
             defenseIndicator.transform.localScale = Vector3.one * pulse;
         }
     }
@@ -154,7 +154,8 @@ public class BattleEntity : MonoBehaviour
         shieldRect.anchorMin = new Vector2(0.5f, 0.5f);
         shieldRect.anchorMax = new Vector2(0.5f, 0.5f);
         shieldRect.anchoredPosition = new Vector2(0, 0); // Center on entity
-        shieldRect.sizeDelta = new Vector2(120, 120); // Slightly larger than entity
+        shieldRect.sizeDelta = new Vector2(80, 80); // Slightly larger than entity
+        shieldRect.localPosition = new Vector3(70, 0, 0);
 
         // Use the assigned shield sprite
         if (defenseShieldSprite != null)
