@@ -1,9 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 
+/// <summary>
+/// Core battle entity class - manages stats, health, MP, and status effects
+/// This is the main data container for entities in battle
+/// </summary>
 public class BattleEntity : MonoBehaviour
 {
     [Header("Entity Data")]
@@ -25,15 +27,12 @@ public class BattleEntity : MonoBehaviour
     private bool isDefending = false;
     private int defendingTurnsRemaining = 0;
 
-    [Header("Visual")]
-    private RectTransform rectTransform;
-    private Image uiImage;
-    private Vector3 originalPosition;
-    private GameObject defenseIndicator; // Shield icon when defending
+    [Header("Components")]
+    private BattleEntityVisual visual;
+    private BattleEntityAnimator animator;
+    private BattleSkillExecutor skillExecutor;
 
-    [Header("Defense Visual")]
-    [SerializeField] private Sprite defenseShieldSprite; // Assign in Inspector or via code
-
+    // Public properties
     public string EntityName => entityName;
     public int CurrentHealth => currentHealth;
     public int MaxHealth => maxHealth;
@@ -48,35 +47,31 @@ public class BattleEntity : MonoBehaviour
     public List<SkillData> AvailableSkills => availableSkills;
     public bool IsDefending => isDefending;
 
-    public void SaveOriginalPosition()
-    {
-        if (rectTransform != null)
-        {
-            originalPosition = rectTransform.position;
-            Debug.Log($"[{entityName}] SaveOriginalPosition: {originalPosition}");
-        }
-    }
-
     private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
-        uiImage = GetComponent<Image>();
-        if (uiImage == null)
+        // Get or add required components
+        visual = GetComponent<BattleEntityVisual>();
+        if (visual == null)
         {
-            uiImage = gameObject.AddComponent<Image>();
+            visual = gameObject.AddComponent<BattleEntityVisual>();
+        }
+
+        animator = GetComponent<BattleEntityAnimator>();
+        if (animator == null)
+        {
+            animator = gameObject.AddComponent<BattleEntityAnimator>();
+        }
+
+        skillExecutor = GetComponent<BattleSkillExecutor>();
+        if (skillExecutor == null)
+        {
+            skillExecutor = gameObject.AddComponent<BattleSkillExecutor>();
         }
     }
 
-    private void Update()
-    {
-        // Animate defense indicator with pulsing effect
-        if (defenseIndicator != null && defenseIndicator.activeSelf)
-        {
-            float pulse = 1f + Mathf.Sin(Time.time * 3f) * 0.05f;
-            defenseIndicator.transform.localScale = Vector3.one * pulse;
-        }
-    }
-
+    /// <summary>
+    /// Initializes entity from a Champion
+    /// </summary>
     public void InitializeFromChampion(Champion champion)
     {
         entityName = champion.Data.championName;
@@ -99,9 +94,12 @@ public class BattleEntity : MonoBehaviour
             availableSkills.AddRange(champion.Data.skills);
         }
 
-        SetupVisual();
+        SetupComponents();
     }
 
+    /// <summary>
+    /// Initializes entity from a MonsterData
+    /// </summary>
     public void InitializeFromMonster(MonsterData monster)
     {
         entityName = monster.monsterName;
@@ -116,79 +114,54 @@ public class BattleEntity : MonoBehaviour
         speed = monster.speed;
         isChampion = false;
 
-        SetupVisual();
+        SetupComponents();
     }
 
-    private void SetupVisual()
+    /// <summary>
+    /// Sets up all component references
+    /// </summary>
+    private void SetupComponents()
     {
-        if (uiImage != null && entitySprite != null)
-        {
-            uiImage.sprite = entitySprite;
-            uiImage.preserveAspect = true;
-        }
-
-        // Scale based on type
-        if (rectTransform != null)
-        {
-            rectTransform.localScale = Vector3.one * (isChampion ? 2.5f : 2f);
-            // Original position will be saved after parent is set in BattleManager
-        }
-
         gameObject.name = $"BattleEntity_{entityName}";
 
-        // Create defense indicator (initially hidden)
-        CreateDefenseIndicator();
+        // Initialize visual component
+        visual.Initialize(this);
+        visual.SetupVisual(entitySprite, isChampion);
+
+        // Initialize animator component
+        animator.Initialize(isChampion);
+
+        // Initialize skill executor
+        skillExecutor.Initialize(this, animator, visual);
     }
 
-    private void CreateDefenseIndicator()
-    {
-        // Create a child GameObject for the defense shield icon
-        defenseIndicator = new GameObject("DefenseIndicator", typeof(RectTransform));
-        Image shieldImage = defenseIndicator.AddComponent<Image>();
-
-        // Set as child of this entity
-        RectTransform shieldRect = defenseIndicator.GetComponent<RectTransform>();
-        shieldRect.SetParent(rectTransform, false);
-
-        // Position in front of the entity
-        shieldRect.anchorMin = new Vector2(0.5f, 0.5f);
-        shieldRect.anchorMax = new Vector2(0.5f, 0.5f);
-        shieldRect.anchoredPosition = new Vector2(0, 0); // Center on entity
-        shieldRect.sizeDelta = new Vector2(80, 80); // Slightly larger than entity
-        shieldRect.localPosition = new Vector3(70, 0, 0);
-
-        // Use the assigned shield sprite
-        if (defenseShieldSprite != null)
-        {
-            shieldImage.sprite = defenseShieldSprite;
-            shieldImage.preserveAspect = true;
-        }
-        else
-        {
-            Debug.LogWarning($"{entityName}: No defense shield sprite assigned! Please assign one in the Inspector or via SetDefenseShieldSprite()");
-        }
-
-        // Initially hidden
-        defenseIndicator.SetActive(false);
-    }
-
-    // Method to set defense shield sprite via code
+    /// <summary>
+    /// Sets the defense shield sprite for visual component
+    /// </summary>
     public void SetDefenseShieldSprite(Sprite sprite)
     {
-        defenseShieldSprite = sprite;
-
-        // Update existing indicator if it exists
-        if (defenseIndicator != null)
+        if (visual != null)
         {
-            Image shieldImage = defenseIndicator.GetComponent<Image>();
-            if (shieldImage != null)
-            {
-                shieldImage.sprite = sprite;
-                shieldImage.preserveAspect = true;
-            }
+            visual.SetDefenseShieldSprite(sprite);
         }
     }
 
+    /// <summary>
+    /// Saves the original position (called after positioning in scene)
+    /// </summary>
+    public void SaveOriginalPosition()
+    {
+        if (animator != null)
+        {
+            animator.SaveOriginalPosition();
+        }
+    }
+
+    #region Health and MP Management
+
+    /// <summary>
+    /// Applies damage to this entity
+    /// </summary>
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
@@ -202,24 +175,9 @@ public class BattleEntity : MonoBehaviour
         }
     }
 
-    private void Die()
-    {
-        Debug.Log($"{entityName} has been defeated!");
-        // Visual effect can be added here
-    }
-
-    public bool CanUseMP(int mpCost)
-    {
-        return currentMP >= mpCost;
-    }
-
-    public void UseMP(int mpCost)
-    {
-        currentMP -= mpCost;
-        currentMP = Mathf.Max(0, currentMP);
-        Debug.Log($"{entityName} used {mpCost} MP. Remaining MP: {currentMP}/{maxMP}");
-    }
-
+    /// <summary>
+    /// Heals this entity
+    /// </summary>
     public void Heal(int amount)
     {
         if (!IsAlive)
@@ -233,6 +191,27 @@ public class BattleEntity : MonoBehaviour
         Debug.Log($"{entityName} healed {amount} HP. Current HP: {currentHealth}/{maxHealth}");
     }
 
+    /// <summary>
+    /// Checks if entity has enough MP for a cost
+    /// </summary>
+    public bool CanUseMP(int mpCost)
+    {
+        return currentMP >= mpCost;
+    }
+
+    /// <summary>
+    /// Uses MP (deducts from current MP)
+    /// </summary>
+    public void UseMP(int mpCost)
+    {
+        currentMP -= mpCost;
+        currentMP = Mathf.Max(0, currentMP);
+        Debug.Log($"{entityName} used {mpCost} MP. Remaining MP: {currentMP}/{maxMP}");
+    }
+
+    /// <summary>
+    /// Restores MP
+    /// </summary>
     public void RestoreMP(int amount)
     {
         currentMP += amount;
@@ -240,7 +219,22 @@ public class BattleEntity : MonoBehaviour
         Debug.Log($"{entityName} restored {amount} MP. Current MP: {currentMP}/{maxMP}");
     }
 
-    // Defense action - doubles defense for 1 turn
+    /// <summary>
+    /// Called when entity dies
+    /// </summary>
+    private void Die()
+    {
+        Debug.Log($"{entityName} has been defeated!");
+        // Visual effect can be added here
+    }
+
+    #endregion
+
+    #region Defense System
+
+    /// <summary>
+    /// Starts defending - doubles defense for 1 turn
+    /// </summary>
     public void StartDefending()
     {
         if (isDefending)
@@ -255,13 +249,15 @@ public class BattleEntity : MonoBehaviour
         Debug.Log($"{entityName} takes a defensive stance! Defense: {baseDefense} → {defense}");
 
         // Show defense indicator
-        if (defenseIndicator != null)
+        if (visual != null)
         {
-            defenseIndicator.SetActive(true);
+            visual.ShowDefenseIndicator();
         }
     }
 
-    // Called at the end of each turn to update defense status
+    /// <summary>
+    /// Updates defense status (called at end of each round)
+    /// </summary>
     public void UpdateDefenseStatus()
     {
         if (isDefending)
@@ -275,7 +271,9 @@ public class BattleEntity : MonoBehaviour
         }
     }
 
-    // Reset defense to normal
+    /// <summary>
+    /// Ends defending status
+    /// </summary>
     private void EndDefending()
     {
         if (!isDefending) return;
@@ -286,270 +284,31 @@ public class BattleEntity : MonoBehaviour
         Debug.Log($"{entityName}'s defensive stance ended. Defense: {defense}");
 
         // Hide defense indicator
-        if (defenseIndicator != null)
+        if (visual != null)
         {
-            defenseIndicator.SetActive(false);
+            visual.HideDefenseIndicator();
         }
     }
 
-    // Force end defense (e.g., when taking certain actions)
-    public void CancelDefense()
-    {
-        if (isDefending)
-        {
-            EndDefending();
-        }
-    }
+    #endregion
 
-    public void SetHealth(int health)
-    {
-        currentHealth = Mathf.Clamp(health, 0, maxHealth);
-    }
+    #region Skill Execution
 
-    public void SetMP(int mp)
-    {
-        currentMP = Mathf.Clamp(mp, 0, maxMP);
-    }
-
+    /// <summary>
+    /// Performs a skill with full animation and effects
+    /// Delegates to BattleSkillExecutor component
+    /// </summary>
     public IEnumerator PerformSkillWithAnimation(SkillData skill, BattleEntity target, List<BattleEntity> allTargets = null)
     {
-        if (skill == null)
+        if (skillExecutor != null)
         {
-            Debug.LogWarning($"{entityName} tried to use a null skill!");
-            yield break;
-        }
-
-        if (!CanUseMP(skill.mpCost))
-        {
-            Debug.LogWarning($"{entityName} doesn't have enough MP to use {skill.skillName}! (Required: {skill.mpCost}, Current: {currentMP})");
-            yield break;
-        }
-
-        UseMP(skill.mpCost);
-        Debug.Log($"{entityName} uses {skill.skillName}!");
-
-        // Attack animation - move towards target (only for single-target attack skills)
-        bool movedForAttack = false;
-        if (skill.skillType == SkillType.Attack && skill.targetType == SkillTarget.SingleEnemy && target != null && rectTransform != null)
-        {
-            yield return StartCoroutine(AttackAnimation(target));
-            movedForAttack = true;
+            yield return skillExecutor.StartCoroutine(skillExecutor.PerformSkillWithAnimation(skill, target, allTargets));
         }
         else
         {
-            Debug.Log($"No animation: skillType={skill.skillType}, targetType={skill.targetType}, target={target}, rectTransform={rectTransform}");
-        }
-
-        // Show skill effect
-        if (skill.effectPrefab != null)
-        {
-            ShowSkillEffect(skill, target, allTargets);
-        }
-
-        // Execute skill effect
-        switch (skill.skillType)
-        {
-            case SkillType.Attack:
-                ExecuteAttackSkill(skill, target, allTargets);
-                break;
-            case SkillType.Heal:
-                ExecuteHealSkill(skill, target);
-                break;
-            default:
-                Debug.LogWarning($"Skill type {skill.skillType} not implemented yet!");
-                break;
-        }
-
-        // Wait a bit to see the impact
-        yield return new WaitForSeconds(1.0f);
-
-        // Return to original position (only if moved)
-        if (movedForAttack && rectTransform != null)
-        {
-            yield return StartCoroutine(ReturnToPosition());
+            Debug.LogError($"{entityName}: No BattleSkillExecutor component found!");
         }
     }
 
-    private IEnumerator AttackAnimation(BattleEntity target)
-    {
-        if (target.rectTransform == null)
-        {
-            Debug.LogError($"Target {target.EntityName} has no RectTransform!");
-            yield break;
-        }
-
-        Vector3 startPos = rectTransform.position;  // Canvas space position
-        Vector3 targetPos = target.rectTransform.position;  // Canvas space position
-
-        // Move to target's Y position with offset
-        // Champion attacks from left (Y + offset), Monster attacks from right (Y - offset)
-        float xOffset = isChampion ? 400f : -400f;
-        Vector3 attackPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);
-
-        Debug.Log($"Attack Animation - Start: {startPos}, Target: {targetPos}, AttackPos: {attackPos}");
-
-        float duration = 0.2f;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            Vector3 newPos = Vector3.Lerp(startPos, attackPos, t);
-            rectTransform.position = newPos;
-            yield return null;
-        }
-
-        rectTransform.position = attackPos;
-    }
-
-    private IEnumerator ReturnToPosition()
-    {
-        Vector3 startPos = rectTransform.position;  // Canvas space position
-        Debug.Log($"[{entityName}] ReturnToPosition - From: {startPos}, To: {originalPosition}");
-
-        float duration = 0.2f;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            rectTransform.position = Vector3.Lerp(startPos, originalPosition, t);
-            yield return null;
-        }
-
-        rectTransform.position = originalPosition;
-        Debug.Log($"[{entityName}] Return complete. Final position: {rectTransform.position}");
-    }
-
-    private void ShowSkillEffect(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
-    {
-        if (skill.effectPrefab == null)
-            return;
-
-        switch (skill.targetType)
-        {
-            case SkillTarget.SingleEnemy:
-            case SkillTarget.SingleAlly:
-                if (target != null && target.rectTransform != null)
-                {
-                    SpawnEffect(skill.effectPrefab, target.rectTransform.position);
-                }
-                break;
-
-            case SkillTarget.AllEnemies:
-                if (allTargets != null)
-                {
-                    foreach (var enemy in allTargets)
-                    {
-                        if (enemy != null && enemy.IsAlive && enemy.rectTransform != null)
-                        {
-                            SpawnEffect(skill.effectPrefab, enemy.rectTransform.position);
-                        }
-                    }
-                }
-                break;
-
-            case SkillTarget.Self:
-                if (rectTransform != null)
-                {
-                    SpawnEffect(skill.effectPrefab, rectTransform.position);
-                }
-                break;
-        }
-    }
-
-    private void SpawnEffect(GameObject effectPrefab, Vector3 position)
-    {
-        GameObject effect = Instantiate(effectPrefab, position, Quaternion.identity);
-
-        // Set as child of same canvas for proper rendering
-        if (rectTransform != null && rectTransform.parent != null)
-        {
-            Canvas canvas = rectTransform.GetComponentInParent<Canvas>();
-            if (canvas != null)
-            {
-                effect.transform.SetParent(canvas.transform, true);
-                effect.transform.position = position;
-            }
-        }
-
-        // Get animation length and destroy after it completes
-        Animator animator = effect.GetComponent<Animator>();
-        float destroyTime = 1.0f; // Default
-        float animationSpeed = 2.0f; // Animation playback speed (increase for faster effects)
-
-        if (animator != null)
-        {
-            animator.speed = animationSpeed; // Speed up the animation
-
-            if (animator.runtimeAnimatorController != null)
-            {
-                AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
-                if (clips.Length > 0)
-                {
-                    destroyTime = clips[0].length / animationSpeed; // Adjust destroy time
-                }
-            }
-        }
-
-        Destroy(effect, destroyTime);
-    }
-
-    private void ExecuteAttackSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
-    {
-        switch (skill.targetType)
-        {
-            case SkillTarget.SingleEnemy:
-                if (target != null && target.IsAlive)
-                {
-                    // Damage = skill power + attacker's attack - target's defense (minimum 1)
-                    int totalDamage = skill.power + attack;
-                    int damage = Mathf.Max(1, totalDamage - target.Defense);
-                    target.TakeDamage(damage);
-                }
-                break;
-
-            case SkillTarget.AllEnemies:
-                if (allTargets != null)
-                {
-                    foreach (var enemy in allTargets)
-                    {
-                        if (enemy != null && enemy.IsAlive)
-                        {
-                            int totalDamage = skill.power + attack;
-                            int damage = Mathf.Max(1, totalDamage - enemy.Defense);
-                            enemy.TakeDamage(damage);
-                        }
-                    }
-                }
-                break;
-
-            default:
-                Debug.LogWarning($"Target type {skill.targetType} not supported for attack skills!");
-                break;
-        }
-    }
-
-    private void ExecuteHealSkill(SkillData skill, BattleEntity target)
-    {
-        switch (skill.targetType)
-        {
-            case SkillTarget.Self:
-                Heal(skill.power);
-                break;
-
-            case SkillTarget.SingleAlly:
-                if (target != null && target.IsAlive)
-                {
-                    target.Heal(skill.power);
-                }
-                break;
-
-            default:
-                Debug.LogWarning($"Target type {skill.targetType} not supported for heal skills!");
-                break;
-        }
-    }
+    #endregion
 }
