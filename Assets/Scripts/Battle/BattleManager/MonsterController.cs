@@ -9,10 +9,10 @@ public class MonsterController : MonoBehaviour
 {
     private BattleSetup battleSetup;
     private MonsterActionPanel actionPanel;
-
     private BattleEntity currentMonster;
     private bool isWaitingForInput = false;
     private MonsterAction selectedAction = MonsterAction.None;
+    private SkillData selectedSkill = null; // Store selected skill
 
     private enum MonsterAction
     {
@@ -22,22 +22,20 @@ public class MonsterController : MonoBehaviour
         Defend
     }
 
-    public void Initialize(BattleSetup setup)
+    public void Initialize(BattleSetup setup, MonsterActionPanel panel)
     {
         battleSetup = setup;
+        actionPanel = panel;
 
-        // Find MonsterActionPanel in the scene
-        actionPanel = FindObjectOfType<MonsterActionPanel>();
-
+        // Subscribe to UI events
         if (actionPanel == null)
         {
-            Debug.LogWarning("MonsterActionPanel not found in scene!");
+            Debug.LogError("MonsterActionPanel not assigned!");
         }
         else
         {
-            // Subscribe to UI events
             actionPanel.OnBasicAttackClicked += HandleBasicAttack;
-            actionPanel.OnSkillClicked += HandleSkill;
+            actionPanel.OnSkillSelected += HandleSkillSelected;
             actionPanel.OnDefendClicked += HandleDefend;
         }
     }
@@ -55,7 +53,9 @@ public class MonsterController : MonoBehaviour
 
         currentMonster = monster;
         selectedAction = MonsterAction.None;
+        selectedSkill = null;
         isWaitingForInput = true;
+        
 
         Debug.Log($"Waiting for player input for {monster.EntityName}...");
 
@@ -80,6 +80,7 @@ public class MonsterController : MonoBehaviour
         yield return ExecuteSelectedAction();
 
         currentMonster = null;
+        selectedSkill = null;
     }
 
     /// <summary>
@@ -96,14 +97,13 @@ public class MonsterController : MonoBehaviour
                 break;
 
             case MonsterAction.Skill:
-                SkillData skill = SelectFirstUsableSkill(currentMonster);
-                if (skill != null)
+                if (selectedSkill != null)
                 {
-                    yield return ExecuteMonsterAttack(currentMonster, skill);
+                    yield return ExecuteMonsterAttack(currentMonster, selectedSkill);
                 }
                 else
                 {
-                    Debug.LogWarning("No usable skill found!");
+                    Debug.LogWarning("No skill selected!");
                 }
                 break;
 
@@ -127,11 +127,12 @@ public class MonsterController : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles skill button click
+    /// Handles skill selection from skill panel
     /// </summary>
-    private void HandleSkill()
+    private void HandleSkillSelected(SkillData skill)
     {
         selectedAction = MonsterAction.Skill;
+        selectedSkill = skill;
         isWaitingForInput = false;
     }
 
@@ -142,27 +143,6 @@ public class MonsterController : MonoBehaviour
     {
         selectedAction = MonsterAction.Defend;
         isWaitingForInput = false;
-    }
-
-    /// <summary>
-    /// Selects the first usable skill from monster's available skills
-    /// </summary>
-    private SkillData SelectFirstUsableSkill(BattleEntity monster)
-    {
-        if (monster.AvailableSkills == null || monster.AvailableSkills.Count == 0)
-        {
-            return null;
-        }
-
-        foreach (var skill in monster.AvailableSkills)
-        {
-            if (monster.CanUseMP(skill.mpCost))
-            {
-                return skill;
-            }
-        }
-
-        return null;
     }
 
     /// <summary>
@@ -210,7 +190,7 @@ public class MonsterController : MonoBehaviour
         if (actionPanel != null)
         {
             actionPanel.OnBasicAttackClicked -= HandleBasicAttack;
-            actionPanel.OnSkillClicked -= HandleSkill;
+            actionPanel.OnSkillSelected -= HandleSkillSelected;
             actionPanel.OnDefendClicked -= HandleDefend;
         }
     }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "New Monster", menuName = "Dungeon Maker/Monster Data")]
 public class MonsterData : ScriptableObject
@@ -14,6 +15,10 @@ public class MonsterData : ScriptableObject
     public int attack = 5;
     public int defense = 2;
     public int speed = 3;
+
+    [Header("Skills")]
+    public SkillData basicAttack;  // Basic attack (0 MP cost)
+    public List<SkillData> skills = new List<SkillData>();  // Special skills
     
     [Header("Description")]
     [TextArea(3, 5)]

@@ -114,6 +114,14 @@ public class BattleEntity : MonoBehaviour
         speed = monster.speed;
         isChampion = false;
 
+        // Copy basic attack and skills
+        basicAttackSkill = monster.basicAttack;
+        availableSkills.Clear();
+        if (monster.skills != null)
+        {
+            availableSkills.AddRange(monster.skills);
+        }
+
         SetupComponents();
     }
 

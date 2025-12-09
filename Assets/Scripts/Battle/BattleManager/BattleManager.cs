@@ -19,6 +19,9 @@ public class BattleManager : MonoBehaviour
     [Header("UI Sprites")]
     [SerializeField] private Sprite defenseShieldSprite;
 
+    [Header("UI Panels")]
+    [SerializeField] private MonsterActionPanel monsterActionPanel;
+
     [Header("Battle Systems")]
     private BattleSetup battleSetup;
     private BattleTurnSystem turnSystem;
@@ -86,7 +89,7 @@ public class BattleManager : MonoBehaviour
         {
             monsterController = gameObject.AddComponent<MonsterController>();
         }
-        monsterController.Initialize(battleSetup);
+        monsterController.Initialize(battleSetup, monsterActionPanel);
 
         // Subscribe to turn system events
         turnSystem.OnTurnStart += HandleTurnStart;

@@ -13,10 +13,11 @@ public class MonsterActionPanel : MonoBehaviour
     [SerializeField] private Button basicAttackButton;
     [SerializeField] private Button skillButton;
     [SerializeField] private Button defendButton;
+    [SerializeField] private SkillSelectionPanel skillSelectionPanel;
 
     // Events for action selection
     public event Action OnBasicAttackClicked;
-    public event Action OnSkillClicked;
+    public event Action<SkillData> OnSkillSelected; // Pass selected skill
     public event Action OnDefendClicked;
 
     private BattleEntity currentMonster;
@@ -31,12 +32,18 @@ public class MonsterActionPanel : MonoBehaviour
 
         if (skillButton != null)
         {
-            skillButton.onClick.AddListener(HandleSkillClick);
+            skillButton.onClick.AddListener(HandleSkillButtonClick);
         }
 
         if (defendButton != null)
         {
             defendButton.onClick.AddListener(HandleDefendClick);
+        }
+
+        // Setup skill selection panel events
+        if (skillSelectionPanel != null)
+        {
+            skillSelectionPanel.OnSkillSelected += HandleSkillSelected;
         }
 
         // Hide panel initially
@@ -130,13 +137,44 @@ public class MonsterActionPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles skill button click
+    /// Handles skill button click - opens skill selection panel
     /// </summary>
-    private void HandleSkillClick()
+    private void HandleSkillButtonClick()
     {
-        Debug.Log($"{currentMonster?.EntityName} - Skill selected");
-        OnSkillClicked?.Invoke();
+        Debug.Log($"{currentMonster?.EntityName} - Opening skill selection");
+
+        // Show skill selection panel
+        if (skillSelectionPanel != null)
+        {
+            skillSelectionPanel.Show(currentMonster);
+        }
+        else
+        {
+            Debug.LogError("SkillSelectionPanel not assigned!");
+        }
+    }
+
+    /// <summary>
+    /// Handles skill selection from skill panel
+    /// </summary>
+    private void HandleSkillSelected(SkillData skill)
+    {
+        Debug.Log($"{currentMonster?.EntityName} - Skill selected: {skill.skillName}");
+        OnSkillSelected?.Invoke(skill);
         Hide();
+    }
+
+    /// <summary>
+    /// Handles back button from skill selection panel
+    /// </summary>
+    public void HandleSkillPanelBack()
+    {
+        // Show main panel again
+        Debug.Log("Back to main action panel");
+        if (panelRoot != null && currentMonster != null)
+        {
+            panelRoot.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -159,12 +197,18 @@ public class MonsterActionPanel : MonoBehaviour
 
         if (skillButton != null)
         {
-            skillButton.onClick.RemoveListener(HandleSkillClick);
+            skillButton.onClick.RemoveListener(HandleSkillButtonClick);
         }
 
         if (defendButton != null)
         {
             defendButton.onClick.RemoveListener(HandleDefendClick);
+        }
+
+        // Clean up skill panel events
+        if (skillSelectionPanel != null)
+        {
+            skillSelectionPanel.OnSkillSelected -= HandleSkillSelected;
         }
     }
 }
