@@ -42,6 +42,7 @@ public class BattleEntity : MonoBehaviour
     public int Defense => defense;
     public int Speed => speed;
     public bool IsChampion => isChampion;
+    public bool IsMonster => !isChampion;
     public bool IsAlive => currentHealth > 0;
     public SkillData BasicAttackSkill => basicAttackSkill;
     public List<SkillData> AvailableSkills => availableSkills;
@@ -177,6 +178,12 @@ public class BattleEntity : MonoBehaviour
 
         Debug.Log($"{entityName} took {damage} damage! Remaining health: {currentHealth}/{maxHealth}");
 
+        // Update status display for monsters
+        if (IsMonster && BattleManager.Instance != null)
+        {
+            BattleManager.Instance.UpdateMonsterHP(this);
+        }
+
         if (!IsAlive)
         {
             Die();
@@ -197,6 +204,12 @@ public class BattleEntity : MonoBehaviour
         currentHealth += amount;
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         Debug.Log($"{entityName} healed {amount} HP. Current HP: {currentHealth}/{maxHealth}");
+
+        // Update status display for monsters
+        if (IsMonster && BattleManager.Instance != null)
+        {
+            BattleManager.Instance.UpdateMonsterHP(this);
+        }
     }
 
     /// <summary>
@@ -215,6 +228,12 @@ public class BattleEntity : MonoBehaviour
         currentMP -= mpCost;
         currentMP = Mathf.Max(0, currentMP);
         Debug.Log($"{entityName} used {mpCost} MP. Remaining MP: {currentMP}/{maxMP}");
+
+        // Update status display for monsters
+        if (IsMonster && BattleManager.Instance != null)
+        {
+            BattleManager.Instance.UpdateMonsterMP(this);
+        }
     }
 
     /// <summary>
@@ -225,6 +244,12 @@ public class BattleEntity : MonoBehaviour
         currentMP += amount;
         currentMP = Mathf.Min(currentMP, maxMP);
         Debug.Log($"{entityName} restored {amount} MP. Current MP: {currentMP}/{maxMP}");
+
+        // Update status display for monsters
+        if (IsMonster && BattleManager.Instance != null)
+        {
+            BattleManager.Instance.UpdateMonsterMP(this);
+        }
     }
 
     /// <summary>

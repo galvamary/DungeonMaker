@@ -21,6 +21,7 @@ public class BattleManager : MonoBehaviour
 
     [Header("UI Panels")]
     [SerializeField] private MonsterActionPanel monsterActionPanel;
+    [SerializeField] private MonsterStatusPanel monsterStatusPanel;
 
     [Header("Battle Systems")]
     private BattleSetup battleSetup;
@@ -150,6 +151,12 @@ public class BattleManager : MonoBehaviour
         // Spawn battle entities
         yield return battleSetup.StartCoroutine(battleSetup.SpawnBattleEntities(currentChampion, currentMonsters));
 
+        // Initialize and show monster status panel
+        if (monsterStatusPanel != null)
+        {
+            monsterStatusPanel.Initialize(battleSetup.MonsterEntities);
+        }
+
         // Initialize turn order
         turnSystem.InitializeTurnOrder();
 
@@ -206,6 +213,28 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Updates monster status display for HP changes
+    /// </summary>
+    public void UpdateMonsterHP(BattleEntity monster)
+    {
+        if (monsterStatusPanel != null && monster != null && monster.IsMonster)
+        {
+            monsterStatusPanel.UpdateMonsterHP(monster);
+        }
+    }
+
+    /// <summary>
+    /// Updates monster status display for MP changes
+    /// </summary>
+    public void UpdateMonsterMP(BattleEntity monster)
+    {
+        if (monsterStatusPanel != null && monster != null && monster.IsMonster)
+        {
+            monsterStatusPanel.UpdateMonsterMP(monster);
+        }
+    }
+
+    /// <summary>
     /// Ends the battle
     /// </summary>
     public void EndBattle(bool championWon)
@@ -231,6 +260,11 @@ public class BattleManager : MonoBehaviour
         if (championWon && currentRoom != null)
         {
             currentRoom.RemoveAllMonsters();
+        }
+
+        if (monsterStatusPanel != null)
+        {
+            monsterStatusPanel.ClearStatusDisplays();
         }
 
         // Reset battle state
