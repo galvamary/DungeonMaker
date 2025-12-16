@@ -89,9 +89,15 @@ public class MonsterStatusDisplay : MonoBehaviour
             hpSlider.value = monster.CurrentHealth;
         }
 
+        // Hide fill when HP is 0
+        if (hpFill != null)
+        {
+            hpFill.SetActive(monster.CurrentHealth > 0);
+        }
+
         if (hpText != null)
         {
-            hpText.text = $"{monster.CurrentHealth}";
+            hpText.text = $"{monster.CurrentHealth} / {monster.MaxHealth}";
         }
     }
 
@@ -108,9 +114,15 @@ public class MonsterStatusDisplay : MonoBehaviour
             mpSlider.value = monster.CurrentMP;
         }
 
+        // Hide fill when MP is 0
+        if (mpFill != null)
+        {
+            mpFill.SetActive(monster.CurrentMP > 0);
+        }
+
         if (mpText != null)
         {
-            mpText.text = $"{monster.CurrentMP}";
+            mpText.text = $"{monster.CurrentMP} / {monster.MaxMP}";
         }
     }
 }

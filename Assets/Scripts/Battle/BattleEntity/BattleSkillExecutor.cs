@@ -143,6 +143,12 @@ public class BattleSkillExecutor : MonoBehaviour
             }
         }
 
+        // Rotate effect 180 degrees if used by a monster
+        if (entity != null && entity.IsMonster)
+        {
+            effect.transform.eulerAngles = new Vector3(0f, 180f, 0f);
+        }
+
         // Get animation length and destroy after it completes
         Animator effectAnimator = effect.GetComponent<Animator>();
         float destroyTime = 1.0f; // Default

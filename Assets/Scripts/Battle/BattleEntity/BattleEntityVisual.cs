@@ -139,5 +139,16 @@ public class BattleEntityVisual : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Hides the entity sprite when dead
+    /// </summary>
+    public void HideSprite()
+    {
+        if (entityImage != null)
+        {
+            entityImage.gameObject.SetActive(false);
+        }
+    }
+
     public RectTransform RectTransform => rectTransform;
 }

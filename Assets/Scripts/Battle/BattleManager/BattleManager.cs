@@ -94,7 +94,7 @@ public class BattleManager : MonoBehaviour
 
         // Subscribe to turn system events
         turnSystem.OnTurnStart += HandleTurnStart;
-        turnSystem.OnBattleEnd += HandleBattleEnd;
+        turnSystem.OnBattleEnd += EndBattle;
     }
 
     /// <summary>
@@ -205,14 +205,6 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Handles battle end event from turn system
-    /// </summary>
-    private void HandleBattleEnd(bool championWon)
-    {
-        EndBattle(championWon);
-    }
-
-    /// <summary>
     /// Updates monster status display for HP changes
     /// </summary>
     public void UpdateMonsterHP(BattleEntity monster)
@@ -285,7 +277,7 @@ public class BattleManager : MonoBehaviour
         if (turnSystem != null)
         {
             turnSystem.OnTurnStart -= HandleTurnStart;
-            turnSystem.OnBattleEnd -= HandleBattleEnd;
+            turnSystem.OnBattleEnd -= EndBattle;
         }
     }
 }

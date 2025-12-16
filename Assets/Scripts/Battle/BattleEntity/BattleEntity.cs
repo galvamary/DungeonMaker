@@ -11,7 +11,7 @@ public class BattleEntity : MonoBehaviour
     [Header("Entity Data")]
     private string entityName;
     private Sprite entitySprite;
-    private int currentHealth;
+    [SerializeField] private int currentHealth;
     private int maxHealth;
     private int currentMP;
     private int maxMP;
@@ -258,7 +258,12 @@ public class BattleEntity : MonoBehaviour
     private void Die()
     {
         Debug.Log($"{entityName} has been defeated!");
-        // Visual effect can be added here
+
+        // Hide sprite when dead
+        if (visual != null)
+        {
+            visual.HideSprite();
+        }
     }
 
     #endregion
