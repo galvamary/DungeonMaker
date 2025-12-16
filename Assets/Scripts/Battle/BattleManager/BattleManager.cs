@@ -254,20 +254,29 @@ public class BattleManager : MonoBehaviour
             monsterStatusPanel.ClearStatusDisplays();
         }
 
-        // Hide battle UI first (before disabling any game objects)
+        // Handle monsters in room based on battle result (BEFORE clearing entities!)
+        if (currentRoom != null && battleSetup.MonsterEntities != null)
+        {
+            if (championWon)
+            {
+                // Champion won - remove all monsters
+                currentRoom.RemoveAllMonsters();
+            }
+            else
+            {
+                // Champion lost - remove only dead monsters, keep alive ones
+                RemoveDeadMonstersFromRoom(currentRoom, battleSetup.MonsterEntities);
+            }
+        }
+
+        // Hide battle UI
         if (BattleUI.Instance != null)
         {
             BattleUI.Instance.HideBattleBackground();
         }
 
-        // Clear battle entities
+        // Clear battle entities (AFTER using the monster data)
         battleSetup.ClearBattleEntities();
-
-        // Clear monsters from room if champion won
-        if (championWon && currentRoom != null)
-        {
-            currentRoom.RemoveAllMonsters();
-        }
 
         // Reset battle state
         isBattleActive = false;
@@ -279,6 +288,51 @@ public class BattleManager : MonoBehaviour
         turnSystem.Reset();
 
         // TODO: Resume exploration
+    }
+
+    /// <summary>
+    /// Removes dead monsters from the room, keeping alive ones
+    /// </summary>
+    private void RemoveDeadMonstersFromRoom(Room room, List<BattleEntity> monsterEntities)
+    {
+        if (room == null || monsterEntities == null) return;
+
+        Debug.Log($"=== Checking monsters for removal ===");
+        Debug.Log($"Total monster entities: {monsterEntities.Count}");
+
+        // Create a list to track which monsters died (by index)
+        List<int> deadMonsterIndices = new List<int>();
+
+        // Check each monster entity to see if it's dead
+        for (int i = 0; i < monsterEntities.Count; i++)
+        {
+            if (monsterEntities[i] != null)
+            {
+                bool isAlive = monsterEntities[i].IsAlive;
+                int currentHP = monsterEntities[i].CurrentHealth;
+                string name = monsterEntities[i].EntityName;
+
+                Debug.Log($"Monster {i}: {name} - HP: {currentHP}, IsAlive: {isAlive}");
+
+                if (!isAlive)
+                {
+                    deadMonsterIndices.Add(i);
+                    Debug.Log($"  → Marking for removal");
+                }
+            }
+        }
+
+        Debug.Log($"Found {deadMonsterIndices.Count} dead monsters to remove");
+
+        // Remove dead monsters from room (in reverse order to maintain indices)
+        for (int i = deadMonsterIndices.Count - 1; i >= 0; i--)
+        {
+            int index = deadMonsterIndices[i];
+            room.RemoveMonster(index);
+            Debug.Log($"Removed dead monster at index {index} from room");
+        }
+
+        Debug.Log($"Removal complete. {monsterEntities.Count - deadMonsterIndices.Count} monsters remain alive.");
     }
 
     private void OnDestroy()
