@@ -70,6 +70,7 @@ public class ChampionPathfinder : MonoBehaviour
                     if (!champion.IsAlive)
                     {
                         Debug.Log($"{champion.Data.championName} was defeated in battle!");
+                        VictoryUI.Instance.ShowVictory();
                         yield break;
                     }
                 }
