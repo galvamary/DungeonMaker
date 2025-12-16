@@ -248,6 +248,12 @@ public class BattleManager : MonoBehaviour
             );
         }
 
+        // Clear and hide monster status panel
+        if (monsterStatusPanel != null)
+        {
+            monsterStatusPanel.ClearStatusDisplays();
+        }
+
         // Hide battle UI first (before disabling any game objects)
         if (BattleUI.Instance != null)
         {
