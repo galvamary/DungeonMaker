@@ -51,7 +51,22 @@ public class BattleUI : MonoBehaviour
 
     public void HideBattleBackground()
     {
-        StartCoroutine(FadeOutAndHide());
+        // Check if this GameObject is active before starting coroutine
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(FadeOutAndHide());
+        }
+        else
+        {
+            // If not active, just hide immediately without animation
+            if (battleBackgroundImage != null)
+            {
+                Color color = battleBackgroundImage.color;
+                color.a = 0f;
+                battleBackgroundImage.color = color;
+                battleBackgroundImage.gameObject.SetActive(false);
+            }
+        }
     }
 
     private IEnumerator FadeInBackground()

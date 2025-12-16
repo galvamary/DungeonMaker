@@ -239,24 +239,28 @@ public class BattleManager : MonoBehaviour
 
         Debug.Log($"Battle ended! Champion won: {championWon}");
 
-        // Clear battle entities
-        battleSetup.ClearBattleEntities();
+        // Sync champion stats back to original champion object
+        if (currentChampion != null && battleSetup.ChampionEntity != null)
+        {
+            currentChampion.UpdateStatsFromBattle(
+                battleSetup.ChampionEntity.CurrentHealth,
+                battleSetup.ChampionEntity.CurrentMP
+            );
+        }
 
-        // Hide battle UI
+        // Hide battle UI first (before disabling any game objects)
         if (BattleUI.Instance != null)
         {
             BattleUI.Instance.HideBattleBackground();
         }
 
+        // Clear battle entities
+        battleSetup.ClearBattleEntities();
+
         // Clear monsters from room if champion won
         if (championWon && currentRoom != null)
         {
             currentRoom.RemoveAllMonsters();
-        }
-
-        if (monsterStatusPanel != null)
-        {
-            monsterStatusPanel.ClearStatusDisplays();
         }
 
         // Reset battle state

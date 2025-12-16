@@ -55,6 +55,17 @@ public class Champion : MonoBehaviour
         gameObject.name = $"Champion_{data.championName}";
     }
 
+    /// <summary>
+    /// Updates champion's current HP and MP from battle entity
+    /// </summary>
+    public void UpdateStatsFromBattle(int newHealth, int newMP)
+    {
+        currentHealth = Mathf.Clamp(newHealth, 0, championData.maxHealth);
+        currentMP = Mathf.Clamp(newMP, 0, championData.maxMP);
+
+        Debug.Log($"{championData.championName} stats updated - HP: {currentHealth}/{championData.maxHealth}, MP: {currentMP}/{championData.maxMP}");
+    }
+
     public void MoveToRoom(Room newRoom)
     {
         if (newRoom == null) return;
