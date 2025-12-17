@@ -203,9 +203,10 @@ public class BattleTurnSystem : MonoBehaviour
         turnOrder.Clear();
         currentTurnIndex = 0;
         currentRound = 0;
-        OnTurnStart = null;
-        OnTurnEnd = null;
-        OnRoundStart = null;
-        OnBattleEnd = null;
+        // Don't clear event subscriptions - they should persist between battles
+        // OnTurnStart = null;
+        // OnTurnEnd = null;
+        // OnRoundStart = null;
+        // OnBattleEnd = null;
     }
 }

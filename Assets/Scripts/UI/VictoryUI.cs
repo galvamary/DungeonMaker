@@ -60,6 +60,16 @@ public class VictoryUI : MonoBehaviour
     {
         HideVictory();
 
+        // Give gold reward from defeated champion
+        ChampionData defeatedChampion = BattleManager.Instance?.GetDefeatedChampion();
+        print(defeatedChampion == null);
+        if (defeatedChampion != null && GameManager.Instance != null)
+        {
+            int goldReward = defeatedChampion.goldReward;
+            GameManager.Instance.AddGold(goldReward);
+            Debug.Log($"Victory reward! Received {goldReward} gold from defeating {defeatedChampion.championName}");
+        }
+
         // Return to preparation phase
         if (GameStateManager.Instance != null)
         {
