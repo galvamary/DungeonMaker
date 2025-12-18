@@ -4,7 +4,7 @@ using System.Collections;
 public class Champion : MonoBehaviour
 {
     [Header("Champion Data")]
-    [SerializeField] private ChampionData championData;
+    [SerializeField] private  ChampionData championData;
 
     [Header("Current Stats")]
     private int currentHealth;

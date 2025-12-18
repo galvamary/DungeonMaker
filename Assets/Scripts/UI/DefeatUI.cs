@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,7 @@ public class DefeatUI : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject defeatPanel;
+    [SerializeField] private Image championImage;
 
     private void Awake()
     {
@@ -29,8 +31,10 @@ public class DefeatUI : MonoBehaviour
         }
     }
 
-    public void ShowDefeat()
+    public void ShowDefeat(Champion champion)
     {
+        championImage.sprite = champion.Data.icon;
+
         if (defeatPanel != null)
         {
             defeatPanel.SetActive(true);

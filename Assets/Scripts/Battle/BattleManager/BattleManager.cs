@@ -12,10 +12,9 @@ public class BattleManager : MonoBehaviour
 
     [Header("Battle State")]
     private bool isBattleActive = false;
-    private Champion currentChampion;
+    public Champion currentChampion;
     private List<MonsterData> currentMonsters;
     private Room currentRoom;
-    private ChampionData defeatedChampion; // Champion defeated in last battle
 
     [Header("UI Sprites")]
     [SerializeField] private Sprite defenseShieldSprite;
@@ -228,14 +227,6 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets the defeated champion data for reward purposes
-    /// </summary>
-    public ChampionData GetDefeatedChampion()
-    {
-        return defeatedChampion;
-    }
-
-    /// <summary>
     /// Ends the battle
     /// </summary>
     public void EndBattle(bool championWon)
@@ -247,16 +238,6 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log($"Battle ended! Champion won: {championWon}");
-
-        // Store defeated champion data for reward
-        if (!championWon && currentChampion != null && currentChampion.Data != null)
-        {
-            defeatedChampion = currentChampion.Data;
-        }
-        else
-        {
-            defeatedChampion = null;
-        }
 
         // Sync champion stats back to original champion object
         if (currentChampion != null && battleSetup.ChampionEntity != null)

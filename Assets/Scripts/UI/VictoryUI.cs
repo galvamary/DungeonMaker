@@ -9,6 +9,7 @@ public class VictoryUI : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject victoryPanel;
+    private ChampionData currentChampionData;
 
     private void Awake()
     {
@@ -34,8 +35,9 @@ public class VictoryUI : MonoBehaviour
     /// <summary>
     /// Shows the victory panel
     /// </summary>
-    public void ShowVictory()
+    public void ShowVictory(Champion champion)
     {
+        currentChampionData = champion.Data;
         if (victoryPanel != null)
         {
             victoryPanel.SetActive(true);
@@ -61,13 +63,11 @@ public class VictoryUI : MonoBehaviour
         HideVictory();
 
         // Give gold reward from defeated champion
-        ChampionData defeatedChampion = BattleManager.Instance?.GetDefeatedChampion();
-        print(defeatedChampion == null);
-        if (defeatedChampion != null && GameManager.Instance != null)
+        if (GameManager.Instance != null)
         {
-            int goldReward = defeatedChampion.goldReward;
+            int goldReward = currentChampionData.goldReward;
             GameManager.Instance.AddGold(goldReward);
-            Debug.Log($"Victory reward! Received {goldReward} gold from defeating {defeatedChampion.championName}");
+            Debug.Log($"Victory reward! Received {goldReward} gold from defeating {currentChampionData.championName}");
         }
 
         // Return to preparation phase
