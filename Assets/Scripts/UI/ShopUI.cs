@@ -63,7 +63,7 @@ public class ShopUI : MonoBehaviour
         Transform monsterNameTransform = item.transform.Find("MonsterName");
         Transform imageTransform = item.transform.Find("Image");
         Transform buyButtonTransform = item.transform.Find("BuyButton");
-        
+
         // MonsterName 텍스트 설정
         if (monsterNameTransform != null)
         {
@@ -73,8 +73,8 @@ public class ShopUI : MonoBehaviour
                 nameText.text = monster.monsterName;
             }
         }
-        
-        // Image 스프라이트 설정
+
+        // Image 스프라이트 설정 및 툴팁 이벤트 핸들러 추가
         if (imageTransform != null)
         {
             Image iconImage = imageTransform.GetComponent<Image>();
@@ -82,8 +82,16 @@ public class ShopUI : MonoBehaviour
             {
                 iconImage.sprite = monster.icon;
             }
+
+            // Image에만 ShopMonsterPanel 컴포넌트 추가
+            ShopMonsterPanel monsterPanel = imageTransform.GetComponent<ShopMonsterPanel>();
+            if (monsterPanel == null)
+            {
+                monsterPanel = imageTransform.gameObject.AddComponent<ShopMonsterPanel>();
+            }
+            monsterPanel.SetMonsterData(monster);
         }
-        
+
         // BuyButton 설정
         if (buyButtonTransform != null)
         {
@@ -94,7 +102,7 @@ public class ShopUI : MonoBehaviour
                 buyButton.onClick.AddListener(() => OnBuyButtonClicked(monster));
             }
         }
-        
+
         Transform buttonTextTransform = buyButtonTransform.transform.Find("BuyButtonText");
         if (buttonTextTransform != null)
         {
