@@ -81,11 +81,16 @@ public class BattleEntity : MonoBehaviour
         maxHealth = champion.Data.maxHealth;
         currentMP = champion.CurrentMP;
         maxMP = champion.Data.maxMP;
-        attack = champion.Data.attack;
-        defense = champion.Data.defense;
-        baseDefense = champion.Data.defense;
-        speed = champion.Data.speed;
+
+        // 피로도로 감소된 스탯 사용
+        attack = champion.EffectiveAttack;
+        defense = champion.EffectiveDefense;
+        baseDefense = champion.EffectiveDefense;
+        speed = champion.EffectiveSpeed;
         isChampion = true;
+
+        Debug.Log($"{entityName} battle stats (Fatigue: {champion.CurrentFatigue:F1}%) - " +
+                  $"ATK: {attack}, DEF: {defense}, SPD: {speed}");
 
         // Copy basic attack and skills
         basicAttackSkill = champion.Data.basicAttack;
