@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 /// <summary>
 /// Main battle coordinator - manages battle flow and delegates to specialized systems
@@ -19,6 +20,9 @@ public class BattleManager : MonoBehaviour
     [Header("UI Sprites")]
     [SerializeField] private Sprite defenseShieldSprite;
 
+    [Header("UI Fonts")]
+    [SerializeField] private TMP_FontAsset championNameFont;
+
     [Header("UI Panels")]
     [SerializeField] private MonsterActionPanel monsterActionPanel;
     [SerializeField] private MonsterStatusPanel monsterStatusPanel;
@@ -32,6 +36,7 @@ public class BattleManager : MonoBehaviour
     // Public properties
     public bool IsBattleActive => isBattleActive;
     public BattleEntity CurrentTurnEntity => turnSystem?.CurrentTurnEntity;
+    public TMP_FontAsset ChampionNameFont => championNameFont;
 
     private void Awake()
     {

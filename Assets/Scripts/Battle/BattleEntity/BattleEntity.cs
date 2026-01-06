@@ -183,10 +183,19 @@ public class BattleEntity : MonoBehaviour
 
         Debug.Log($"{entityName} took {damage} damage! Remaining health: {currentHealth}/{maxHealth}");
 
-        // Update status display for monsters
-        if (IsMonster && BattleManager.Instance != null)
+        // Update status display
+        if (BattleManager.Instance != null)
         {
-            BattleManager.Instance.UpdateMonsterHP(this);
+            if (IsMonster)
+            {
+                BattleManager.Instance.UpdateMonsterHP(this);
+            }
+        }
+
+        // Update champion name display (head-mounted)
+        if (IsChampion && visual != null)
+        {
+            visual.UpdateChampionNameDisplay();
         }
 
         if (!IsAlive)
@@ -210,10 +219,19 @@ public class BattleEntity : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         Debug.Log($"{entityName} healed {amount} HP. Current HP: {currentHealth}/{maxHealth}");
 
-        // Update status display for monsters
-        if (IsMonster && BattleManager.Instance != null)
+        // Update status display
+        if (BattleManager.Instance != null)
         {
-            BattleManager.Instance.UpdateMonsterHP(this);
+            if (IsMonster)
+            {
+                BattleManager.Instance.UpdateMonsterHP(this);
+            }
+        }
+
+        // Update champion name display (head-mounted)
+        if (IsChampion && visual != null)
+        {
+            visual.UpdateChampionNameDisplay();
         }
     }
 

@@ -1222,7 +1222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91325bce2c29840e6a0234768c51c474, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentGold: 200
+  currentGold: 50
 --- !u!4 &350618304
 Transform:
   m_ObjectHideFlags: 0
@@ -6016,7 +6016,7 @@ MonoBehaviour:
   bossRoomSprite: {fileID: 0}
   entranceRoomSprite: {fileID: -8688411044103038410, guid: bf2cc2ae4bd764f17b6bc3fdb3bf7c1a, type: 3}
   battleRoomCost: 10
-  treasureRoomCost: 50
+  treasureRoomCost: 30
   bossRoomCost: 50
 --- !u!4 &1773358325
 Transform:
@@ -6126,7 +6126,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleManager
   currentChampion: {fileID: 0}
   defenseShieldSprite: {fileID: 2389193319765324094, guid: 572bcfa9479a8438ab879f8d4e012980, type: 3}
-  championNameFont: {fileID: 11400000, guid: c339e8c1ed71d4e61bb68e8983fbf8da, type: 2}
   monsterActionPanel: {fileID: 687066125}
   monsterStatusPanel: {fileID: 687066126}
 --- !u!4 &1814275574

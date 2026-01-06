@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChampionData
   championName: Hero
   icon: {fileID: -6146700129834819302, guid: eb4c987900af54b4fb505b01d3433f13, type: 3}
-  maxHealth: 100
-  maxMP: 50
+  maxHealth: 70
+  maxMP: 20
   attack: 10
   defense: 5
-  speed: 5
+  speed: 4
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills:
   - {fileID: 11400000, guid: ebd915dba13334bf2bbd4a2b2e7786fa, type: 2}
-  goldReward: 50
+  goldReward: 100

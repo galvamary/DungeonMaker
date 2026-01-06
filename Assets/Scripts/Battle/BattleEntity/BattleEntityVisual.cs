@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Handles visual representation and effects for battle entities
-/// Manages UI sprites, defense shield indicator, and visual animations
+/// Manages UI sprites, defense shield indicator, name display, and visual animations
 /// </summary>
 public class BattleEntityVisual : MonoBehaviour
 {
@@ -11,9 +12,17 @@ public class BattleEntityVisual : MonoBehaviour
     private RectTransform rectTransform;
     private Image entityImage;
     private GameObject defenseIndicator;
+    private GameObject nameDisplay;
+    private TextMeshProUGUI nameText;
 
     [Header("Defense Visual")]
     [SerializeField] private Sprite defenseShieldSprite;
+
+    [Header("Name Display Settings")]
+    [SerializeField] private Color nameColorYellow = new Color(0.8705882f, 0.8078431f, 0.345098f); // Yellow for HP <= 50%
+    [SerializeField] private Color nameColorOrange = new Color(0.8117647f, 0.4196078f, 0.1686275f); // Orange for HP <= 10%
+    [SerializeField] private float hpThresholdYellow = 0.5f; // 50%
+    [SerializeField] private float hpThresholdOrange = 0.1f; // 10%
 
     private BattleEntity entity;
 
@@ -61,6 +70,12 @@ public class BattleEntityVisual : MonoBehaviour
 
         // Create defense indicator (initially hidden)
         CreateDefenseIndicator();
+
+        // Create name display for champions (initially hidden)
+        if (isChampion)
+        {
+            CreateNameDisplay();
+        }
     }
 
     /// <summary>
@@ -117,6 +132,7 @@ public class BattleEntityVisual : MonoBehaviour
         }
     }
 
+
     /// <summary>
     /// Shows the defense indicator
     /// </summary>
@@ -147,6 +163,86 @@ public class BattleEntityVisual : MonoBehaviour
         if (entityImage != null)
         {
             entityImage.gameObject.SetActive(false);
+        }
+
+        // Also hide name display when dead
+        if (nameDisplay != null)
+        {
+            nameDisplay.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Creates the name display UI for champions (positioned above the head)
+    /// </summary>
+    private void CreateNameDisplay()
+    {
+        // Create a child GameObject for the name text
+        nameDisplay = new GameObject("NameDisplay", typeof(RectTransform));
+        nameText = nameDisplay.AddComponent<TextMeshProUGUI>();
+
+        // Set as child of this entity
+        RectTransform nameRect = nameDisplay.GetComponent<RectTransform>();
+        nameRect.SetParent(rectTransform, false);
+
+        // Position above the entity's head
+        nameRect.eulerAngles = new Vector3(0f, 180f, 0f);
+        nameRect.anchorMin = new Vector2(0.5f, 0.5f);
+        nameRect.anchorMax = new Vector2(0.5f, 0.5f);
+        nameRect.anchoredPosition = Vector2.zero;
+        nameRect.sizeDelta = new Vector2(200, 50);
+        nameRect.localPosition = new Vector3(0, 60, 0); // Above the head
+
+        // Setup text properties
+        nameText.alignment = TextAlignmentOptions.Center;
+        nameText.fontSize = 30;
+        nameText.fontStyle = FontStyles.Bold;
+
+        // Set custom font from BattleManager if assigned
+        if (BattleManager.Instance != null && BattleManager.Instance.ChampionNameFont != null)
+        {
+            nameText.font = BattleManager.Instance.ChampionNameFont;
+        }
+
+        // Setup outline for better visibility
+        nameText.outlineWidth = 0.2f;
+        nameText.outlineColor = Color.black;
+
+        // Initially hidden (will show when HP <= 50%)
+        nameDisplay.SetActive(false);
+    }
+
+    /// <summary>
+    /// Updates the name display based on champion's HP percentage
+    /// Hidden when HP > 50%, yellow when HP <= 50%, orange when HP <= 10%
+    /// </summary>
+    public void UpdateChampionNameDisplay()
+    {
+        if (entity == null || !entity.IsChampion || nameDisplay == null || nameText == null)
+        {
+            return;
+        }
+
+        float hpPercentage = (float)entity.CurrentHealth / entity.MaxHealth;
+
+        if (hpPercentage > hpThresholdYellow)
+        {
+            // HP > 50%: Hide name
+            nameDisplay.SetActive(false);
+        }
+        else if (hpPercentage > hpThresholdOrange)
+        {
+            // 10% < HP <= 50%: Show name in yellow
+            nameDisplay.SetActive(true);
+            nameText.text = entity.EntityName;
+            nameText.color = nameColorYellow;
+        }
+        else
+        {
+            // HP <= 10%: Show name in orange
+            nameDisplay.SetActive(true);
+            nameText.text = entity.EntityName;
+            nameText.color = nameColorOrange;
         }
     }
 

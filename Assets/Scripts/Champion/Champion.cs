@@ -14,7 +14,7 @@ public class Champion : MonoBehaviour
     private Room currentRoom;
 
     [Header("Fatigue Settings")]
-    [SerializeField] private float fatiguePerRoom = 5f;  // 방 이동 시 증가하는 피로도
+    [SerializeField] private float fatiguePerRoom = 7f;  // 방 이동 시 증가하는 피로도
     [SerializeField] private float maxFatigue = 100f;    // 최대 피로도
     [SerializeField] private float fatigueStatPenalty = 0.5f;  // 최대 피로도일 때 스탯 감소율 (50%)
 

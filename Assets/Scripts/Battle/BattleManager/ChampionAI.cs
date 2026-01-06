@@ -17,9 +17,9 @@ public class ChampionAI : MonoBehaviour
     }
 
     [Header("AI Settings")]
-    [Range(0f, 1f)] public float basicAttackWeight = 0.4f;  // 40%
-    [Range(0f, 1f)] public float skillWeight = 0.4f;        // 40%
-    [Range(0f, 1f)] public float defendWeight = 0.2f;       // 20%
+    [Range(0f, 1f)] public float basicAttackWeight = 0.45f;  // 40%
+    [Range(0f, 1f)] public float skillWeight = 0.45f;        // 40%
+    [Range(0f, 1f)] public float defendWeight = 0.1f;       // 20%
 
     private BattleSetup battleSetup;
 
