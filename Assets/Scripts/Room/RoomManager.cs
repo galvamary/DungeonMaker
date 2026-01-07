@@ -353,6 +353,22 @@ public class RoomManager : MonoBehaviour
         return null;
     }
 
+    /// <summary>
+    /// Gets the total count of treasure rooms in the dungeon
+    /// </summary>
+    public int GetTreasureRoomCount()
+    {
+        int count = 0;
+        foreach (var room in placedRooms.Values)
+        {
+            if (room.Type == RoomType.Treasure)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public bool AreAllRoomsConnected()
     {
         if (placedRooms.Count == 0) return false;

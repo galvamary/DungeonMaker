@@ -10,6 +10,8 @@ public class ChampionPathfinder : MonoBehaviour
     private Champion champion;
     private Stack<Room> pathStack = new Stack<Room>();
     private HashSet<Room> visitedRooms = new HashSet<Room>();
+    private HashSet<Room> visitedTreasureRooms = new HashSet<Room>();
+    private int totalTreasureRooms = 0;
     private bool isExploring = false;
 
     public void StartExploration(Champion targetChampion)
@@ -23,6 +25,12 @@ public class ChampionPathfinder : MonoBehaviour
         champion = targetChampion;
         pathStack.Clear();
         visitedRooms.Clear();
+        visitedTreasureRooms.Clear();
+
+        // Count total treasure rooms in the dungeon
+        totalTreasureRooms = RoomManager.Instance?.GetTreasureRoomCount() ?? 0;
+        Debug.Log($"Total treasure rooms in dungeon: {totalTreasureRooms}");
+
         isExploring = true;
 
         StartCoroutine(ExploreCoroutine());
@@ -45,12 +53,21 @@ public class ChampionPathfinder : MonoBehaviour
             // Mark current room as visited
             visitedRooms.Add(currentRoom);
 
-            // Check if reached treasure room
-            if (currentRoom.Type == RoomType.Treasure)
+            // Check if current room is a treasure room
+            if (currentRoom.Type == RoomType.Treasure && !visitedTreasureRooms.Contains(currentRoom))
             {
-                Debug.Log($"{champion.Data.championName} found the treasure room!");
-                OnTreasureFound();
-                yield break;
+                visitedTreasureRooms.Add(currentRoom);
+                Debug.Log($"{champion.Data.championName} found treasure room {visitedTreasureRooms.Count}/{totalTreasureRooms} at {currentRoom.GridPosition}!");
+                ConvertTreasureToBattle(currentRoom);
+
+                // Check if all treasure rooms have been visited
+                if (visitedTreasureRooms.Count >= totalTreasureRooms)
+                {
+                    Debug.Log($"{champion.Data.championName} found all treasure rooms! Now returning to entrance...");
+
+                    OnAllTreasuresFound();
+                    yield break;
+                }
             }
 
             // Handle combat if there are monsters
@@ -70,6 +87,10 @@ public class ChampionPathfinder : MonoBehaviour
                     if (!champion.IsAlive)
                     {
                         Debug.Log($"{champion.Data.championName} was defeated in battle!");
+
+                        // Restore all treasure rooms since champion died
+                        RestoreTreasureRooms();
+
                         VictoryUI.Instance.ShowVictory(champion);
                         yield break;
                     }
@@ -106,7 +127,17 @@ public class ChampionPathfinder : MonoBehaviour
                 else
                 {
                     // No more rooms to explore
-                    Debug.LogWarning("Champion explored all reachable rooms but didn't find treasure!");
+                    if (visitedTreasureRooms.Count < totalTreasureRooms)
+                    {
+                        Debug.LogWarning($"{champion.Data.championName} explored all reachable rooms but only found {visitedTreasureRooms.Count}/{totalTreasureRooms} treasure rooms!");
+                    }
+
+                    // If at least one treasure was found, return to entrance
+                    if (visitedTreasureRooms.Count > 0)
+                    {
+                        Debug.Log($"{champion.Data.championName} returning to entrance with {visitedTreasureRooms.Count} treasures...");
+                        OnAllTreasuresFound();
+                    }
                     yield break;
                 }
             }
@@ -142,10 +173,62 @@ public class ChampionPathfinder : MonoBehaviour
         return adjacentRooms;
     }
 
-    private void OnTreasureFound()
+    /// <summary>
+    /// Converts a treasure room to battle room if it was visited
+    /// </summary>
+    private void ConvertTreasureToBattle(Room room)
+    {
+        if (room == null)
+        {
+            Debug.Log("ConvertTreasureToBattle: room is null");
+            return;
+        }
+
+        Debug.Log($"ConvertTreasureToBattle: Checking room at {room.GridPosition}, Type: {room.Type}, InVisitedList: {visitedTreasureRooms.Contains(room)}");
+
+        if (visitedTreasureRooms.Contains(room) && room.Type == RoomType.Treasure)
+        {
+            Sprite battleSprite = RoomManager.Instance.GetRoomSprite(RoomType.Battle);
+            if (battleSprite != null)
+            {
+                room.ChangeRoomType(RoomType.Battle, battleSprite);
+                Debug.Log($"✓ Converted treasure room at {room.GridPosition} to battle room (champion leaving)");
+            }
+            else
+            {
+                Debug.LogError("ConvertTreasureToBattle: battleSprite is null!");
+            }
+        }
+        else
+        {
+            Debug.Log($"ConvertTreasureToBattle: Skipping room at {room.GridPosition} - Not in visited list or not treasure type");
+        }
+    }
+
+    /// <summary>
+    /// Restores all converted treasure rooms back to treasure type
+    /// Called when champion dies during exploration
+    /// </summary>
+    private void RestoreTreasureRooms()
+    {
+        Sprite treasureSprite = RoomManager.Instance.GetRoomSprite(RoomType.Treasure);
+        if (treasureSprite != null)
+        {
+            foreach (Room room in visitedTreasureRooms)
+            {
+                if (room != null && room.Type == RoomType.Battle)
+                {
+                    room.ChangeRoomType(RoomType.Treasure, treasureSprite);
+                    Debug.Log($"Restored battle room at {room.GridPosition} back to treasure room");
+                }
+            }
+        }
+    }
+
+    private void OnAllTreasuresFound()
     {
         isExploring = false;
-        Debug.Log($"{champion.Data.championName} found the treasure! Now returning to entrance...");
+        Debug.Log($"{champion.Data.championName} collected all treasures ({visitedTreasureRooms.Count})! Now returning to entrance...");
 
         // Start returning to entrance using shortest path
         StartCoroutine(ReturnToEntranceCoroutine());
@@ -160,9 +243,6 @@ public class ChampionPathfinder : MonoBehaviour
             yield break;
         }
 
-        // Remember treasure room to convert it when leaving
-        Room treasureRoom = champion.CurrentRoom;
-
         // Find shortest path from current room to entrance using BFS
         List<Room> pathToEntrance = FindShortestPath(champion.CurrentRoom, entranceRoom);
 
@@ -173,27 +253,14 @@ public class ChampionPathfinder : MonoBehaviour
         }
 
         // Follow the path back to entrance
-        bool firstMove = true;
         foreach (Room nextRoom in pathToEntrance)
         {
-            if (firstMove && treasureRoom != null && treasureRoom.Type == RoomType.Treasure)
-            {
-                Sprite battleSprite = RoomManager.Instance.GetRoomSprite(RoomType.Battle);
-                if (battleSprite != null)
-                {
-                    treasureRoom.ChangeRoomType(RoomType.Battle, battleSprite);
-                }
-                firstMove = false;
-            }
             Debug.Log($"{champion.Data.championName} returning to entrance: moving to {nextRoom.GridPosition}");
             champion.MoveToRoom(nextRoom);
             yield return new WaitForSeconds(moveDelay);
-
-            // Convert treasure room to battle room after first move (leaving treasure room)
-            
         }
 
-        // Reached entrance
+        // Reached entrance - all treasure rooms should already be converted to battle rooms
         OnDungeonCompleted();
     }
 
