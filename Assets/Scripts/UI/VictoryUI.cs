@@ -62,12 +62,14 @@ public class VictoryUI : MonoBehaviour
     {
         HideVictory();
 
-        // Give gold reward from defeated champion
+        // Calculate gold reward based on treasure room count: 150 + 50n
         if (GameManager.Instance != null)
         {
-            int goldReward = currentChampionData.goldReward;
+            int treasureRoomCount = RoomManager.Instance != null ? RoomManager.Instance.GetTreasureRoomCount() : 1;
+            int goldReward = 150 + (50 * treasureRoomCount);
+
             GameManager.Instance.AddGold(goldReward);
-            Debug.Log($"Victory reward! Received {goldReward} gold from defeating {currentChampionData.championName}");
+            Debug.Log($"Victory reward! Received {goldReward} gold (base 150 + {50 * treasureRoomCount} from {treasureRoomCount} treasure rooms)");
         }
 
         // Return to preparation phase

@@ -44,10 +44,21 @@ public class Champion : MonoBehaviour
         championData = data;
         currentRoom = startRoom;
 
-        // Initialize stats
-        currentHealth = data.maxHealth;
-        currentMP = data.maxMP;
+        // Get treasure room count for stat scaling
+        int treasureRoomCount = RoomManager.Instance?.GetTreasureRoomCount() ?? 1;
+        treasureRoomCount = Mathf.Max(1, treasureRoomCount); // Minimum 1
+
+        // Initialize stats with treasure room scaling
+        // HP and MP are multiplied by treasure room count
+        currentHealth = data.maxHealth * treasureRoomCount;
+        currentMP = data.maxMP * treasureRoomCount;
         currentFatigue = 0f;  // 초기 피로도는 0
+
+        // Adjust fatigue rate: 8 - n, minimum 1
+        fatiguePerRoom = Mathf.Max(1f, 8f - treasureRoomCount);
+
+        Debug.Log($"Champion initialized with {treasureRoomCount} treasure rooms: " +
+                  $"HP={currentHealth}, MP={currentMP}, FatigueRate={fatiguePerRoom}");
 
         // Set visual
         if (spriteRenderer != null && data.icon != null)
