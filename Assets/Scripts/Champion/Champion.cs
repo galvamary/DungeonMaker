@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Champion : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class Champion : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Room currentRoom;
 
+    [Header("Skills")]
+    private List<SkillData> availableSkills = new List<SkillData>(); // Filtered skills based on treasure room count
+
     [Header("Fatigue Settings")]
     [SerializeField] private float fatiguePerRoom = 7f;  // 방 이동 시 증가하는 피로도
     [SerializeField] private float maxFatigue = 100f;    // 최대 피로도
@@ -24,6 +28,7 @@ public class Champion : MonoBehaviour
     public float CurrentFatigue => currentFatigue;
     public Room CurrentRoom => currentRoom;
     public bool IsAlive => currentHealth > 0;
+    public List<SkillData> AvailableSkills => availableSkills;
 
     // 피로도로 감소된 실제 스탯 계산
     public int EffectiveAttack => CalculateReducedStat(championData.attack);
@@ -57,8 +62,26 @@ public class Champion : MonoBehaviour
         // Adjust fatigue rate: 8 - n, minimum 1
         fatiguePerRoom = Mathf.Max(1f, 8f - treasureRoomCount);
 
+        // Filter skills based on treasure room count
+        availableSkills.Clear();
+        if (data.skills != null)
+        {
+            foreach (SkillData skill in data.skills)
+            {
+                if (skill != null && treasureRoomCount >= skill.requiredTreasureRooms)
+                {
+                    availableSkills.Add(skill);
+                    Debug.Log($"Unlocked skill: {skill.skillName} (requires {skill.requiredTreasureRooms} treasure rooms)");
+                }
+                else if (skill != null)
+                {
+                    Debug.Log($"Locked skill: {skill.skillName} (requires {skill.requiredTreasureRooms} treasure rooms, current: {treasureRoomCount})");
+                }
+            }
+        }
+
         Debug.Log($"Champion initialized with {treasureRoomCount} treasure rooms: " +
-                  $"HP={currentHealth}, MP={currentMP}, FatigueRate={fatiguePerRoom}");
+                  $"HP={currentHealth}, MP={currentMP}, FatigueRate={fatiguePerRoom}, Skills={availableSkills.Count}");
 
         // Set visual
         if (spriteRenderer != null && data.icon != null)

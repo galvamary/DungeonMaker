@@ -123,14 +123,28 @@ public class ChampionAI : MonoBehaviour
             return null;
         }
 
-        // Filter skills that can be used (have enough MP)
+        // Filter skills that can be used (have enough MP and meet conditions)
         List<SkillData> usableSkills = new List<SkillData>();
         foreach (var skill in champion.AvailableSkills)
         {
-            if (champion.CanUseMP(skill.mpCost))
+            if (!champion.CanUseMP(skill.mpCost))
             {
-                usableSkills.Add(skill);
+                continue; // Not enough MP
             }
+
+            // Check if heal skill should be used
+            if (skill.skillType == SkillType.Heal)
+            {
+                int missingHP = champion.MaxHealth - champion.CurrentHealth;
+                if (missingHP < skill.power)
+                {
+                    // Don't use heal if missing HP is less than heal amount
+                    Debug.Log($"Skipping heal skill: missing HP ({missingHP}) < heal power ({skill.power})");
+                    continue;
+                }
+            }
+
+            usableSkills.Add(skill);
         }
 
         if (usableSkills.Count == 0)

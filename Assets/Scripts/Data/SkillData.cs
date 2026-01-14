@@ -7,6 +7,10 @@ public class SkillData : ScriptableObject
     public string skillName;
     public Sprite icon;
 
+    [Header("Unlock Requirement")]
+    [Tooltip("Minimum treasure rooms required to unlock this skill (0 = always available)")]
+    public int requiredTreasureRooms = 0;
+
     [Header("Costs")]
     public int mpCost = 5;
 

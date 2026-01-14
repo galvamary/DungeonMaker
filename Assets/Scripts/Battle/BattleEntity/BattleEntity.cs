@@ -92,12 +92,13 @@ public class BattleEntity : MonoBehaviour
         Debug.Log($"{entityName} battle stats (Fatigue: {champion.CurrentFatigue:F1}%) - " +
                   $"ATK: {attack}, DEF: {defense}, SPD: {speed}");
 
-        // Copy basic attack and skills
+        // Copy basic attack and filtered skills
         basicAttackSkill = champion.Data.basicAttack;
         availableSkills.Clear();
-        if (champion.Data.skills != null)
+        if (champion.AvailableSkills != null)
         {
-            availableSkills.AddRange(champion.Data.skills);
+            availableSkills.AddRange(champion.AvailableSkills);
+            Debug.Log($"{entityName} has {availableSkills.Count} available skills in battle");
         }
 
         SetupComponents();
