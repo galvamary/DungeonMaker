@@ -14,9 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
   skillName: 
   icon: {fileID: 0}
+  requiredTreasureRooms: 3
   mpCost: 5
   skillType: 1
   power: 15
-  targetType: 0
+  targetType: 2
   effectPrefab: {fileID: 3798611714153775236, guid: 36ac378e2f6a7410faf6b9454b683253, type: 3}
   description: 

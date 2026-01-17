@@ -33,7 +33,7 @@ public class DefeatUI : MonoBehaviour
 
     public void ShowDefeat(Champion champion)
     {
-        championImage.sprite = champion.Data.icon;
+        championImage.sprite = champion.CurrentSprite;
 
         if (defeatPanel != null)
         {

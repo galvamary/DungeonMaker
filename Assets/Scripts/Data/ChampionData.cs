@@ -6,7 +6,14 @@ public class ChampionData : ScriptableObject
 {
     [Header("Champion Info")]
     public string championName;
-    public Sprite icon;
+
+    [Header("Fatigue Sprites")]
+    [Tooltip("Sprite when fatigue <= 50%")]
+    public Sprite normalSprite;
+    [Tooltip("Sprite when 50% < fatigue <= 90%")]
+    public Sprite tiredSprite;
+    [Tooltip("Sprite when fatigue > 90%")]
+    public Sprite exhaustedSprite;
 
     [Header("Stats")]
     public int maxHealth = 100;

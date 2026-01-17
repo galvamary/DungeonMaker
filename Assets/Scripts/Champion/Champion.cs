@@ -13,6 +13,7 @@ public class Champion : MonoBehaviour
     private float currentFatigue = 0f;  // 피로도 (0 ~ 100)
     private SpriteRenderer spriteRenderer;
     private Room currentRoom;
+    private Sprite currentSprite; // Current sprite based on fatigue
 
     [Header("Skills")]
     private List<SkillData> availableSkills = new List<SkillData>(); // Filtered skills based on treasure room count
@@ -29,6 +30,7 @@ public class Champion : MonoBehaviour
     public Room CurrentRoom => currentRoom;
     public bool IsAlive => currentHealth > 0;
     public List<SkillData> AvailableSkills => availableSkills;
+    public Sprite CurrentSprite => currentSprite;
 
     // 피로도로 감소된 실제 스탯 계산
     public int EffectiveAttack => CalculateReducedStat(championData.attack);
@@ -83,10 +85,12 @@ public class Champion : MonoBehaviour
         Debug.Log($"Champion initialized with {treasureRoomCount} treasure rooms: " +
                   $"HP={currentHealth}, MP={currentMP}, FatigueRate={fatiguePerRoom}, Skills={availableSkills.Count}");
 
+        // Set initial sprite based on fatigue (should be normal at start)
+        UpdateSpriteByFatigue();
+
         // Set visual
-        if (spriteRenderer != null && data.icon != null)
+        if (spriteRenderer != null)
         {
-            spriteRenderer.sprite = data.icon;
             spriteRenderer.sortingOrder = 3; // Above monsters
         }
 
@@ -128,6 +132,54 @@ public class Champion : MonoBehaviour
 
         Debug.Log($"{championData.championName} fatigue increased: {oldFatigue:F1} -> {currentFatigue:F1} " +
                   $"(Attack: {EffectiveAttack}, Defense: {EffectiveDefense}, Speed: {EffectiveSpeed})");
+
+        // Update sprite based on fatigue
+        UpdateSpriteByFatigue();
+    }
+
+    /// <summary>
+    /// Updates champion sprite based on current fatigue level
+    /// </summary>
+    private void UpdateSpriteByFatigue()
+    {
+        if (championData == null)
+        {
+            return;
+        }
+
+        float fatiguePercentage = (currentFatigue / maxFatigue) * 100f;
+
+        Sprite newSprite;
+
+        if (fatiguePercentage < 50f)
+        {
+            // Normal state (0-50%)
+            newSprite = championData.normalSprite;
+        }
+        else if (fatiguePercentage < 90f)
+        {
+            // Tired state (50-90%)
+            newSprite = championData.tiredSprite;
+        }
+        else
+        {
+            // Exhausted state (90-100%)
+            newSprite = championData.exhaustedSprite;
+        }
+
+        // Store current sprite
+        if (newSprite != currentSprite)
+        {
+            currentSprite = newSprite;
+
+            // Update sprite renderer if available
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.sprite = newSprite;
+            }
+
+            Debug.Log($"{championData.championName} sprite changed (Fatigue: {fatiguePercentage:F1}%)");
+        }
     }
 
     /// <summary>

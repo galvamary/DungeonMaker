@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: Hero
   m_EditorClassIdentifier: Assembly-CSharp::ChampionData
   championName: Hero
-  icon: {fileID: -6146700129834819302, guid: eb4c987900af54b4fb505b01d3433f13, type: 3}
+  normalSprite: {fileID: -6146700129834819302, guid: cd66a7d31ae8e431da39b3bbf28bb037, type: 3}
+  tiredSprite: {fileID: 8408883270026636152, guid: 95a8135814f1f4edb94df76bf1898e8e, type: 3}
+  exhaustedSprite: {fileID: 5825993557141261907, guid: a1073e4c432264fa88a46763b676e549, type: 3}
   maxHealth: 70
   maxMP: 20
   attack: 10
@@ -22,4 +24,5 @@ MonoBehaviour:
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills:
   - {fileID: 11400000, guid: ebd915dba13334bf2bbd4a2b2e7786fa, type: 2}
+  - {fileID: 11400000, guid: 036f1267258774d4cbacec951d3ec5f8, type: 2}
   goldReward: 100

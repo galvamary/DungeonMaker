@@ -76,7 +76,7 @@ public class BattleEntity : MonoBehaviour
     public void InitializeFromChampion(Champion champion)
     {
         entityName = champion.Data.championName;
-        entitySprite = champion.Data.icon;
+        entitySprite = champion.CurrentSprite; // Use current sprite based on fatigue
         currentHealth = champion.CurrentHealth;
         maxHealth = champion.Data.maxHealth;
         currentMP = champion.CurrentMP;
