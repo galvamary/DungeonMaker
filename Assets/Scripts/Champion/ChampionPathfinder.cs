@@ -110,7 +110,7 @@ public class ChampionPathfinder : MonoBehaviour
 
                 // Move to next room
                 Debug.Log($"{champion.Data.championName} exploring from {currentRoom.GridPosition} to {nextRoom.GridPosition}");
-                champion.MoveToRoom(nextRoom);
+                yield return champion.MoveToRoom(nextRoom);
                 currentRoom = nextRoom;
 
             }
@@ -121,7 +121,7 @@ public class ChampionPathfinder : MonoBehaviour
                 {
                     Room previousRoom = pathStack.Pop();
                     Debug.Log($"{champion.Data.championName} backtracking from {currentRoom.GridPosition} to {previousRoom.GridPosition}");
-                    champion.MoveToRoom(previousRoom);
+                    yield return champion.MoveToRoom(previousRoom);
                     currentRoom = previousRoom;
                 }
                 else
@@ -141,7 +141,6 @@ public class ChampionPathfinder : MonoBehaviour
                     yield break;
                 }
             }
-            yield return new WaitForSeconds(moveDelay);
         }
     }
 
@@ -256,8 +255,7 @@ public class ChampionPathfinder : MonoBehaviour
         foreach (Room nextRoom in pathToEntrance)
         {
             Debug.Log($"{champion.Data.championName} returning to entrance: moving to {nextRoom.GridPosition}");
-            champion.MoveToRoom(nextRoom);
-            yield return new WaitForSeconds(moveDelay);
+            yield return champion.MoveToRoom(nextRoom);
         }
 
         // Reached entrance - all treasure rooms should already be converted to battle rooms

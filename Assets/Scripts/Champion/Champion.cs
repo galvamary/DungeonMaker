@@ -193,14 +193,14 @@ public class Champion : MonoBehaviour
         Debug.Log($"{championData.championName} stats updated - HP: {currentHealth}/{championData.maxHealth}, MP: {currentMP}/{championData.maxMP}");
     }
 
-    public void MoveToRoom(Room newRoom)
+    public IEnumerator MoveToRoom(Room newRoom)
     {
-        if (newRoom == null) return;
+        if (newRoom == null) yield break;
 
         // 방 이동 시 피로도 증가
         AddFatigue(fatiguePerRoom);
 
-        StartCoroutine(MoveToRoomWithFade(newRoom));
+        yield return MoveToRoomWithFade(newRoom);
     }
 
     private IEnumerator MoveToRoomWithFade(Room newRoom)
