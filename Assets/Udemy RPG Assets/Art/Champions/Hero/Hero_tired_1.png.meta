@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: eb4c987900af54b4fb505b01d3433f13
+guid: 95a8135814f1f4edb94df76bf1898e8e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6146700129834819302
-    second: Hero_0
+      213: 8408883270026636152
+    second: Hero_tired_1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Hero_0
+      name: Hero_tired_1_0
       rect:
         serializedVersion: 2
         x: 0
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a11295c6cc882baa0800000000000000
-      internalID: -6146700129834819302
+      spriteID: 87ba9ab28ca52b470800000000000000
+      internalID: 8408883270026636152
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Hero_0: -6146700129834819302
+      Hero_tired_1_0: 8408883270026636152
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

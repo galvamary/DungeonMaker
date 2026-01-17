@@ -13,7 +13,7 @@ public class BattleEntity : MonoBehaviour
     private Sprite entitySprite;
     [SerializeField] private int currentHealth;
     private int maxHealth;
-    private int currentMP;
+    [SerializeField] private int currentMP;
     private int maxMP;
     private int attack;
     private int defense;
