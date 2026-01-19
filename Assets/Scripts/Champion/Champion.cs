@@ -193,22 +193,22 @@ public class Champion : MonoBehaviour
         Debug.Log($"{championData.championName} stats updated - HP: {currentHealth}/{championData.maxHealth}, MP: {currentMP}/{championData.maxMP}");
     }
 
-    public IEnumerator MoveToRoom(Room newRoom)
+    public IEnumerator MoveToRoom(Room newRoom, float speedMultiplier = 1f)
     {
         if (newRoom == null) yield break;
 
         // 방 이동 시 피로도 증가
         AddFatigue(fatiguePerRoom);
 
-        yield return MoveToRoomWithFade(newRoom);
+        yield return MoveToRoomWithFade(newRoom, speedMultiplier);
     }
 
-    private IEnumerator MoveToRoomWithFade(Room newRoom)
+    private IEnumerator MoveToRoomWithFade(Room newRoom, float speedMultiplier = 1f)
     {
         // Fade out (darken screen)
         if (FadeEffect.Instance != null)
         {
-            yield return FadeEffect.Instance.FadeOut();
+            yield return FadeEffect.Instance.FadeOut(speedMultiplier);
         }
 
         // Move champion and camera during dark screen
@@ -223,13 +223,13 @@ public class Champion : MonoBehaviour
 
         Debug.Log($"{championData.championName} moved to room at {newRoom.GridPosition}");
 
-        // Wait while screen is completely black
-        yield return new WaitForSeconds(0.5f);
+        // Wait while screen is completely black (scaled by speed)
+        yield return new WaitForSeconds(0.5f / speedMultiplier);
 
         // Fade in (brighten screen)
         if (FadeEffect.Instance != null)
         {
-            yield return FadeEffect.Instance.FadeIn();
+            yield return FadeEffect.Instance.FadeIn(speedMultiplier);
         }
     }
 

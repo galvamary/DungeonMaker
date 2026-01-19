@@ -50,17 +50,18 @@ public class FadeEffect : MonoBehaviour
         }
     }
 
-    public IEnumerator FadeOut()
+    public IEnumerator FadeOut(float speedMultiplier = 1f)
     {
         if (fadeImage == null) yield break;
 
         float elapsedTime = 0f;
         Color color = fadeImage.color;
+        float adjustedDuration = fadeDuration / speedMultiplier;
 
-        while (elapsedTime < fadeDuration)
+        while (elapsedTime < adjustedDuration)
         {
             elapsedTime += Time.deltaTime;
-            float t = elapsedTime / fadeDuration;
+            float t = elapsedTime / adjustedDuration;
             // Use SmoothStep for smoother transition
             color.a = Mathf.SmoothStep(0f, 1f, t);
             fadeImage.color = color;
@@ -71,17 +72,18 @@ public class FadeEffect : MonoBehaviour
         fadeImage.color = color;
     }
 
-    public IEnumerator FadeIn()
+    public IEnumerator FadeIn(float speedMultiplier = 1f)
     {
         if (fadeImage == null) yield break;
 
         float elapsedTime = 0f;
         Color color = fadeImage.color;
+        float adjustedDuration = fadeDuration / speedMultiplier;
 
-        while (elapsedTime < fadeDuration)
+        while (elapsedTime < adjustedDuration)
         {
             elapsedTime += Time.deltaTime;
-            float t = elapsedTime / fadeDuration;
+            float t = elapsedTime / adjustedDuration;
             // Use SmoothStep for smoother transition
             color.a = Mathf.SmoothStep(1f, 0f, t);
             fadeImage.color = color;

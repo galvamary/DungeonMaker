@@ -23,7 +23,4 @@ public class MonsterData : ScriptableObject
     [Header("Description")]
     [TextArea(3, 5)]
     public string description = "A basic monster for your dungeon.";
-    
-    [Header("Prefab")]
-    public GameObject monsterPrefab;
 }

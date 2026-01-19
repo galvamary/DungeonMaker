@@ -5,7 +5,8 @@ using System.Collections.Generic;
 public class ChampionPathfinder : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveDelay = 1f;  // Delay between room movements
+    [SerializeField] private float speedCurveExponent = 2f;  // Controls acceleration curve (higher = faster acceleration)
+    [SerializeField] private float speedDivisor = 20f;  // Controls when speed starts ramping up (lower = earlier)
 
     private Champion champion;
     private Stack<Room> pathStack = new Stack<Room>();
@@ -110,7 +111,8 @@ public class ChampionPathfinder : MonoBehaviour
 
                 // Move to next room
                 Debug.Log($"{champion.Data.championName} exploring from {currentRoom.GridPosition} to {nextRoom.GridPosition}");
-                yield return champion.MoveToRoom(nextRoom);
+                float speedMultiplier = CalculateSpeedMultiplier();
+                yield return champion.MoveToRoom(nextRoom, speedMultiplier);
                 currentRoom = nextRoom;
 
             }
@@ -121,7 +123,8 @@ public class ChampionPathfinder : MonoBehaviour
                 {
                     Room previousRoom = pathStack.Pop();
                     Debug.Log($"{champion.Data.championName} backtracking from {currentRoom.GridPosition} to {previousRoom.GridPosition}");
-                    yield return champion.MoveToRoom(previousRoom);
+                    float speedMultiplier = CalculateSpeedMultiplier();
+                    yield return champion.MoveToRoom(previousRoom, speedMultiplier);
                     currentRoom = previousRoom;
                 }
                 else
@@ -255,7 +258,8 @@ public class ChampionPathfinder : MonoBehaviour
         foreach (Room nextRoom in pathToEntrance)
         {
             Debug.Log($"{champion.Data.championName} returning to entrance: moving to {nextRoom.GridPosition}");
-            yield return champion.MoveToRoom(nextRoom);
+            float speedMultiplier = CalculateSpeedMultiplier();
+            yield return champion.MoveToRoom(nextRoom, speedMultiplier);
         }
 
         // Reached entrance - all treasure rooms should already be converted to battle rooms
@@ -342,4 +346,26 @@ public class ChampionPathfinder : MonoBehaviour
     }
 
     public bool IsExploring => isExploring;
+
+    /// <summary>
+    /// Calculate movement speed multiplier based on number of visited rooms
+    /// Uses exponential curve: speedMultiplier = 1 + (visitedCount / speedDivisor) ^ speedCurveExponent
+    /// Maximum speed multiplier is capped at 3.0x
+    /// </summary>
+    private float CalculateSpeedMultiplier()
+    {
+        int visitedCount = visitedRooms.Count;
+
+        // Exponential speed increase: starts slow, accelerates rapidly
+        // Example with default values (exponent=2, divisor=10):
+        // 1 room: 1.01x, 5 rooms: 1.25x, 10 rooms: 2.0x, 20 rooms: 5.0x, 30 rooms: 10.0x
+        float speedMultiplier = 1f + Mathf.Pow(visitedCount / speedDivisor, speedCurveExponent);
+
+        // Cap maximum speed at 3.0x
+        speedMultiplier = Mathf.Min(speedMultiplier, 2f);
+
+        Debug.Log($"Speed multiplier: {speedMultiplier:F2}x (visited {visitedCount} rooms)");
+
+        return speedMultiplier;
+    }
 }
