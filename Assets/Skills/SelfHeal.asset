@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 546164c4094ff4f338169725866174fb, type: 3}
-  m_Name: Heal
+  m_Name: SelfHeal
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: 
+  skillName: Heal
   icon: {fileID: 0}
-  requiredTreasureRooms: 0
+  requiredTreasureRooms: 3
   mpCost: 5
-  skillType: 0
-  power: 20
-  targetType: 0
-  effectPrefab: {fileID: 0}
+  skillType: 1
+  power: 15
+  targetType: 2
+  effectPrefab: {fileID: 3798611714153775236, guid: 36ac378e2f6a7410faf6b9454b683253, type: 3}
   description: 

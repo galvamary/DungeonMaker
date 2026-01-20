@@ -2997,6 +2997,8 @@ MonoBehaviour:
   availableMonsters:
   - {fileID: 11400000, guid: a89492ebf841143ae909794a7a4e1c78, type: 2}
   - {fileID: 11400000, guid: 206cc5ed30bda40f3bd9572ceb6e4c35, type: 2}
+  - {fileID: 11400000, guid: f5676c83f8618494194b4a6ba5b5a0e4, type: 2}
+  - {fileID: 11400000, guid: 48f73c2f1bfaf4ff4829a879cfa1f92b, type: 2}
 --- !u!4 &840603463
 Transform:
   m_ObjectHideFlags: 0
@@ -5744,7 +5746,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae20601b089464cbda1a749f9e2a9ac2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ChampionPathfinder
-  moveDelay: 2.5
+  speedCurveExponent: 2
+  speedDivisor: 10
 --- !u!4 &1714285459
 Transform:
   m_ObjectHideFlags: 0

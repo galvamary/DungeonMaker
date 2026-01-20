@@ -19,7 +19,11 @@ public class MonsterData : ScriptableObject
     [Header("Skills")]
     public SkillData basicAttack;  // Basic attack (0 MP cost)
     public List<SkillData> skills = new List<SkillData>();  // Special skills
-    
+
+    [Header("Respawn Settings")]
+    [Tooltip("If true, this monster will respawn in the room after being defeated, allowing champions to fight it again")]
+    public bool canRespawn = false;
+
     [Header("Description")]
     [TextArea(3, 5)]
     public string description = "A basic monster for your dungeon.";

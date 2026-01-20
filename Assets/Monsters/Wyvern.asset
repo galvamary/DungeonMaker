@@ -10,17 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 820f5e03bec084d76b189c35910d2fde, type: 3}
-  m_Name: Magician
+  m_Name: Wyvern
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
-  monsterName: Magician
-  icon: {fileID: 6087266653400669680, guid: 2c707d816fc944a9c97c5e52cafe8043, type: 3}
-  cost: 7
-  maxHealth: 6
-  maxMP: 10
-  attack: 4
+  monsterName: Wyvern
+  icon: {fileID: 7345845376315060237, guid: 2c707d816fc944a9c97c5e52cafe8043, type: 3}
+  cost: 8
+  maxHealth: 7
+  maxMP: 5
+  attack: 6
   defense: 2
-  speed: 4
-  basicAttack: {fileID: 0}
-  skills: []
+  speed: 5
+  basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
+  skills:
+  - {fileID: 11400000, guid: ebd915dba13334bf2bbd4a2b2e7786fa, type: 2}
   canRespawn: 0
-  description: A bad wizard who focuses on healing magic
+  description: A bad wizard who focuses on offensive magic

@@ -22,5 +22,5 @@ MonoBehaviour:
   speed: 3
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills: []
-  description: A typical slime commonly found.
-  monsterPrefab: {fileID: 0}
+  canRespawn: 0
+  description: 'A typical durable slime commonly found. '

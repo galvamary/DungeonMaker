@@ -262,16 +262,11 @@ public class BattleManager : MonoBehaviour
         // Handle monsters in room based on battle result (BEFORE clearing entities!)
         if (currentRoom != null && battleSetup.MonsterEntities != null)
         {
-            if (championWon)
-            {
-                // Champion won - remove all monsters
-                currentRoom.RemoveAllMonsters();
-            }
-            else
-            {
-                // Champion lost - remove only dead monsters, keep alive ones
-                RemoveDeadMonstersFromRoom(currentRoom, battleSetup.MonsterEntities);
-            }
+            // Always use RemoveDeadMonstersFromRoom to respect canRespawn property
+            // This removes only dead non-respawnable monsters
+            // - Champion won: removes all dead monsters except respawnable ones
+            // - Champion lost: removes only dead monsters, keeps alive ones and respawnable ones
+            RemoveDeadMonstersFromRoom(currentRoom, battleSetup.MonsterEntities);
         }
 
         // Hide battle UI
@@ -296,7 +291,7 @@ public class BattleManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Removes dead monsters from the room, keeping alive ones
+    /// Removes dead monsters from the room, keeping alive ones and respawnable ones
     /// </summary>
     private void RemoveDeadMonstersFromRoom(Room room, List<BattleEntity> monsterEntities)
     {
@@ -305,31 +300,40 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"=== Checking monsters for removal ===");
         Debug.Log($"Total monster entities: {monsterEntities.Count}");
 
-        // Create a list to track which monsters died (by index)
+        // Create a list to track which monsters died and should be removed (by index)
         List<int> deadMonsterIndices = new List<int>();
 
         // Check each monster entity to see if it's dead
         for (int i = 0; i < monsterEntities.Count; i++)
         {
-            if (monsterEntities[i] != null)
+            if (monsterEntities[i] != null && i < room.PlacedMonsters.Count)
             {
                 bool isAlive = monsterEntities[i].IsAlive;
                 int currentHP = monsterEntities[i].CurrentHealth;
                 string name = monsterEntities[i].EntityName;
+                MonsterData monsterData = room.PlacedMonsters[i];
 
-                Debug.Log($"Monster {i}: {name} - HP: {currentHP}, IsAlive: {isAlive}");
+                Debug.Log($"Monster {i}: {name} - HP: {currentHP}, IsAlive: {isAlive}, CanRespawn: {monsterData.canRespawn}");
 
                 if (!isAlive)
                 {
-                    deadMonsterIndices.Add(i);
-                    Debug.Log($"  → Marking for removal");
+                    // Only mark for removal if the monster CANNOT respawn
+                    if (!monsterData.canRespawn)
+                    {
+                        deadMonsterIndices.Add(i);
+                        Debug.Log($"  → Marking for removal (non-respawnable)");
+                    }
+                    else
+                    {
+                        Debug.Log($"  → Keeping in room (respawnable monster)");
+                    }
                 }
             }
         }
 
-        Debug.Log($"Found {deadMonsterIndices.Count} dead monsters to remove");
+        Debug.Log($"Found {deadMonsterIndices.Count} non-respawnable dead monsters to remove");
 
-        // Remove dead monsters from room (in reverse order to maintain indices)
+        // Remove dead non-respawnable monsters from room (in reverse order to maintain indices)
         for (int i = deadMonsterIndices.Count - 1; i >= 0; i--)
         {
             int index = deadMonsterIndices[i];
@@ -337,7 +341,8 @@ public class BattleManager : MonoBehaviour
             Debug.Log($"Removed dead monster at index {index} from room");
         }
 
-        Debug.Log($"Removal complete. {monsterEntities.Count - deadMonsterIndices.Count} monsters remain alive.");
+        int remainingMonsters = monsterEntities.Count - deadMonsterIndices.Count;
+        Debug.Log($"Removal complete. {remainingMonsters} monsters remain (alive or respawnable).");
     }
 
     private void OnDestroy()

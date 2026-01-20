@@ -1,37 +1,37 @@
 fileFormatVersion: 2
-guid: 988d560df8d322a468c97243cbfd76e8
+guid: 2c707d816fc944a9c97c5e52cafe8043
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 21300000
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_0
+      213: 3530014852511387384
+    second: Battle Enemies_ver2_0
   - first:
-      213: 21300002
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_1
+      213: 8385741139086958390
+    second: Battle Enemies_ver2_1
   - first:
-      213: 21300004
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_2
+      213: 5992762128130456869
+    second: Battle Enemies_ver2_2
   - first:
-      213: 21300006
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_3
+      213: 7345845376315060237
+    second: Battle Enemies_ver2_3
   - first:
-      213: 21300008
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_4
+      213: 3136346412254765022
+    second: Battle Enemies_ver2_4
   - first:
-      213: 21300010
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_5
+      213: 2429666537638120500
+    second: Battle Enemies_ver2_5
   - first:
-      213: 21300012
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_6
+      213: 6087266653400669680
+    second: Battle Enemies_ver2_6
   - first:
-      213: 21300014
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_7
+      213: -1826144407383778613
+    second: Battle Enemies_ver2_7
   - first:
-      213: 21300016
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_8
+      213: -5126636163934499907
+    second: Battle Enemies_ver2_8
   - first:
-      213: 21300018
-    second: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_9
+      213: 3358789739873003512
+    second: Battle Enemies_ver2_9
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -93,13 +93,13 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   ignorePngGamma: 0
-  applyGammaDecoding: 1
+  applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 256
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -112,10 +112,10 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Standalone
-    maxTextureSize: 256
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -125,159 +125,49 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: iOS
-    maxTextureSize: 256
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 1
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_0
+      name: Battle Enemies_ver2_0
       rect:
         serializedVersion: 2
-        x: 17
-        y: 192
-        width: 30
-        height: 24
+        x: 16
+        y: 191
+        width: 32
+        height: 26
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 5f07c822436846f4dbffb185d11d6276
-      internalID: 21300000
+      spriteID: 8fe4bc73ec12df030800000000000000
+      internalID: 3530014852511387384
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_1
-      rect:
-        serializedVersion: 2
-        x: 56
-        y: 192
-        width: 26
-        height: 31
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 852775177e9040d4eb9f1686ddeef8d6
-      internalID: 21300002
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_2
-      rect:
-        serializedVersion: 2
-        x: 9
-        y: 146
-        width: 37
-        height: 34
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4075635582a1e364bb1e80e8dc9e913a
-      internalID: 21300004
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_3
+      name: Battle Enemies_ver2_1
       rect:
         serializedVersion: 2
         x: 55
-        y: 136
+        y: 191
         width: 28
-        height: 45
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 55defdf4b81771940972305b473abbbd
-      internalID: 21300006
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_4
-      rect:
-        serializedVersion: 2
-        x: 18
-        y: 94
-        width: 33
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5cf827ff8876ec24baf8ff61d34930c7
-      internalID: 21300008
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_5
-      rect:
-        serializedVersion: 2
-        x: 61
-        y: 100
-        width: 19
-        height: 27
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 85782a1076777af4ca76b2efcbe99b35
-      internalID: 21300010
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_6
-      rect:
-        serializedVersion: 2
-        x: 17
-        y: 46
-        width: 32
         height: 33
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -285,21 +175,109 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: b0afec906a7c0204ebf873be7a78d22d
-      internalID: 21300012
+      spriteID: 63f58ade223206470800000000000000
+      internalID: 8385741139086958390
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_7
+      name: Battle Enemies_ver2_2
       rect:
         serializedVersion: 2
-        x: 56
-        y: 46
-        width: 29
+        x: 8
+        y: 145
+        width: 39
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 52d31ae87619a2350800000000000000
+      internalID: 5992762128130456869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Battle Enemies_ver2_3
+      rect:
+        serializedVersion: 2
+        x: 54
+        y: 135
+        width: 30
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d007436237fa1f560800000000000000
+      internalID: 7345845376315060237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Battle Enemies_ver2_4
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 93
+        width: 35
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: edf1403e17a868b20800000000000000
+      internalID: 3136346412254765022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Battle Enemies_ver2_5
+      rect:
+        serializedVersion: 2
+        x: 60
+        y: 99
+        width: 21
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43cc292d7d8e7b120800000000000000
+      internalID: 2429666537638120500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Battle Enemies_ver2_6
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 45
+        width: 34
         height: 35
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -307,54 +285,76 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 5d238c6609211de4eaf45ae0f41d26cf
-      internalID: 21300014
+      spriteID: 0fd170105c05a7450800000000000000
+      internalID: 6087266653400669680
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_8
+      name: Battle Enemies_ver2_7
       rect:
         serializedVersion: 2
-        x: 15
-        y: 13
-        width: 41
-        height: 22
+        x: 55
+        y: 45
+        width: 31
+        height: 37
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 254f2d2046a138b4989543fa88d97a50
-      internalID: 21300016
+      spriteID: bcad259365b38a6e0800000000000000
+      internalID: -1826144407383778613
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_9
+      name: Battle Enemies_ver2_8
       rect:
         serializedVersion: 2
-        x: 64
+        x: 14
         y: 12
-        width: 24
-        height: 19
+        width: 43
+        height: 24
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: 0
+      tessellationDetail: -1
       bones: []
-      spriteID: 45c43edec89254845bb322fef8d90e37
-      internalID: 21300018
+      spriteID: dbb430c22978ad8b0800000000000000
+      internalID: -5126636163934499907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Battle Enemies_ver2_9
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 11
+        width: 26
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f76b580971dc9e20800000000000000
+      internalID: 3358789739873003512
       vertices: []
       indices: 
       edges: []
@@ -363,7 +363,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: c9562d249a299e844bc0ab7d4101464c
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -373,16 +373,16 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_0: 21300000
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_1: 21300002
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_2: 21300004
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_3: 21300006
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_4: 21300008
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_5: 21300010
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_6: 21300012
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_7: 21300014
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_8: 21300016
-      rpgcritters2 - Stephen 'Redshrike' Challener, hosted by OpenGameArt.org_9: 21300018
+      Battle Enemies_ver2_0: 3530014852511387384
+      Battle Enemies_ver2_1: 8385741139086958390
+      Battle Enemies_ver2_2: 5992762128130456869
+      Battle Enemies_ver2_3: 7345845376315060237
+      Battle Enemies_ver2_4: 3136346412254765022
+      Battle Enemies_ver2_5: 2429666537638120500
+      Battle Enemies_ver2_6: 6087266653400669680
+      Battle Enemies_ver2_7: -1826144407383778613
+      Battle Enemies_ver2_8: -5126636163934499907
+      Battle Enemies_ver2_9: 3358789739873003512
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

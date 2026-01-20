@@ -260,6 +260,33 @@ public class ChampionPathfinder : MonoBehaviour
             Debug.Log($"{champion.Data.championName} returning to entrance: moving to {nextRoom.GridPosition}");
             float speedMultiplier = CalculateSpeedMultiplier();
             yield return champion.MoveToRoom(nextRoom, speedMultiplier);
+
+            // Check for monsters in the room
+            if (nextRoom.HasMonster)
+            {
+                Debug.Log($"{champion.Data.championName} encountered monsters while returning to entrance at {nextRoom.GridPosition}!");
+
+                // Start battle
+                if (BattleManager.Instance != null)
+                {
+                    BattleManager.Instance.StartBattle(champion, nextRoom);
+
+                    // Wait for battle to finish
+                    yield return new WaitUntil(() => !BattleManager.Instance.IsBattleActive);
+
+                    // Check if champion survived
+                    if (!champion.IsAlive)
+                    {
+                        Debug.Log($"{champion.Data.championName} was defeated while returning to entrance!");
+
+                        // Restore all treasure rooms since champion died
+                        RestoreTreasureRooms();
+
+                        VictoryUI.Instance.ShowVictory(champion);
+                        yield break;
+                    }
+                }
+            }
         }
 
         // Reached entrance - all treasure rooms should already be converted to battle rooms
