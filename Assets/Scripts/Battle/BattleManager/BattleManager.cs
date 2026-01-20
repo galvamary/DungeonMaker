@@ -89,6 +89,12 @@ public class BattleManager : MonoBehaviour
         }
         championAI.Initialize(battleSetup);
 
+        // Initialize monster action panel
+        if (monsterActionPanel != null)
+        {
+            monsterActionPanel.Initialize(battleSetup);
+        }
+
         // Get or add monster controller component
         monsterController = GetComponent<MonsterController>();
         if (monsterController == null)

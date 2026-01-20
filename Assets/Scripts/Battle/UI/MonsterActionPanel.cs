@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// UI panel for player to control monster actions during battle
@@ -14,13 +15,22 @@ public class MonsterActionPanel : MonoBehaviour
     [SerializeField] private Button skillButton;
     [SerializeField] private Button defendButton;
     [SerializeField] private SkillSelectionPanel skillSelectionPanel;
+    [SerializeField] private AllyTargetPanel allyTargetPanel;
 
     // Events for action selection
     public event Action OnBasicAttackClicked;
     public event Action<SkillData> OnSkillSelected; // Pass selected skill
+    public event Action<SkillData, BattleEntity> OnSkillWithTargetSelected; // Pass skill and target for ally skills
     public event Action OnDefendClicked;
 
     private BattleEntity currentMonster;
+    private SkillData pendingSkill; // Skill waiting for target selection
+    private BattleSetup battleSetup; // Reference to battle setup
+
+    public void Initialize(BattleSetup setup)
+    {
+        battleSetup = setup;
+    }
 
     private void Awake()
     {
@@ -44,6 +54,13 @@ public class MonsterActionPanel : MonoBehaviour
         if (skillSelectionPanel != null)
         {
             skillSelectionPanel.OnSkillSelected += HandleSkillSelected;
+        }
+
+        // Setup ally target panel events
+        if (allyTargetPanel != null)
+        {
+            allyTargetPanel.OnAllySelected += HandleAllyTargetSelected;
+            allyTargetPanel.OnBackClicked += HandleAllyTargetBack;
         }
 
         // Hide panel initially
@@ -160,8 +177,94 @@ public class MonsterActionPanel : MonoBehaviour
     private void HandleSkillSelected(SkillData skill)
     {
         Debug.Log($"{currentMonster?.EntityName} - Skill selected: {skill.skillName}");
-        OnSkillSelected?.Invoke(skill);
+
+        // Check if skill requires ally target selection
+        if (skill.targetType == SkillTarget.SingleAlly || skill.targetType == SkillTarget.AllAllies)
+        {
+            // Show ally target selection panel
+            pendingSkill = skill;
+            ShowAllyTargetSelection();
+        }
+        else
+        {
+            // No ally target needed - execute skill immediately
+            OnSkillSelected?.Invoke(skill);
+            Hide();
+        }
+    }
+
+    /// <summary>
+    /// Shows ally target selection panel
+    /// </summary>
+    private void ShowAllyTargetSelection()
+    {
+        if (allyTargetPanel == null)
+        {
+            Debug.LogError("AllyTargetPanel not assigned!");
+            return;
+        }
+
+        // Get all alive ally monsters from BattleManager
+        List<BattleEntity> allyMonsters = GetAllAllyMonsters();
+
+        if (allyMonsters.Count == 0)
+        {
+            Debug.LogWarning("No allies available to target!");
+            // Fall back to skill without target
+            OnSkillSelected?.Invoke(pendingSkill);
+            Hide();
+            return;
+        }
+
+        // Show ally selection panel
+        allyTargetPanel.Show(allyMonsters);
+    }
+
+    /// <summary>
+    /// Gets all alive ally monsters from BattleSetup
+    /// </summary>
+    private List<BattleEntity> GetAllAllyMonsters()
+    {
+        List<BattleEntity> allies = new List<BattleEntity>();
+
+        if (battleSetup != null && battleSetup.MonsterEntities != null)
+        {
+            foreach (var monster in battleSetup.MonsterEntities)
+            {
+                if (monster != null && monster.IsAlive)
+                {
+                    allies.Add(monster);
+                }
+            }
+        }
+
+        return allies;
+    }
+
+    /// <summary>
+    /// Handles ally target selection
+    /// </summary>
+    private void HandleAllyTargetSelected(BattleEntity allyTarget)
+    {
+        Debug.Log($"Ally target selected: {allyTarget.EntityName} for skill: {pendingSkill.skillName}");
+        OnSkillWithTargetSelected?.Invoke(pendingSkill, allyTarget);
+        pendingSkill = null;
         Hide();
+    }
+
+    /// <summary>
+    /// Handles back button from ally target selection
+    /// </summary>
+    private void HandleAllyTargetBack()
+    {
+        Debug.Log("Back from ally target selection - returning to skill selection");
+        pendingSkill = null;
+
+        // Show skill selection panel again
+        if (skillSelectionPanel != null && currentMonster != null)
+        {
+            skillSelectionPanel.Show(currentMonster);
+        }
     }
 
     /// <summary>
@@ -209,6 +312,13 @@ public class MonsterActionPanel : MonoBehaviour
         if (skillSelectionPanel != null)
         {
             skillSelectionPanel.OnSkillSelected -= HandleSkillSelected;
+        }
+
+        // Clean up ally target panel events
+        if (allyTargetPanel != null)
+        {
+            allyTargetPanel.OnAllySelected -= HandleAllyTargetSelected;
+            allyTargetPanel.OnBackClicked -= HandleAllyTargetBack;
         }
     }
 }

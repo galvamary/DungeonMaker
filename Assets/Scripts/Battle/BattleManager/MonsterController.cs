@@ -13,6 +13,7 @@ public class MonsterController : MonoBehaviour
     private bool isWaitingForInput = false;
     private MonsterAction selectedAction = MonsterAction.None;
     private SkillData selectedSkill = null; // Store selected skill
+    private BattleEntity selectedAllyTarget = null; // Store selected ally target
 
     private enum MonsterAction
     {
@@ -36,6 +37,7 @@ public class MonsterController : MonoBehaviour
         {
             actionPanel.OnBasicAttackClicked += HandleBasicAttack;
             actionPanel.OnSkillSelected += HandleSkillSelected;
+            actionPanel.OnSkillWithTargetSelected += HandleSkillWithTargetSelected;
             actionPanel.OnDefendClicked += HandleDefend;
         }
     }
@@ -54,6 +56,7 @@ public class MonsterController : MonoBehaviour
         currentMonster = monster;
         selectedAction = MonsterAction.None;
         selectedSkill = null;
+        selectedAllyTarget = null;
         isWaitingForInput = true;
         
 
@@ -133,6 +136,18 @@ public class MonsterController : MonoBehaviour
     {
         selectedAction = MonsterAction.Skill;
         selectedSkill = skill;
+        selectedAllyTarget = null; // No specific target selected
+        isWaitingForInput = false;
+    }
+
+    /// <summary>
+    /// Handles skill selection with specific ally target
+    /// </summary>
+    private void HandleSkillWithTargetSelected(SkillData skill, BattleEntity allyTarget)
+    {
+        selectedAction = MonsterAction.Skill;
+        selectedSkill = skill;
+        selectedAllyTarget = allyTarget;
         isWaitingForInput = false;
     }
 
@@ -192,12 +207,18 @@ public class MonsterController : MonoBehaviour
                 break;
 
             case SkillTarget.SingleAlly:
-                // Target a random ally monster
-                target = SelectRandomAllyMonster(monster);
-                if (target == null)
+                // Use player-selected ally target if available, otherwise select random
+                if (selectedAllyTarget != null && selectedAllyTarget.IsAlive)
                 {
+                    target = selectedAllyTarget;
+                    Debug.Log($"Using player-selected ally target: {target.EntityName}");
+                }
+                else
+                {
+                
                     Debug.LogWarning($"{monster.EntityName} has no alive allies to target with {skill.skillName}!");
                     yield break;
+                
                 }
                 break;
 
@@ -235,40 +256,6 @@ public class MonsterController : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
     }
 
-    /// <summary>
-    /// Selects a random alive ally monster (excluding the caster)
-    /// </summary>
-    private BattleEntity SelectRandomAllyMonster(BattleEntity caster)
-    {
-        if (battleSetup == null || battleSetup.MonsterEntities == null)
-        {
-            return null;
-        }
-
-        System.Collections.Generic.List<BattleEntity> aliveAllies = new System.Collections.Generic.List<BattleEntity>();
-
-        foreach (var monster in battleSetup.MonsterEntities)
-        {
-            // Add alive monsters (excluding the caster itself)
-            if (monster != null && monster.IsAlive && monster != caster)
-            {
-                aliveAllies.Add(monster);
-            }
-        }
-
-        // Return random ally or null if no allies available
-        if (aliveAllies.Count > 0)
-        {
-            int randomIndex = Random.Range(0, aliveAllies.Count);
-            return aliveAllies[randomIndex];
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Gets all alive ally monsters
-    /// </summary>
     private System.Collections.Generic.List<BattleEntity> GetAllAllyMonsters()
     {
         System.Collections.Generic.List<BattleEntity> aliveAllies = new System.Collections.Generic.List<BattleEntity>();
@@ -296,6 +283,7 @@ public class MonsterController : MonoBehaviour
         {
             actionPanel.OnBasicAttackClicked -= HandleBasicAttack;
             actionPanel.OnSkillSelected -= HandleSkillSelected;
+            actionPanel.OnSkillWithTargetSelected -= HandleSkillWithTargetSelected;
             actionPanel.OnDefendClicked -= HandleDefend;
         }
     }
