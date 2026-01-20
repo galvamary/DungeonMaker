@@ -156,17 +156,68 @@ public class MonsterController : MonoBehaviour
             yield break;
         }
 
-        // Get champion as target
-        BattleEntity championTarget = battleSetup?.ChampionEntity;
+        // Select appropriate target based on skill target type
+        BattleEntity target = null;
+        System.Collections.Generic.List<BattleEntity> allTargets = null;
 
-        if (championTarget == null || !championTarget.IsAlive)
+        switch (skill.targetType)
         {
-            Debug.LogWarning("No alive champion to target!");
-            yield break;
+            case SkillTarget.SingleEnemy:
+                // Target the champion
+                target = battleSetup?.ChampionEntity;
+                if (target == null || !target.IsAlive)
+                {
+                    Debug.LogWarning("No alive champion to target!");
+                    yield break;
+                }
+                break;
+
+            case SkillTarget.AllEnemies:
+                // Target all enemies (currently only the champion)
+                target = battleSetup?.ChampionEntity;
+                if (target != null && target.IsAlive)
+                {
+                    allTargets = new System.Collections.Generic.List<BattleEntity> { target };
+                }
+                else
+                {
+                    Debug.LogWarning("No alive champion to target!");
+                    yield break;
+                }
+                break;
+
+            case SkillTarget.Self:
+                // No target needed (caster heals/buffs themselves)
+                target = null;
+                break;
+
+            case SkillTarget.SingleAlly:
+                // Target a random ally monster
+                target = SelectRandomAllyMonster(monster);
+                if (target == null)
+                {
+                    Debug.LogWarning($"{monster.EntityName} has no alive allies to target with {skill.skillName}!");
+                    yield break;
+                }
+                break;
+
+            case SkillTarget.AllAllies:
+                // Target all ally monsters
+                allTargets = GetAllAllyMonsters();
+                if (allTargets == null || allTargets.Count == 0)
+                {
+                    Debug.LogWarning($"{monster.EntityName} has no alive allies to target with {skill.skillName}!");
+                    yield break;
+                }
+                break;
+
+            default:
+                Debug.LogWarning($"Unsupported skill target type: {skill.targetType}");
+                yield break;
         }
 
         // Execute skill with animation
-        yield return monster.StartCoroutine(monster.PerformSkillWithAnimation(skill, championTarget, null));
+        yield return monster.StartCoroutine(monster.PerformSkillWithAnimation(skill, target, allTargets));
     }
 
     /// <summary>
@@ -182,6 +233,60 @@ public class MonsterController : MonoBehaviour
 
         monster.StartDefending();
         yield return new WaitForSeconds(1.0f);
+    }
+
+    /// <summary>
+    /// Selects a random alive ally monster (excluding the caster)
+    /// </summary>
+    private BattleEntity SelectRandomAllyMonster(BattleEntity caster)
+    {
+        if (battleSetup == null || battleSetup.MonsterEntities == null)
+        {
+            return null;
+        }
+
+        System.Collections.Generic.List<BattleEntity> aliveAllies = new System.Collections.Generic.List<BattleEntity>();
+
+        foreach (var monster in battleSetup.MonsterEntities)
+        {
+            // Add alive monsters (excluding the caster itself)
+            if (monster != null && monster.IsAlive && monster != caster)
+            {
+                aliveAllies.Add(monster);
+            }
+        }
+
+        // Return random ally or null if no allies available
+        if (aliveAllies.Count > 0)
+        {
+            int randomIndex = Random.Range(0, aliveAllies.Count);
+            return aliveAllies[randomIndex];
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Gets all alive ally monsters
+    /// </summary>
+    private System.Collections.Generic.List<BattleEntity> GetAllAllyMonsters()
+    {
+        System.Collections.Generic.List<BattleEntity> aliveAllies = new System.Collections.Generic.List<BattleEntity>();
+
+        if (battleSetup == null || battleSetup.MonsterEntities == null)
+        {
+            return aliveAllies;
+        }
+
+        foreach (var monster in battleSetup.MonsterEntities)
+        {
+            if (monster != null && monster.IsAlive)
+            {
+                aliveAllies.Add(monster);
+            }
+        }
+
+        return aliveAllies;
     }
 
     private void OnDestroy()
