@@ -60,7 +60,6 @@ public class MonsterActionPanel : MonoBehaviour
         if (allyTargetPanel != null)
         {
             allyTargetPanel.OnAllySelected += HandleAllyTargetSelected;
-            allyTargetPanel.OnBackClicked += HandleAllyTargetBack;
         }
 
         // Hide panel initially
@@ -255,7 +254,7 @@ public class MonsterActionPanel : MonoBehaviour
     /// <summary>
     /// Handles back button from ally target selection
     /// </summary>
-    private void HandleAllyTargetBack()
+    public void HandleAllyTargetBack()
     {
         Debug.Log("Back from ally target selection - returning to skill selection");
         pendingSkill = null;
@@ -318,7 +317,6 @@ public class MonsterActionPanel : MonoBehaviour
         if (allyTargetPanel != null)
         {
             allyTargetPanel.OnAllySelected -= HandleAllyTargetSelected;
-            allyTargetPanel.OnBackClicked -= HandleAllyTargetBack;
         }
     }
 }

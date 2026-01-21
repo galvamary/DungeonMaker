@@ -14,23 +14,15 @@ public class AllyTargetPanel : MonoBehaviour
     [SerializeField] private GameObject panelRoot;
     [SerializeField] private Transform allyButtonContainer; // Parent for ally buttons
     [SerializeField] private GameObject allyButtonPrefab;   // Prefab for ally button
-    [SerializeField] private Button backButton;
 
     // Event for ally selection
     public event Action<BattleEntity> OnAllySelected;
-    public event Action OnBackClicked;
 
     private List<BattleEntity> availableAllies = new List<BattleEntity>();
     private List<GameObject> spawnedButtons = new List<GameObject>();
 
     private void Awake()
     {
-        // Setup back button
-        if (backButton != null)
-        {
-            backButton.onClick.AddListener(HandleBackClick);
-        }
-
         // Hide panel initially
         Hide();
     }
@@ -162,19 +154,9 @@ public class AllyTargetPanel : MonoBehaviour
     /// <summary>
     /// Handles back button click
     /// </summary>
-    private void HandleBackClick()
+    public void HandleBackClick()
     {
         Debug.Log("Back from ally selection");
-        OnBackClicked?.Invoke();
         Hide();
-    }
-
-    private void OnDestroy()
-    {
-        // Clean up back button
-        if (backButton != null)
-        {
-            backButton.onClick.RemoveListener(HandleBackClick);
-        }
     }
 }
