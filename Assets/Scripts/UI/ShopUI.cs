@@ -1,18 +1,32 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
-public class ShopUI : MonoBehaviour
+public class ShopUI : MonoBehaviour, IDropHandler
 {
+    public static ShopUI Instance { get; private set; }
+
     [Header("UI References")]
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private Button shopToggleButton;
     [SerializeField] private Transform shopItemContainer;
     [SerializeField] private GameObject shopItemPrefab;
-    
-    private void Start()
+    private bool isInitialized = false;
+
+    private void Awake()
     {
-        if (shopPanel != null)
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+                // Close shop on start - do this in Start to ensure proper initialization
+        if (shopPanel != null && isInitialized)
         {
             shopPanel.SetActive(false);
         }
@@ -20,20 +34,35 @@ public class ShopUI : MonoBehaviour
  
     public void ToggleShop()
     {
-        if (shopPanel != null)
+        if (shopPanel == null)
         {
-            bool isActive = !shopPanel.activeSelf;
-            shopPanel.SetActive(isActive);
-            
-            if (isActive)
-            {
-                PopulateShopItems();
-                Debug.Log("Shop opened");
-            }
-            else
-            {
-                Debug.Log("Shop closed");
-            }
+            Debug.LogError("ShopPanel is null! Please assign it in the Inspector.");
+            return;
+        }
+
+        // 처음 호출될 때는 Start()에서 이미 초기화했으므로, 무조건 열기
+        if (!isInitialized)
+        {
+            shopPanel.SetActive(true);
+            isInitialized = true;
+            PopulateShopItems();
+            Debug.Log("Shop opened (first time)");
+            return;
+        }
+
+        // 이후에는 정상적으로 토글
+        bool isActive = !shopPanel.activeSelf;
+
+        shopPanel.SetActive(isActive);
+
+        if (isActive)
+        {
+            PopulateShopItems();
+            Debug.Log("Shop opened");
+        }
+        else
+        {
+            Debug.Log("Shop closed");
         }
     }
 
@@ -123,6 +152,34 @@ public class ShopUI : MonoBehaviour
         else
         {
             Debug.Log($"Failed to purchase {monster.monsterName}");
+        }
+    }
+
+    /// <summary>
+    /// Called when monster is dropped on the shop UI
+    /// </summary>
+    public void OnDrop(PointerEventData eventData)
+    {
+        // Get the dragged monster data from the drag handler
+        GameObject draggedObject = eventData.pointerDrag;
+        if (draggedObject == null) return;
+
+        MonsterDragHandler dragHandler = draggedObject.GetComponent<MonsterDragHandler>();
+        if (dragHandler != null && dragHandler.MonsterData != null)
+        {
+            // Sell the monster
+            if (ShopManager.Instance != null)
+            {
+                bool sold = ShopManager.Instance.SellMonster(dragHandler.MonsterData);
+                if (sold)
+                {
+                    int sellPrice = dragHandler.MonsterData.cost;
+                    Debug.Log($"Sold {dragHandler.MonsterData.monsterName} for {sellPrice} gold!");
+                }
+            }
+
+            // Clean up the drag operation (since OnEndDrag won't be called when OnDrop handles it)
+            dragHandler.CleanupDrag();
         }
     }
 }

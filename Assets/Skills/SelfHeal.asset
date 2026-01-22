@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 546164c4094ff4f338169725866174fb, type: 3}
   m_Name: SelfHeal
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
-  skillName: Heal
+  skillName: SelfHeal
   icon: {fileID: 0}
   requiredTreasureRooms: 3
   mpCost: 5

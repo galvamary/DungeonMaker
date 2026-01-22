@@ -7,7 +7,7 @@ public class ShopManager : MonoBehaviour
     
     [Header("Shop Settings")]
     [SerializeField] private List<MonsterData> availableMonsters = new List<MonsterData>();
-    
+
     // 구매한 몬스터 개수 추적
     private Dictionary<MonsterData, int> ownedMonsters = new Dictionary<MonsterData, int>();
     
@@ -111,5 +111,44 @@ public class ShopManager : MonoBehaviour
         }
 
         Debug.Log($"Returned {monster.monsterName} to inventory. Total: {ownedMonsters[monster]}");
+    }
+
+    /// <summary>
+    /// Sells a monster from inventory back to the shop
+    /// </summary>
+    /// <param name="monster">Monster to sell</param>
+    /// <returns>True if successfully sold</returns>
+    public bool SellMonster(MonsterData monster)
+    {
+        if (monster == null)
+        {
+            Debug.LogWarning("Cannot sell null monster!");
+            return false;
+        }
+
+        // Check if player owns this monster
+        if (!ownedMonsters.ContainsKey(monster) || ownedMonsters[monster] <= 0)
+        {
+            Debug.LogWarning($"No {monster.monsterName} to sell!");
+            return false;
+        }
+
+        // Remove monster from inventory
+        ownedMonsters[monster]--;
+
+        // Add gold to player
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddGold(monster.cost);
+        }
+
+        // Update inventory UI
+        if (MonsterInventoryUI.Instance != null)
+        {
+            MonsterInventoryUI.Instance.UpdateMonsterInventory(monster, ownedMonsters[monster]);
+        }
+
+        Debug.Log($"Sold {monster.monsterName} for {monster.cost} gold. Remaining: {ownedMonsters[monster]}");
+        return true;
     }
 }

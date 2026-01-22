@@ -16,11 +16,12 @@ MonoBehaviour:
   icon: {fileID: 6087266653400669680, guid: 2c707d816fc944a9c97c5e52cafe8043, type: 3}
   cost: 7
   maxHealth: 6
-  maxMP: 10
+  maxMP: 6
   attack: 4
   defense: 2
   speed: 4
-  basicAttack: {fileID: 0}
-  skills: []
+  basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
+  skills:
+  - {fileID: 11400000, guid: 4642ab532962c46b4968902a9ef7c54f, type: 2}
   canRespawn: 0
   description: A bad wizard who focuses on healing magic
