@@ -8,12 +8,7 @@ public class MonsterTooltip : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject tooltipPanel;
-    [SerializeField] private TextMeshProUGUI monsterNameText;
-    [SerializeField] private TextMeshProUGUI healthText;
-    [SerializeField] private TextMeshProUGUI mpText;
-    [SerializeField] private TextMeshProUGUI attackText;
-    [SerializeField] private TextMeshProUGUI defenseText;
-    [SerializeField] private TextMeshProUGUI speedText;
+    [SerializeField] private TextMeshProUGUI monsterNameText;   
     [SerializeField] private TextMeshProUGUI descriptionText;
 
     private RectTransform tooltipRect;
@@ -52,21 +47,6 @@ public class MonsterTooltip : MonoBehaviour
         // 몬스터 정보 표시
         if (monsterNameText != null)
             monsterNameText.text = monster.monsterName;
-
-        if (healthText != null)
-            healthText.text = $"HP: {monster.maxHealth}";
-
-        if (mpText != null)
-            mpText.text = $"MP: {monster.maxMP}";
-
-        if (attackText != null)
-            attackText.text = $"attack: {monster.attack}";
-
-        if (defenseText != null)
-            defenseText.text = $"defense: {monster.defense}";
-
-        if (speedText != null)
-            speedText.text = $"speed: {monster.speed}";
 
         if (descriptionText != null)
             descriptionText.text = monster.description;
