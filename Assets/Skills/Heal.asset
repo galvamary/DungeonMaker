@@ -17,7 +17,7 @@ MonoBehaviour:
   requiredTreasureRooms: 0
   mpCost: 3
   skillType: 1
-  power: 5
+  power: 10
   targetType: 3
   effectPrefab: {fileID: 3798611714153775236, guid: 36ac378e2f6a7410faf6b9454b683253, type: 3}
   description: 

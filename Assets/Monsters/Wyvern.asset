@@ -24,4 +24,4 @@ MonoBehaviour:
   skills:
   - {fileID: 11400000, guid: ebd915dba13334bf2bbd4a2b2e7786fa, type: 2}
   canRespawn: 0
-  description: A bad wizard who focuses on offensive magic
+  description: A small dragon that spits out flame brass

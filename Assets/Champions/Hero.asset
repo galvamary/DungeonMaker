@@ -18,7 +18,7 @@ MonoBehaviour:
   exhaustedSprite: {fileID: 5825993557141261907, guid: a1073e4c432264fa88a46763b676e549, type: 3}
   maxHealth: 70
   maxMP: 20
-  attack: 12
+  attack: 11
   defense: 5
   speed: 4
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}

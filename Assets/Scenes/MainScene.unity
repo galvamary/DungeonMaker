@@ -1979,9 +1979,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c347d45b0a4b483f80621912306c8fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameStateManager
-  shopUI: {fileID: 2018383448}
+  shopUI: {fileID: 950574017}
   monsterInventoryUI: {fileID: 1527559705}
   startButton: {fileID: 256159951}
+  shopButton: {fileID: 2018383448}
   cameraController: {fileID: 519420033}
   championSpawner: {fileID: 1044680823}
   championPathfinder: {fileID: 1714285458}

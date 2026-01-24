@@ -105,6 +105,7 @@ public class BattleManager : MonoBehaviour
 
         // Subscribe to turn system events
         turnSystem.OnTurnStart += HandleTurnStart;
+        turnSystem.OnRoundStart += HandleRoundStart;
         turnSystem.OnBattleEnd += EndBattle;
     }
 
@@ -194,6 +195,20 @@ public class BattleManager : MonoBehaviour
         else
         {
             StartCoroutine(ExecuteMonsterTurn(entity));
+        }
+    }
+
+    /// <summary>
+    /// Handles round start event - adds fatigue to champion per round
+    /// </summary>
+    private void HandleRoundStart(int roundNumber)
+    {
+        if (currentChampion != null)
+        {
+            // Add 1/3 of fatiguePerRoom each round
+            float fatiguePerRound = currentChampion.FatiguePerRoom / 3f;
+            currentChampion.AddFatigue(fatiguePerRound);
+            Debug.Log($"Round {roundNumber} started. Added {fatiguePerRound:F2} fatigue to champion. Current fatigue: {currentChampion.CurrentFatigue:F2}");
         }
     }
 
@@ -357,6 +372,7 @@ public class BattleManager : MonoBehaviour
         if (turnSystem != null)
         {
             turnSystem.OnTurnStart -= HandleTurnStart;
+            turnSystem.OnRoundStart -= HandleRoundStart;
             turnSystem.OnBattleEnd -= EndBattle;
         }
     }

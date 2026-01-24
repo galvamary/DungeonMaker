@@ -17,6 +17,7 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private GameObject shopUI;
     [SerializeField] private GameObject monsterInventoryUI;
     [SerializeField] private GameObject startButton;
+    [SerializeField] private GameObject shopButton;
 
     [Header("Camera References")]
     [SerializeField] private CameraController cameraController;
@@ -76,6 +77,7 @@ public class GameStateManager : MonoBehaviour
         if (shopUI != null) shopUI.SetActive(false);
         if (monsterInventoryUI != null) monsterInventoryUI.SetActive(false);
         if (startButton != null) startButton.SetActive(false);
+        if (shopButton != null) shopButton.SetActive(false);
 
         // Disable grid click handler (but keep grid visible)
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();
@@ -148,9 +150,10 @@ public class GameStateManager : MonoBehaviour
     private void SetPreparationPhase()
     {
         // Enable preparation UI
-        if (shopUI != null) shopUI.SetActive(true);
+        if (shopUI != null) shopUI.SetActive(false);
         if (monsterInventoryUI != null) monsterInventoryUI.SetActive(true);
         if (startButton != null) startButton.SetActive(true);
+        if (shopButton != null) shopButton.SetActive(true);
 
         // Enable grid click handler
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();

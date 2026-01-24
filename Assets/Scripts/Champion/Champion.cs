@@ -27,6 +27,7 @@ public class Champion : MonoBehaviour
     public int CurrentHealth => currentHealth;
     public int CurrentMP => currentMP;
     public float CurrentFatigue => currentFatigue;
+    public float FatiguePerRoom => fatiguePerRoom;
     public Room CurrentRoom => currentRoom;
     public bool IsAlive => currentHealth > 0;
     public List<SkillData> AvailableSkills => availableSkills;
