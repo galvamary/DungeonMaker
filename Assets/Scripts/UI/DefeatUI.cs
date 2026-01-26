@@ -57,6 +57,7 @@ public class DefeatUI : MonoBehaviour
         if (GameStateManager.Instance != null)
         {
             GameStateManager.Instance.ReturnToPreparation();
+            GameManager.Instance.DecreaseReputation(1);
         }
     }
 }

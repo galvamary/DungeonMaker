@@ -151,4 +151,27 @@ public class ShopManager : MonoBehaviour
         Debug.Log($"Sold {monster.monsterName} for {monster.cost} gold. Remaining: {ownedMonsters[monster]}");
         return true;
     }
+
+    /// <summary>
+    /// Resets monster inventory - clears all owned monsters
+    /// </summary>
+    public void ResetInventory()
+    {
+        Debug.Log("Resetting monster inventory...");
+
+        // Clear owned monsters dictionary
+        ownedMonsters.Clear();
+
+        // Update inventory UI to reflect empty state
+        if (MonsterInventoryUI.Instance != null)
+        {
+            // Clear all monster displays
+            foreach (var monster in availableMonsters)
+            {
+                MonsterInventoryUI.Instance.UpdateMonsterInventory(monster, 0);
+            }
+        }
+
+        Debug.Log("Monster inventory reset complete.");
+    }
 }

@@ -70,6 +70,7 @@ public class VictoryUI : MonoBehaviour
 
             GameManager.Instance.AddGold(goldReward);
             Debug.Log($"Victory reward! Received {goldReward} gold (base 150 + {50 * treasureRoomCount} from {treasureRoomCount} treasure rooms)");
+            GameManager.Instance.IncreaseReputation(1);
         }
 
         // Return to preparation phase

@@ -56,11 +56,17 @@ public class GameStateManager : MonoBehaviour
             return;
         }
 
-        // Check if treasure room exists
-        if (RoomManager.Instance != null && RoomManager.Instance.GetTreasureRoom() == null)
+        // Check if enough treasure rooms are built based on reputation
+        if (GameManager.Instance != null && RoomManager.Instance != null)
         {
-            Debug.LogWarning("Cannot start exploration! You must build at least one Treasure room.");
-            return;
+            int currentReputation = GameManager.Instance.CurrentReputation;
+            int treasureRoomCount = RoomManager.Instance.GetTreasureRoomCount();
+
+            if (treasureRoomCount < currentReputation)
+            {
+                Debug.LogWarning($"Cannot start exploration! You must build at least {currentReputation} treasure rooms (current reputation). Currently built: {treasureRoomCount} treasure rooms.");
+                return;
+            }
         }
 
         // Check if all rooms are connected

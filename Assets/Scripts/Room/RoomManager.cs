@@ -411,4 +411,29 @@ public class RoomManager : MonoBehaviour
         // Check if all rooms were visited
         return visited.Count == placedRooms.Count;
     }
+
+    /// <summary>
+    /// Resets all rooms - destroys all placed rooms and recreates entrance at (0,0)
+    /// </summary>
+    public void ResetAllRooms()
+    {
+        Debug.Log("Resetting all rooms...");
+
+        // Destroy all room GameObjects
+        foreach (var room in placedRooms.Values)
+        {
+            if (room != null && room.gameObject != null)
+            {
+                Destroy(room.gameObject);
+            }
+        }
+
+        // Clear the placed rooms dictionary
+        placedRooms.Clear();
+
+        // Recreate entrance at (0,0)
+        PlaceRoom(new Vector2Int(0, 0), RoomType.Entrance);
+
+        Debug.Log("All rooms reset. Entrance recreated at (0,0)");
+    }
 }
