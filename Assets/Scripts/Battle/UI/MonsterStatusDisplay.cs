@@ -20,27 +20,6 @@ public class MonsterStatusDisplay : MonoBehaviour
     private BattleEntity monster;
     public BattleEntity Monster => monster;
 
-    private void Awake()
-    {
-        // Set outline for text elements
-        SetupTextOutline(hpText);
-        SetupTextOutline(mpText);
-    }
-
-    /// <summary>
-    /// Setup black outline for TextMeshPro text
-    /// </summary>
-    private void SetupTextOutline(TextMeshProUGUI text)
-    {
-        if (text == null) return;
-
-        // Create material instance to avoid affecting other texts
-        text.fontMaterial = new UnityEngine.Material(text.fontMaterial);
-
-        text.outlineWidth = 0.2f;
-        text.outlineColor = Color.black;
-    }
-
     /// <summary>
     /// Initialize the status display with a monster
     /// </summary>

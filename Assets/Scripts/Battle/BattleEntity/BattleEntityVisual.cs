@@ -204,10 +204,6 @@ public class BattleEntityVisual : MonoBehaviour
             nameText.font = BattleManager.Instance.ChampionNameFont;
         }
 
-        // Setup outline for better visibility
-        nameText.outlineWidth = 0.2f;
-        nameText.outlineColor = Color.black;
-
         // Initially hidden (will show when HP <= 50%)
         nameDisplay.SetActive(false);
     }

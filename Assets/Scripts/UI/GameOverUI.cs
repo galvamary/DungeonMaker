@@ -124,16 +124,26 @@ public class GameOverUI : MonoBehaviour
     {
         Debug.Log("Restart button clicked!");
 
+        // Restart game without reloading scene
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RestartGame();
+        }
+
         // Hide game over panel
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(false);
         }
 
-        // Restart game without reloading scene
-        if (GameManager.Instance != null)
+        if (fadeImage != null)
         {
-            GameManager.Instance.RestartGame();
+            fadeImage.gameObject.SetActive(false);
+        }
+
+        if (restartButton != null)
+        {
+            restartButton.SetActive(false);
         }
     }
 }
