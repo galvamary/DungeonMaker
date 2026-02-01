@@ -78,9 +78,12 @@ public class BattleEntity : MonoBehaviour
         entityName = champion.Data.championName;
         entitySprite = champion.CurrentSprite; // Use current sprite based on fatigue
         currentHealth = champion.CurrentHealth;
-        maxHealth = champion.Data.maxHealth;
         currentMP = champion.CurrentMP;
-        maxMP = champion.Data.maxMP;
+
+        // Calculate max HP/MP based on reputation
+        int reputation = GameManager.Instance != null ? GameManager.Instance.CurrentReputation : 1;
+        maxHealth = champion.Data.maxHealth * reputation;
+        maxMP = champion.Data.maxMP * reputation;
 
         // 피로도로 감소된 스탯 사용
         attack = champion.EffectiveAttack;
