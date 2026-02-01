@@ -21,7 +21,7 @@ public class Champion : MonoBehaviour
     [Header("Fatigue Settings")]
     [SerializeField] private float fatiguePerRoom = 7f;  // 방 이동 시 증가하는 피로도
     [SerializeField] private float maxFatigue = 100f;    // 최대 피로도
-    [SerializeField] private float fatigueStatPenalty = 0.5f;  // 최대 피로도일 때 스탯 감소율 (50%)
+    [SerializeField] private float fatigueStatPenalty = 0.4f;  // 최대 피로도일 때 스탯 감소율 (50%)
 
     public ChampionData Data => championData;
     public int CurrentHealth => currentHealth;
@@ -52,38 +52,38 @@ public class Champion : MonoBehaviour
         championData = data;
         currentRoom = startRoom;
 
-        // Get treasure room count for stat scaling
-        int treasureRoomCount = RoomManager.Instance?.GetTreasureRoomCount() ?? 1;
-        treasureRoomCount = Mathf.Max(1, treasureRoomCount); // Minimum 1
+        // Get reputation for stat scaling
+        int reputation = GameManager.Instance?.CurrentReputation ?? 1;
+        reputation = Mathf.Max(1, reputation); // Minimum 1
 
-        // Initialize stats with treasure room scaling
-        // HP and MP are multiplied by treasure room count
-        currentHealth = data.maxHealth * treasureRoomCount;
-        currentMP = data.maxMP * treasureRoomCount;
+        // Initialize stats with reputation scaling
+        // HP and MP are multiplied by reputation
+        currentHealth = data.maxHealth * reputation;
+        currentMP = data.maxMP * reputation;
         currentFatigue = 0f;  // 초기 피로도는 0
 
         // Adjust fatigue rate: 8 - n, minimum 1
-        fatiguePerRoom = Mathf.Max(1f, 8f - treasureRoomCount);
+        fatiguePerRoom = Mathf.Max(1f, 8f - reputation);
 
-        // Filter skills based on treasure room count
+        // Filter skills based on reputation
         availableSkills.Clear();
         if (data.skills != null)
         {
             foreach (SkillData skill in data.skills)
             {
-                if (skill != null && treasureRoomCount >= skill.requiredTreasureRooms)
+                if (skill != null && reputation >= skill.requiredTreasureRooms)
                 {
                     availableSkills.Add(skill);
-                    Debug.Log($"Unlocked skill: {skill.skillName} (requires {skill.requiredTreasureRooms} treasure rooms)");
+                    Debug.Log($"Unlocked skill: {skill.skillName} (requires reputation {skill.requiredTreasureRooms})");
                 }
                 else if (skill != null)
                 {
-                    Debug.Log($"Locked skill: {skill.skillName} (requires {skill.requiredTreasureRooms} treasure rooms, current: {treasureRoomCount})");
+                    Debug.Log($"Locked skill: {skill.skillName} (requires reputation {skill.requiredTreasureRooms}, current: {reputation})");
                 }
             }
         }
 
-        Debug.Log($"Champion initialized with {treasureRoomCount} treasure rooms: " +
+        Debug.Log($"Champion initialized with reputation {reputation}: " +
                   $"HP={currentHealth}, MP={currentMP}, FatigueRate={fatiguePerRoom}, Skills={availableSkills.Count}");
 
         // Set initial sprite based on fatigue (should be normal at start)
@@ -188,10 +188,11 @@ public class Champion : MonoBehaviour
     /// </summary>
     public void UpdateStatsFromBattle(int newHealth, int newMP)
     {
-        currentHealth = Mathf.Clamp(newHealth, 0, championData.maxHealth);
-        currentMP = Mathf.Clamp(newMP, 0, championData.maxMP);
+        int reputation = GameManager.Instance != null ? GameManager.Instance.CurrentReputation : 1;
+        currentHealth = Mathf.Clamp(newHealth, 0, championData.maxHealth * reputation);
+        currentMP = Mathf.Clamp(newMP, 0, championData.maxMP * reputation);
 
-        Debug.Log($"{championData.championName} stats updated - HP: {currentHealth}/{championData.maxHealth}, MP: {currentMP}/{championData.maxMP}");
+        Debug.Log($"{championData.championName} stats updated - HP: {currentHealth}/{championData.maxHealth * reputation}, MP: {currentMP}/{championData.maxMP * reputation}");
     }
 
     public IEnumerator MoveToRoom(Room newRoom, float speedMultiplier = 1f)
