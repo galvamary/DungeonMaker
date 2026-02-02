@@ -63,7 +63,7 @@ public class Champion : MonoBehaviour
         currentFatigue = 0f;  // 초기 피로도는 0
 
         // Adjust fatigue rate: 8 - n, minimum 1
-        fatiguePerRoom = Mathf.Max(1f, 8f - reputation);
+        fatiguePerRoom = Mathf.Max(1f, 7f/reputation);
 
         // Filter skills based on reputation
         availableSkills.Clear();

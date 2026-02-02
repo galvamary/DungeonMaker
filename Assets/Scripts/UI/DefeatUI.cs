@@ -53,11 +53,16 @@ public class DefeatUI : MonoBehaviour
     {
         HideDefeat();
 
+        // Reduce reputation to 1/3 when defeated
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ReduceReputationToOneThird();
+        }
+
         // Return to preparation phase
         if (GameStateManager.Instance != null)
         {
             GameStateManager.Instance.ReturnToPreparation();
-            GameManager.Instance.DecreaseReputation(1);
         }
     }
 }

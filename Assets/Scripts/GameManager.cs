@@ -92,6 +92,31 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Reduces reputation to 1/3 when champion is defeated (rounded down)
+    /// </summary>
+    public void ReduceReputationToOneThird()
+    {
+        int oldReputation = currentReputation;
+        currentReputation = Mathf.FloorToInt(currentReputation / 3f);
+
+        // Ensure reputation doesn't drop below 1
+        if (currentReputation < 1)
+        {
+            currentReputation = 1;
+        }
+
+        OnReputationChanged?.Invoke(currentReputation);
+        Debug.Log($"Reputation reduced to 1/3: {oldReputation} → {currentReputation}");
+
+        // Check if reputation dropped below 1 - trigger game over (shouldn't happen with the clamp above, but just in case)
+        if (oldReputation == 1)
+        {
+            Debug.Log("Game Over!");
+            OnGameOver?.Invoke();
+        }
+    }
+
+    /// <summary>
     /// Resets all game state to initial values
     /// </summary>
     public void ResetGame()

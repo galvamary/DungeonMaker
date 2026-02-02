@@ -15,7 +15,7 @@ MonoBehaviour:
   skillName: SelfHeal
   icon: {fileID: 0}
   requiredTreasureRooms: 3
-  mpCost: 5
+  mpCost: 10
   skillType: 1
   power: 15
   targetType: 2
