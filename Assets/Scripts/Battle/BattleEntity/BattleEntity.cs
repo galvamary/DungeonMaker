@@ -110,9 +110,12 @@ public class BattleEntity : MonoBehaviour
     /// <summary>
     /// Initializes entity from a MonsterData
     /// </summary>
-    public void InitializeFromMonster(MonsterData monster)
+    /// <param name="monster">The monster data to initialize from</param>
+    /// <param name="displayName">Optional custom display name (used for duplicate monsters with numbers)</param>
+    public void InitializeFromMonster(MonsterData monster, string displayName = null)
     {
-        entityName = monster.monsterName;
+        // Use custom display name if provided, otherwise use monster's base name
+        entityName = string.IsNullOrEmpty(displayName) ? monster.monsterName : displayName;
         entitySprite = monster.icon;
         currentHealth = monster.maxHealth;
         maxHealth = monster.maxHealth;

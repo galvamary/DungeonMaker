@@ -96,6 +96,22 @@ public class BattleSetup : MonoBehaviour
     {
         RectTransform[] monsterContainers = BattleUI.Instance.MonsterPositionContainers;
 
+        // Count duplicates to add numbers to duplicate monster names
+        Dictionary<string, int> monsterNameCounts = new Dictionary<string, int>();
+        Dictionary<string, int> monsterNameIndices = new Dictionary<string, int>();
+
+        // First pass: count how many of each monster type
+        foreach (MonsterData monster in monsters)
+        {
+            string monsterName = monster.monsterName;
+            if (!monsterNameCounts.ContainsKey(monsterName))
+            {
+                monsterNameCounts[monsterName] = 0;
+            }
+            monsterNameCounts[monsterName]++;
+        }
+
+        // Second pass: spawn monsters with numbered names if duplicates exist
         for (int i = 0; i < monsters.Count; i++)
         {
             RectTransform containerTransform = GetMonsterPositionContainer(i, monsters.Count, monsterContainers);
@@ -116,8 +132,23 @@ public class BattleSetup : MonoBehaviour
                 monsterEntity.SetDefenseShieldSprite(defenseShieldSprite);
             }
 
-            // Initialize monster data
-            monsterEntity.InitializeFromMonster(monsters[i]);
+            // Determine display name with number if there are duplicates
+            string monsterName = monsters[i].monsterName;
+            string displayName = monsterName;
+
+            if (monsterNameCounts[monsterName] > 1)
+            {
+                // Track which number this monster should get
+                if (!monsterNameIndices.ContainsKey(monsterName))
+                {
+                    monsterNameIndices[monsterName] = 1;
+                }
+                displayName = $"{monsterName} {monsterNameIndices[monsterName]}";
+                monsterNameIndices[monsterName]++;
+            }
+
+            // Initialize monster data with custom display name
+            monsterEntity.InitializeFromMonster(monsters[i], displayName);
 
             // Position monster
             RectTransform rectTransform = monsterObj.GetComponent<RectTransform>();
@@ -127,7 +158,7 @@ public class BattleSetup : MonoBehaviour
             monsterEntity.SaveOriginalPosition();
 
             monsterEntities.Add(monsterEntity);
-            Debug.Log($"Monster {monsters[i].monsterName} spawned at {containerTransform.position}");
+            Debug.Log($"Monster {displayName} spawned at {containerTransform.position}");
         }
 
         yield return null;
