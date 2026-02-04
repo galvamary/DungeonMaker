@@ -226,7 +226,21 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private IEnumerator ExecuteMonsterTurn(BattleEntity monster)
     {
+        // Play turn start animation (monster moves right)
+        if (monster != null && monster.IsMonster)
+        {
+            yield return monster.StartCoroutine(monster.PlayTurnStartAnimation());
+        }
+
+        // Execute the monster's turn
         yield return monsterController.StartCoroutine(monsterController.ExecuteTurn(monster));
+
+        // Play turn end animation (monster returns to original position)
+        if (monster != null && monster.IsMonster && monster.IsAlive)
+        {
+            yield return monster.StartCoroutine(monster.PlayTurnEndAnimation());
+        }
+
         turnSystem.NextTurn();
     }
 

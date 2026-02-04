@@ -379,4 +379,30 @@ public class BattleEntity : MonoBehaviour
     }
 
     #endregion
+
+    #region Turn Animations
+
+    /// <summary>
+    /// Plays turn start animation (monster moves slightly to the right)
+    /// </summary>
+    public IEnumerator PlayTurnStartAnimation()
+    {
+        if (animator != null)
+        {
+            yield return animator.StartCoroutine(animator.MoveTurnStart());
+        }
+    }
+
+    /// <summary>
+    /// Plays turn end animation (monster returns to original position)
+    /// </summary>
+    public IEnumerator PlayTurnEndAnimation()
+    {
+        if (animator != null)
+        {
+            yield return animator.StartCoroutine(animator.MoveTurnEnd());
+        }
+    }
+
+    #endregion
 }

@@ -92,5 +92,58 @@ public class BattleEntityAnimator : MonoBehaviour
         Debug.Log($"[{gameObject.name}] Return complete. Final position: {rectTransform.position}");
     }
 
+    /// <summary>
+    /// Animates a slight movement to the right when monster's turn starts
+    /// </summary>
+    public IEnumerator MoveTurnStart()
+    {
+        if (isChampion)
+        {
+            yield break; // Champions don't move on turn start
+        }
+
+        Vector3 startPos = originalPosition;
+        Vector3 targetPos = originalPosition + new Vector3(250f, 0f, 0f); // Move 50 pixels to the right
+
+        float duration = 0.15f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            rectTransform.position = Vector3.Lerp(startPos, targetPos, t);
+            yield return null;
+        }
+
+        rectTransform.position = targetPos;
+    }
+
+    /// <summary>
+    /// Animates return to original position when monster's turn ends
+    /// </summary>
+    public IEnumerator MoveTurnEnd()
+    {
+        if (isChampion)
+        {
+            yield break; // Champions don't need turn end movement
+        }
+
+        Vector3 startPos = rectTransform.position;
+
+        float duration = 0.15f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            rectTransform.position = Vector3.Lerp(startPos, originalPosition, t);
+            yield return null;
+        }
+
+        rectTransform.position = originalPosition;
+    }
+
     public RectTransform RectTransform => rectTransform;
 }
