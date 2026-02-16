@@ -10,6 +10,8 @@ public class FadeEffect : MonoBehaviour
     [SerializeField] private Image fadeImage;
     [SerializeField] private float fadeDuration = 0.5f;
 
+    public Image FadeImage => fadeImage;
+
     private void Awake()
     {
         if (Instance == null)

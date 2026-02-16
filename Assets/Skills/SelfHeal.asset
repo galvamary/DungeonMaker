@@ -20,4 +20,5 @@ MonoBehaviour:
   power: 15
   targetType: 2
   effectPrefab: {fileID: 3798611714153775236, guid: 36ac378e2f6a7410faf6b9454b683253, type: 3}
+  soundEffect: {fileID: 8300000, guid: c33f42b4fcf744754a2756e1b9d15a5f, type: 3}
   description: 

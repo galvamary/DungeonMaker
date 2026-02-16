@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Hero
   m_EditorClassIdentifier: Assembly-CSharp::ChampionData
   championName: Hero
-  normalSprite: {fileID: -6146700129834819302, guid: cd66a7d31ae8e431da39b3bbf28bb037, type: 3}
+  normalSprite: {fileID: -6146700129834819302, guid: 84fbc448d965c463c8328b22356ad6d2, type: 3}
   tiredSprite: {fileID: 8408883270026636152, guid: 95a8135814f1f4edb94df76bf1898e8e, type: 3}
   exhaustedSprite: {fileID: 5825993557141261907, guid: a1073e4c432264fa88a46763b676e549, type: 3}
   maxHealth: 70

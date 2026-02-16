@@ -174,4 +174,94 @@ public class ShopManager : MonoBehaviour
 
         Debug.Log("Monster inventory reset complete.");
     }
+
+    /// <summary>
+    /// Saves the current inventory state to the save state object
+    /// </summary>
+    public void SaveInventoryState(SaveState saveState)
+    {
+        saveState.savedInventory.Clear();
+
+        // Save all owned monsters by expanding the dictionary into a list
+        foreach (var kvp in ownedMonsters)
+        {
+            MonsterData monster = kvp.Key;
+            int count = kvp.Value;
+
+            // Add this monster 'count' times to the list
+            for (int i = 0; i < count; i++)
+            {
+                saveState.savedInventory.Add(monster);
+            }
+        }
+
+        Debug.Log($"Saved {saveState.savedInventory.Count} monsters to inventory save state");
+    }
+
+    /// <summary>
+    /// Restores inventory state from the save state object
+    /// </summary>
+    public void RestoreInventoryState(SaveState saveState)
+    {
+        Debug.Log("Restoring inventory state...");
+
+        // Clear current inventory
+        ownedMonsters.Clear();
+
+        // Restore monsters from saved list
+        foreach (var monster in saveState.savedInventory)
+        {
+            if (ownedMonsters.ContainsKey(monster))
+            {
+                ownedMonsters[monster]++;
+            }
+            else
+            {
+                ownedMonsters[monster] = 1;
+            }
+        }
+
+        // Update inventory UI
+        if (MonsterInventoryUI.Instance != null)
+        {
+            // First clear all displays
+            foreach (var monster in availableMonsters)
+            {
+                MonsterInventoryUI.Instance.UpdateMonsterInventory(monster, 0);
+            }
+
+            // Then update with restored counts
+            foreach (var kvp in ownedMonsters)
+            {
+                MonsterInventoryUI.Instance.UpdateMonsterInventory(kvp.Key, kvp.Value);
+            }
+        }
+
+        Debug.Log($"Restored {saveState.savedInventory.Count} monsters to inventory");
+    }
+
+    /// <summary>
+    /// Adds a monster to inventory when loading from persistent save (PlayerPrefs)
+    /// This is used by the load system and doesn't deduct gold
+    /// </summary>
+    public void AddMonsterToInventoryFromLoad(MonsterData monster)
+    {
+        if (monster == null) return;
+
+        // Add monster to inventory
+        if (ownedMonsters.ContainsKey(monster))
+        {
+            ownedMonsters[monster]++;
+        }
+        else
+        {
+            ownedMonsters[monster] = 1;
+        }
+
+        // Update inventory UI
+        if (MonsterInventoryUI.Instance != null)
+        {
+            MonsterInventoryUI.Instance.UpdateMonsterInventory(monster, ownedMonsters[monster]);
+        }
+    }
 }

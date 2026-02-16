@@ -48,15 +48,24 @@ public class RoomManager : MonoBehaviour
     
     public bool PlaceRoom(Vector2Int gridPosition, RoomType roomType)
     {
+        return PlaceRoom(gridPosition, roomType, true);
+    }
+
+    /// <summary>
+    /// Places a room at the specified grid position
+    /// </summary>
+    /// <param name="deductCost">If false, skips cost check and deduction (used for restoration)</param>
+    public bool PlaceRoom(Vector2Int gridPosition, RoomType roomType, bool deductCost)
+    {
         // Check if position is already occupied
         if (placedRooms.ContainsKey(gridPosition))
         {
             Debug.Log($"Grid position {gridPosition} is already occupied!");
             return false;
         }
-        
-        // Check cost for non-entrance rooms
-        if (roomType != RoomType.Entrance)
+
+        // Check cost for non-entrance rooms (only if deductCost is true)
+        if (deductCost && roomType != RoomType.Entrance)
         {
             int cost = GetRoomCost(roomType);
             if (!GameManager.Instance.CanAfford(cost))
@@ -64,11 +73,11 @@ public class RoomManager : MonoBehaviour
                 Debug.Log($"Not enough gold to place {roomType} room! Cost: {cost}, Current Gold: {GameManager.Instance.CurrentGold}");
                 return false;
             }
-            
+
             // Deduct cost
             GameManager.Instance.SpendGold(cost);
         }
-        
+
         // Get sprite for room type
         Sprite roomSprite = GetRoomSprite(roomType);
         if (roomSprite == null)
@@ -76,7 +85,7 @@ public class RoomManager : MonoBehaviour
             Debug.LogWarning($"No sprite found for room type: {roomType}");
             return false;
         }
-        
+
         // Create room object
         GameObject roomObj;
         // if (roomPrefab != null)
@@ -88,19 +97,19 @@ public class RoomManager : MonoBehaviour
             roomObj = new GameObject($"Room_{roomType}");
             roomObj.transform.SetParent(roomContainer);
         // }
-        
+
         // Initialize room component
         Room room = roomObj.GetComponent<Room>();
         if (room == null)
         {
             room = roomObj.AddComponent<Room>();
         }
-        
+
         room.Initialize(roomType, gridPosition, roomSprite);
-        
+
         // Add to dictionary
         placedRooms[gridPosition] = room;
-        
+
         Debug.Log($"Placed {roomType} room at grid position {gridPosition}");
         return true;
     }
@@ -435,5 +444,72 @@ public class RoomManager : MonoBehaviour
         PlaceRoom(new Vector2Int(0, 0), RoomType.Entrance);
 
         Debug.Log("All rooms reset. Entrance recreated at (0,0)");
+    }
+
+    /// <summary>
+    /// Saves the current room state to the save state object
+    /// </summary>
+    public void SaveRoomState(SaveState saveState)
+    {
+        saveState.savedRooms.Clear();
+
+        foreach (var kvp in placedRooms)
+        {
+            Room room = kvp.Value;
+            if (room != null)
+            {
+                SaveState.RoomState roomState = new SaveState.RoomState(
+                    room.GridPosition,
+                    room.Type,
+                    room.PlacedMonsters
+                );
+                saveState.savedRooms.Add(roomState);
+            }
+        }
+
+        Debug.Log($"Saved {saveState.savedRooms.Count} rooms to save state");
+    }
+
+    /// <summary>
+    /// Restores room state from the save state object
+    /// </summary>
+    public void RestoreRoomState(SaveState saveState)
+    {
+        Debug.Log("Restoring room state...");
+
+        // Destroy all current room GameObjects
+        foreach (var room in placedRooms.Values)
+        {
+            if (room != null && room.gameObject != null)
+            {
+                Destroy(room.gameObject);
+            }
+        }
+
+        // Clear the placed rooms dictionary
+        placedRooms.Clear();
+
+        // Recreate rooms from saved state (without deducting cost)
+        foreach (var roomState in saveState.savedRooms)
+        {
+            bool placed = PlaceRoom(roomState.gridPosition, roomState.roomType, false); // false = don't deduct cost
+
+            if (placed)
+            {
+                // Get the newly placed room from dictionary
+                Room restoredRoom = GetRoomAt(roomState.gridPosition);
+
+                if (restoredRoom != null)
+                {
+                    // Restore monsters in the room
+                    foreach (var monster in roomState.placedMonsters)
+                    {
+                        restoredRoom.PlaceMonster(monster);
+                    }
+                }
+            }
+        }
+
+        Debug.Log($"Restored {placedRooms.Count} rooms from save state");
     }
 }

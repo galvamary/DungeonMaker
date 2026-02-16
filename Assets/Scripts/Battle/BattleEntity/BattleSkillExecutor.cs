@@ -39,6 +39,12 @@ public class BattleSkillExecutor : MonoBehaviour
         entity.UseMP(skill.mpCost);
         Debug.Log($"{entity.EntityName} uses {skill.skillName}!");
 
+        // Play skill sound effect
+        if (skill.soundEffect != null && AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlaySFX(skill.soundEffect);
+        }
+
         // Attack animation - move towards target (only for single-target attack skills)
         bool movedForAttack = false;
         if (skill.skillType == SkillType.Attack && skill.targetType == SkillTarget.SingleEnemy && target != null && animator != null)

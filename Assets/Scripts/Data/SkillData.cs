@@ -19,6 +19,7 @@ public class SkillData : ScriptableObject
     public int power = 20;  // Additional power (0 = use only attack stat for basic attacks)
     public SkillTarget targetType;
     public GameObject effectPrefab;  // Visual effect prefab
+    public AudioClip soundEffect;  // Sound effect to play when skill is used
 
     [Header("Description")]
     [TextArea(2, 4)]

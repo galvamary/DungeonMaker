@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
   skillName: Slash
   icon: {fileID: 21300000, guid: 47ae1527db7c39f40834c28187b6ffef, type: 3}
+  requiredTreasureRooms: 0
   mpCost: 0
   skillType: 0
   power: 0
   targetType: 0
   effectPrefab: {fileID: 4293164107182059489, guid: 390c95ea3824f47ed928061dfcbe1bae, type: 3}
+  soundEffect: {fileID: 8300000, guid: 25c318cd762cbc8499739ec7e05d521d, type: 3}
   description: 

@@ -7,6 +7,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int currentGold = 1000;
     [SerializeField] private int currentReputation = 1;
 
+    // Save state for exploration
+    private SaveState currentSaveState;
+
     public int CurrentGold => currentGold;
     public int CurrentReputation => currentReputation;
 
@@ -31,7 +34,13 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    
+
+    private void Start()
+    {
+        // Try to load saved game state from PlayerPrefs
+        SettingsUI.LoadGameState();
+    }
+
     public bool SpendGold(int amount)
     {
         if (amount <= 0 || currentGold < amount)
@@ -81,39 +90,30 @@ public class GameManager : MonoBehaviour
             currentReputation -= amount;
             OnReputationChanged?.Invoke(currentReputation);
             Debug.Log($"Reputation decreased by {amount}. Current reputation: {currentReputation}");
-
-            // Check if reputation dropped below 1 - trigger game over
-            if (currentReputation < 1)
-            {
-                Debug.Log("Reputation dropped below 1! Game Over!");
-                OnGameOver?.Invoke();
-            }
         }
     }
 
     /// <summary>
-    /// Reduces reputation to 1/3 when champion is defeated (rounded down)
+    /// Removes gold without checking if player can afford it (can go negative)
+    /// Used for defeat penalties
     /// </summary>
-    public void ReduceReputationToOneThird()
+    public void RemoveGold(int amount)
     {
-        int oldReputation = currentReputation;
-        currentReputation = Mathf.FloorToInt(currentReputation / 3f);
-
-        // Ensure reputation doesn't drop below 1
-        if (currentReputation < 1)
+        if (amount > 0)
         {
-            currentReputation = 1;
+            currentGold -= amount;
+            OnGoldChanged?.Invoke(currentGold);
+            Debug.Log($"Gold removed: -{amount}. Current gold: {currentGold}");
         }
+    }
 
-        OnReputationChanged?.Invoke(currentReputation);
-        Debug.Log($"Reputation reduced to 1/3: {oldReputation} → {currentReputation}");
-
-        // Check if reputation dropped below 1 - trigger game over (shouldn't happen with the clamp above, but just in case)
-        if (oldReputation == 1)
-        {
-            Debug.Log("Game Over!");
-            OnGameOver?.Invoke();
-        }
+    /// <summary>
+    /// Triggers the game over event
+    /// </summary>
+    public void TriggerGameOver()
+    {
+        Debug.Log("Game Over triggered!");
+        OnGameOver?.Invoke();
     }
 
     /// <summary>
@@ -165,5 +165,73 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("========== GAME RESTART COMPLETE ==========");
+    }
+
+    /// <summary>
+    /// Saves the current game state (called at exploration start)
+    /// </summary>
+    public void SaveGameState()
+    {
+        if (currentSaveState == null)
+        {
+            currentSaveState = new SaveState();
+        }
+        else
+        {
+            currentSaveState.Clear();
+        }
+
+        // Save GameManager state
+        currentSaveState.savedGold = currentGold;
+        currentSaveState.savedReputation = currentReputation;
+
+        // Save RoomManager state
+        if (RoomManager.Instance != null)
+        {
+            RoomManager.Instance.SaveRoomState(currentSaveState);
+        }
+
+        // Save ShopManager state (inventory)
+        if (ShopManager.Instance != null)
+        {
+            ShopManager.Instance.SaveInventoryState(currentSaveState);
+        }
+
+        Debug.Log($"Game state saved! Gold: {currentGold}, Reputation: {currentReputation}, Rooms: {currentSaveState.savedRooms.Count}");
+    }
+
+    /// <summary>
+    /// Restores the saved game state (called on defeat)
+    /// </summary>
+    public void RestoreGameState()
+    {
+        if (currentSaveState == null)
+        {
+            Debug.LogWarning("No saved state to restore!");
+            return;
+        }
+
+        Debug.Log("========== RESTORING GAME STATE ==========");
+
+        // Restore GameManager state
+        currentGold = currentSaveState.savedGold;
+        currentReputation = currentSaveState.savedReputation;
+        OnGoldChanged?.Invoke(currentGold);
+        OnReputationChanged?.Invoke(currentReputation);
+
+        // Restore RoomManager state
+        if (RoomManager.Instance != null)
+        {
+            RoomManager.Instance.RestoreRoomState(currentSaveState);
+        }
+
+        // Restore ShopManager state (inventory)
+        if (ShopManager.Instance != null)
+        {
+            ShopManager.Instance.RestoreInventoryState(currentSaveState);
+        }
+
+        Debug.Log($"Game state restored! Gold: {currentGold}, Reputation: {currentReputation}");
+        Debug.Log("========== RESTORE COMPLETE ==========");
     }
 }

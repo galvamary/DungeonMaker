@@ -18,6 +18,8 @@ public class GameStateManager : MonoBehaviour
     [SerializeField] private GameObject monsterInventoryUI;
     [SerializeField] private GameObject startButton;
     [SerializeField] private GameObject shopButton;
+    [SerializeField] private GameObject currencyUI;
+    [SerializeField] private GameObject reputationUI;
 
     [Header("Camera References")]
     [SerializeField] private CameraController cameraController;
@@ -56,6 +58,16 @@ public class GameStateManager : MonoBehaviour
             return;
         }
 
+        // Check if gold is positive
+        if (GameManager.Instance != null)
+        {
+            if (GameManager.Instance.CurrentGold < 0)
+            {
+                Debug.LogWarning($"Cannot start exploration! You have negative gold ({GameManager.Instance.CurrentGold}). You must have at least 0 gold to start exploration.");
+                return;
+            }
+        }
+
         // Check if enough treasure rooms are built based on reputation
         if (GameManager.Instance != null && RoomManager.Instance != null)
         {
@@ -79,11 +91,19 @@ public class GameStateManager : MonoBehaviour
         currentPhase = GamePhase.Exploration;
         Debug.Log("Starting exploration phase!");
 
+        // Save game state before exploration starts
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SaveGameState();
+        }
+
         // Disable preparation UI
         if (shopUI != null) shopUI.SetActive(false);
         if (monsterInventoryUI != null) monsterInventoryUI.SetActive(false);
         if (startButton != null) startButton.SetActive(false);
         if (shopButton != null) shopButton.SetActive(false);
+        if (currencyUI != null) currencyUI.SetActive(false);
+        if (reputationUI != null) reputationUI.SetActive(false);
 
         // Disable grid click handler (but keep grid visible)
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();
@@ -160,6 +180,8 @@ public class GameStateManager : MonoBehaviour
         if (monsterInventoryUI != null) monsterInventoryUI.SetActive(true);
         if (startButton != null) startButton.SetActive(true);
         if (shopButton != null) shopButton.SetActive(true);
+        if (currencyUI != null) currencyUI.SetActive(true);
+        if (reputationUI != null) reputationUI.SetActive(true);
 
         // Enable grid click handler
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();

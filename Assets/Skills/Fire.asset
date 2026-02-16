@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillData
   skillName: Fire
   icon: {fileID: 21300026, guid: 7384dec0e667b8643bee02d3ecaf659c, type: 3}
+  requiredTreasureRooms: 0
   mpCost: 5
   skillType: 0
   power: 5
   targetType: 0
   effectPrefab: {fileID: 4255228593114056760, guid: db7f153ff11114fe895ca456a6709b30, type: 3}
+  soundEffect: {fileID: 8300000, guid: 57e179c1b313ce3478e8d6ad02ef7982, type: 3}
   description: 

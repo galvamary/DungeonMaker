@@ -160,6 +160,12 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     private IEnumerator StartBattleSequence()
     {
+        // Start battle music
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StartBattleMusic();
+        }
+
         // Spawn battle entities
         yield return battleSetup.StartCoroutine(battleSetup.SpawnBattleEntities(currentChampion, currentMonsters));
 
@@ -278,6 +284,12 @@ public class BattleManager : MonoBehaviour
         }
 
         Debug.Log($"Battle ended! Champion won: {championWon}");
+
+        // Stop battle music and return to normal BGM
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopBattleMusic();
+        }
 
         // Sync champion stats back to original champion object
         if (currentChampion != null && battleSetup.ChampionEntity != null)
