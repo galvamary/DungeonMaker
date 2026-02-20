@@ -68,6 +68,11 @@ public class ShopManager : MonoBehaviour
         return availableMonsters;
     }
 
+    public MonsterData GetMonsterByName(string name)
+    {
+        return availableMonsters.Find(m => m.name == name);
+    }
+
     public bool UseMonsterFromInventory(MonsterData monster)
     {
         if (monster == null) return false;

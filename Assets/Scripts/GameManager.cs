@@ -1,4 +1,6 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour
 {
@@ -38,7 +40,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         // Try to load saved game state from PlayerPrefs
-        SettingsUI.LoadGameState();
+        LoadGameStateFromDisk();
     }
 
     public bool SpendGold(int amount)
@@ -233,5 +235,162 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Game state restored! Gold: {currentGold}, Reputation: {currentReputation}");
         Debug.Log("========== RESTORE COMPLETE ==========");
+    }
+
+    /// <summary>
+    /// Saves the current game state to PlayerPrefs (called when quitting)
+    /// </summary>
+    public void SaveGameStateToDisk()
+    {
+        PlayerPrefs.SetInt("SavedGold", currentGold);
+        PlayerPrefs.SetInt("SavedReputation", currentReputation);
+
+        // Save room data
+        if (RoomManager.Instance != null)
+        {
+            SaveState tempState = new SaveState();
+            RoomManager.Instance.SaveRoomState(tempState);
+
+            RoomDataList roomDataList = new RoomDataList();
+            foreach (var roomState in tempState.savedRooms)
+            {
+                RoomDataSerialized roomData = new RoomDataSerialized();
+                roomData.posX = roomState.gridPosition.x;
+                roomData.posY = roomState.gridPosition.y;
+                roomData.roomType = (int)roomState.roomType;
+                roomData.monsterNames = new List<string>();
+                if (roomState.placedMonsters != null)
+                {
+                    foreach (var monster in roomState.placedMonsters)
+                    {
+                        if (monster != null) roomData.monsterNames.Add(monster.name);
+                    }
+                }
+                roomDataList.rooms.Add(roomData);
+            }
+            PlayerPrefs.SetString("SavedRooms", JsonUtility.ToJson(roomDataList));
+        }
+
+        // Save inventory data
+        if (ShopManager.Instance != null)
+        {
+            SaveState tempState = new SaveState();
+            ShopManager.Instance.SaveInventoryState(tempState);
+
+            MonsterInventoryList inventoryList = new MonsterInventoryList();
+            inventoryList.monsterNames = new List<string>();
+            foreach (var monster in tempState.savedInventory)
+            {
+                if (monster != null) inventoryList.monsterNames.Add(monster.name);
+            }
+            PlayerPrefs.SetString("SavedInventory", JsonUtility.ToJson(inventoryList));
+        }
+
+        PlayerPrefs.SetInt("HasSaveData", 1);
+        PlayerPrefs.Save();
+        Debug.Log($"Game state saved to disk: Gold={currentGold}, Reputation={currentReputation}");
+    }
+
+    /// <summary>
+    /// Loads the game state from PlayerPrefs (called on game start)
+    /// </summary>
+    public void LoadGameStateFromDisk()
+    {
+        if (PlayerPrefs.GetInt("HasSaveData", 0) == 0)
+        {
+            Debug.Log("No save data found");
+            return;
+        }
+
+        Debug.Log("========== LOADING SAVED GAME ==========");
+
+        // Load gold and reputation
+        currentGold = PlayerPrefs.GetInt("SavedGold", 200);
+        currentReputation = PlayerPrefs.GetInt("SavedReputation", 1);
+        OnGoldChanged?.Invoke(currentGold);
+        OnReputationChanged?.Invoke(currentReputation);
+
+        // Load room data
+        string roomJson = PlayerPrefs.GetString("SavedRooms", "");
+        if (!string.IsNullOrEmpty(roomJson) && RoomManager.Instance != null)
+        {
+            try
+            {
+                RoomDataList roomDataList = JsonUtility.FromJson<RoomDataList>(roomJson);
+                if (roomDataList?.rooms != null)
+                {
+                    RoomManager.Instance.ResetAllRooms();
+                    foreach (var roomData in roomDataList.rooms)
+                    {
+                        Vector2Int gridPos = new Vector2Int(roomData.posX, roomData.posY);
+                        RoomType roomType = (RoomType)roomData.roomType;
+                        RoomManager.Instance.PlaceRoom(gridPos, roomType, false);
+
+                        Room room = RoomManager.Instance.GetRoomAt(gridPos);
+                        if (room != null && roomData.monsterNames != null)
+                        {
+                            foreach (string monsterName in roomData.monsterNames)
+                            {
+                                MonsterData monsterData = ShopManager.Instance.GetMonsterByName(monsterName);
+                                if (monsterData != null) room.PlaceMonster(monsterData);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error loading room data: {e.Message}");
+            }
+        }
+
+        // Load inventory data
+        string inventoryJson = PlayerPrefs.GetString("SavedInventory", "");
+        if (!string.IsNullOrEmpty(inventoryJson) && ShopManager.Instance != null)
+        {
+            try
+            {
+                MonsterInventoryList inventoryList = JsonUtility.FromJson<MonsterInventoryList>(inventoryJson);
+                if (inventoryList?.monsterNames != null)
+                {
+                    ShopManager.Instance.ResetInventory();
+                    foreach (string monsterName in inventoryList.monsterNames)
+                    {
+                        MonsterData monsterData = ShopManager.Instance.GetMonsterByName(monsterName);
+                        if (monsterData != null)
+                            ShopManager.Instance.AddMonsterToInventoryFromLoad(monsterData);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error loading inventory data: {e.Message}");
+            }
+        }
+
+        Debug.Log($"Game state loaded from disk: Gold={currentGold}, Reputation={currentReputation}");
+        Debug.Log("========== LOAD COMPLETE ==========");
+    }
+
+    // Helper classes for JSON serialization (disk save/load)
+    [Serializable]
+    private class RoomDataSerialized
+    {
+        public int posX;
+        public int posY;
+        public int roomType;
+        public List<string> monsterNames;
+    }
+
+    [Serializable]
+    private class RoomDataList
+    {
+        public List<RoomDataSerialized> rooms = new();
+    }
+
+    [Serializable]
+    private class MonsterInventoryList
+    {
+        public List<string> monsterNames;
     }
 }
