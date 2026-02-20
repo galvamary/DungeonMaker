@@ -63,7 +63,12 @@ public class GameStateManager : MonoBehaviour
         {
             if (GameManager.Instance.CurrentGold < 0)
             {
-                Debug.LogWarning($"Cannot start exploration! You have negative gold ({GameManager.Instance.CurrentGold}). You must have at least 0 gold to start exploration.");
+                string message = "Gold must be greater than or equal to 0";
+                Debug.LogWarning(message);
+                if (WarningMessageUI.Instance != null)
+                {
+                    WarningMessageUI.Instance.ShowWarning(message);
+                }
                 return;
             }
         }
@@ -76,7 +81,12 @@ public class GameStateManager : MonoBehaviour
 
             if (treasureRoomCount < currentReputation)
             {
-                Debug.LogWarning($"Cannot start exploration! You must build at least {currentReputation} treasure rooms (current reputation). Currently built: {treasureRoomCount} treasure rooms.");
+                string message = "The number of treasure rooms must be greater than or equal to your reputation";
+                Debug.LogWarning(message);
+                if (WarningMessageUI.Instance != null)
+                {
+                    WarningMessageUI.Instance.ShowWarning(message);
+                }
                 return;
             }
         }
@@ -84,7 +94,12 @@ public class GameStateManager : MonoBehaviour
         // Check if all rooms are connected
         if (RoomManager.Instance != null && !RoomManager.Instance.AreAllRoomsConnected())
         {
-            Debug.LogWarning("Cannot start exploration! All rooms must be connected to the entrance.");
+            string message = "All rooms must be connected";
+            Debug.LogWarning(message);
+            if (WarningMessageUI.Instance != null)
+            {
+                WarningMessageUI.Instance.ShowWarning(message);
+            }
             return;
         }
 
