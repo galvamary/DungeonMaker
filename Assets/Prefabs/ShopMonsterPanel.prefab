@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Shop
+  m_text: 10G
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c339e8c1ed71d4e61bb68e8983fbf8da, type: 2}
   m_sharedMaterial: {fileID: -2426821679113883089, guid: c339e8c1ed71d4e61bb68e8983fbf8da, type: 2}
@@ -170,7 +170,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -0.000013351}
+  m_AnchoredPosition: {x: 0, y: 41}
   m_SizeDelta: {x: 161.5784, y: 162.9779}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6428984111718904315
@@ -247,8 +247,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2, y: -247}
-  m_SizeDelta: {x: 246.8338, y: 97.7209}
+  m_AnchoredPosition: {x: -0.0009, y: -167}
+  m_SizeDelta: {x: 191.7038, y: 97.7209}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1341779921028256907
 CanvasRenderer:

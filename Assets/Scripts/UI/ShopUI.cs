@@ -138,7 +138,7 @@ public class ShopUI : MonoBehaviour, IDropHandler
             TextMeshProUGUI buttonText = buttonTextTransform.GetComponent<TextMeshProUGUI>();
             if (buttonText != null)
             {
-                buttonText.text = $"{monster.cost} Gold";
+                buttonText.text = $"{monster.cost}G";
             }
         }
     }
