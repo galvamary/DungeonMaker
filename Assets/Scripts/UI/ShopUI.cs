@@ -103,7 +103,7 @@ public class ShopUI : MonoBehaviour, IDropHandler
             }
         }
 
-        // Image 스프라이트 설정 및 툴팁 이벤트 핸들러 추가
+        // Image 스프라이트 설정
         if (imageTransform != null)
         {
             Image iconImage = imageTransform.GetComponent<Image>();
@@ -111,14 +111,26 @@ public class ShopUI : MonoBehaviour, IDropHandler
             {
                 iconImage.sprite = monster.icon;
             }
+        }
 
-            // Image에만 ShopMonsterPanel 컴포넌트 추가
-            ShopMonsterPanel monsterPanel = imageTransform.GetComponent<ShopMonsterPanel>();
-            if (monsterPanel == null)
+        // ShopMonsterPanel 컴포넌트를 아이템 루트에 추가
+        ShopMonsterPanel monsterPanel = item.GetComponent<ShopMonsterPanel>();
+        if (monsterPanel == null)
+        {
+            monsterPanel = item.AddComponent<ShopMonsterPanel>();
+        }
+        monsterPanel.SetMonsterData(monster);
+
+        // InfoButton 연결
+        Transform infoButtonTransform = item.transform.Find("InfoButton");
+        if (infoButtonTransform != null)
+        {
+            Button infoButton = infoButtonTransform.GetComponent<Button>();
+            if (infoButton != null)
             {
-                monsterPanel = imageTransform.gameObject.AddComponent<ShopMonsterPanel>();
+                infoButton.onClick.RemoveAllListeners();
+                infoButton.onClick.AddListener(() => monsterPanel.ShowInfo());
             }
-            monsterPanel.SetMonsterData(monster);
         }
 
         // BuyButton 설정

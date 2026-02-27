@@ -1,7 +1,6 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 
-public class ShopMonsterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
+public class ShopMonsterPanel : MonoBehaviour
 {
     private MonsterData monsterData;
 
@@ -10,27 +9,12 @@ public class ShopMonsterPanel : MonoBehaviour, IPointerEnterHandler, IPointerExi
         monsterData = data;
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void ShowInfo()
     {
         if (monsterData != null && MonsterTooltip.Instance != null)
         {
-            MonsterTooltip.Instance.ShowTooltip(monsterData, eventData.position);
-        }
-    }
-
-    public void OnPointerMove(PointerEventData eventData)
-    {
-        if (monsterData != null && MonsterTooltip.Instance != null)
-        {
-            MonsterTooltip.Instance.UpdateTooltipPosition(eventData.position);
-        }
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        if (MonsterTooltip.Instance != null)
-        {
-            MonsterTooltip.Instance.HideTooltip();
+            RectTransform rect = GetComponent<RectTransform>();
+            MonsterTooltip.Instance.ToggleTooltip(monsterData, rect);
         }
     }
 }

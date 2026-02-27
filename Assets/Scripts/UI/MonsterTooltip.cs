@@ -6,13 +6,25 @@ public class MonsterTooltip : MonoBehaviour
 {
     public static MonsterTooltip Instance { get; private set; }
 
-    [Header("UI References")]
+    [Header("패널")]
     [SerializeField] private GameObject tooltipPanel;
-    [SerializeField] private TextMeshProUGUI monsterNameText;   
+
+    [Header("기본 정보")]
+    [SerializeField] private TextMeshProUGUI monsterNameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
 
+    [Header("스탯")]
+    [SerializeField] private TextMeshProUGUI hpText;
+    [SerializeField] private TextMeshProUGUI mpText;
+    [SerializeField] private TextMeshProUGUI atkText;
+    [SerializeField] private TextMeshProUGUI defText;
+    [SerializeField] private TextMeshProUGUI spdText;
+
+    [Header("스킬")]
+    [SerializeField] private TextMeshProUGUI skillsText;
+
     private RectTransform tooltipRect;
-    private Canvas canvas;
+    private MonsterData currentMonster;
 
     private void Awake()
     {
@@ -27,76 +39,118 @@ public class MonsterTooltip : MonoBehaviour
         }
 
         tooltipRect = tooltipPanel.GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
-
-        // 툴팁이 마우스 이벤트를 차단하지 않도록 설정
-        CanvasGroup canvasGroup = tooltipPanel.GetComponent<CanvasGroup>();
-        if (canvasGroup == null)
-        {
-            canvasGroup = tooltipPanel.AddComponent<CanvasGroup>();
-        }
-        canvasGroup.blocksRaycasts = false;  // 레이캐스트 차단 비활성화
-
         HideTooltip();
     }
 
-    public void ShowTooltip(MonsterData monster, Vector2 mousePosition)
+    public void ToggleTooltip(MonsterData monster, RectTransform anchorRect)
     {
         if (monster == null || tooltipPanel == null) return;
 
-        // 몬스터 정보 표시
+        // 같은 몬스터를 다시 누르면 닫기
+        if (tooltipPanel.activeSelf && currentMonster == monster)
+        {
+            HideTooltip();
+            return;
+        }
+
+        // 정보 채우기
+        currentMonster = monster;
+
         if (monsterNameText != null)
             monsterNameText.text = monster.monsterName;
 
         if (descriptionText != null)
             descriptionText.text = monster.description;
 
-        // 툴팁 활성화
-        tooltipPanel.SetActive(true);
+        if (hpText != null) hpText.text = monster.maxHealth.ToString();
+        if (mpText != null) mpText.text = monster.maxMP.ToString();
+        if (atkText != null) atkText.text = monster.attack.ToString();
+        if (defText != null) defText.text = monster.defense.ToString();
+        if (spdText != null) spdText.text = monster.speed.ToString();
 
-        // 다음 프레임에서 위치 조정 (레이아웃이 업데이트된 후)
-        Canvas.ForceUpdateCanvases();
-        UpdateTooltipPosition(mousePosition);
+        if (skillsText != null)
+        {
+            string skillInfo = "";
+
+            foreach (var skill in monster.skills)
+            {
+                if (skill != null)
+                {
+                    if (skillInfo.Length > 0) skillInfo += "\n";
+                    skillInfo += FormatSkill(skill);
+                }
+            }
+
+            if (skillInfo == "")
+            {
+                skillInfo = "No Skill";
+            }
+
+            skillsText.text = skillInfo;
+        }
+
+        // ShopMonsterPanel 오른쪽에 위치시키기
+        PositionNextTo(anchorRect);
+        tooltipPanel.SetActive(true);
     }
 
-    public void UpdateTooltipPosition(Vector2 mousePosition)
+    private void PositionNextTo(RectTransform anchorRect)
     {
-        if (tooltipPanel == null || !tooltipPanel.activeSelf) return;
+        if (tooltipRect == null || anchorRect == null) return;
 
-        // 마우스 커서를 툴팁의 오른쪽 아래 꼭짓점에 위치시킴
+        // 앵커의 월드 좌표 → 툴팁 부모의 로컬 좌표로 변환
+        Vector3 anchorWorldPos = anchorRect.position;
+        RectTransform parentRect = tooltipRect.parent as RectTransform;
+
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvas.transform as RectTransform,
-            mousePosition,
-            canvas.worldCamera,
+            parentRect,
+            RectTransformUtility.WorldToScreenPoint(null, anchorWorldPos),
+            null,
             out localPoint
         );
 
-        // 툴팁의 오른쪽 아래 꼭짓점이 마우스 위치에 오도록 조정
-        Vector2 tooltipPosition = localPoint;
-        tooltipPosition.x += tooltipRect.rect.width / 2 + 10;
-        tooltipPosition.y -= tooltipRect.rect.height / 2;
+        float anchorHalfWidth = anchorRect.rect.width * anchorRect.lossyScale.x / parentRect.lossyScale.x * 0.5f;
+        float tooltipHalfWidth = tooltipRect.rect.width * 0.5f;
+        float gap = 10f;
 
-        // 화면 밖으로 나가지 않도록 조정
-        RectTransform canvasRect = canvas.transform as RectTransform;
+        // 오른쪽에 배치 시도
+        float rightX = localPoint.x + anchorHalfWidth + tooltipHalfWidth + gap;
 
-        // 왼쪽 경계 체크 (툴팁의 왼쪽 끝이 화면을 벗어나지 않도록)
-        float tooltipLeftEdge = tooltipPosition.x + tooltipRect.rect.width / 2;
-        float rightBound = canvasRect.rect.width / 2;
-        if (tooltipLeftEdge > rightBound)
+        // 화면 오른쪽 경계를 넘으면 왼쪽에 배치
+        float parentHalfWidth = parentRect.rect.width * 0.5f;
+        float tooltipRightEdge = rightX + tooltipHalfWidth;
+
+        float finalX;
+        if (tooltipRightEdge > parentHalfWidth)
         {
-            tooltipPosition.x = rightBound - tooltipRect.rect.width / 2;
+            finalX = localPoint.x - anchorHalfWidth - tooltipHalfWidth - gap;
+        }
+        else
+        {
+            finalX = rightX;
         }
 
-        // 위쪽 경계 체크 (툴팁의 위쪽 끝이 화면을 벗어나지 않도록)
-        float tooltipTopEdge = tooltipPosition.y - tooltipRect.rect.height / 2;
-        float topBound = -canvasRect.rect.height / 2;
-        if (tooltipTopEdge < topBound)
-        {
-            tooltipPosition.y = topBound + tooltipRect.rect.height / 2;
-        }
+        tooltipRect.anchoredPosition = new Vector2(finalX, localPoint.y);
+    }
 
-        tooltipRect.anchoredPosition = tooltipPosition;
+    private string FormatSkill(SkillData skill)
+    {
+        string typeLabel = skill.skillType switch
+        {
+            SkillType.Attack => "Attack",
+            SkillType.Heal => "Heal",
+            SkillType.Buff => "Buff",
+            SkillType.Debuff => "Debuff",
+            _ => ""
+        };
+
+        string line = $"{skill.skillName}  [{typeLabel}]  MP {skill.mpCost}  power {skill.power}";
+        if (!string.IsNullOrEmpty(skill.description))
+        {
+            line += $"\n  <color=#AAAAAA>{skill.description}</color>";
+        }
+        return line;
     }
 
     public void HideTooltip()
@@ -105,5 +159,6 @@ public class MonsterTooltip : MonoBehaviour
         {
             tooltipPanel.SetActive(false);
         }
+        currentMonster = null;
     }
 }
