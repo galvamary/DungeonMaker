@@ -195,6 +195,9 @@ public class Champion : MonoBehaviour
         Debug.Log($"{championData.championName} stats updated - HP: {currentHealth}/{championData.maxHealth * reputation}, MP: {currentMP}/{championData.maxMP * reputation}");
     }
 
+    [Header("Movement Settings")]
+    [SerializeField] private float moveDuration = 1.5f;
+
     public IEnumerator MoveToRoom(Room newRoom, float speedMultiplier = 1f)
     {
         if (newRoom == null) yield break;
@@ -202,38 +205,69 @@ public class Champion : MonoBehaviour
         // 방 이동 시 피로도 증가
         AddFatigue(fatiguePerRoom);
 
-        yield return MoveToRoomWithFade(newRoom, speedMultiplier);
+        yield return MoveToRoomAnimated(newRoom, speedMultiplier);
     }
 
-    private IEnumerator MoveToRoomWithFade(Room newRoom, float speedMultiplier = 1f)
+    private IEnumerator MoveToRoomAnimated(Room newRoom, float speedMultiplier = 1f)
     {
-        // Fade out (darken screen)
-        if (FadeEffect.Instance != null)
+        Vector3 startPos = transform.position;
+        Vector3 endPos = newRoom.transform.position;
+        Vector3 originalScale = transform.localScale;
+        float duration = moveDuration / speedMultiplier;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
         {
-            yield return FadeEffect.Instance.FadeOut(speedMultiplier);
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / duration);
+            transform.position = Vector3.Lerp(startPos, endPos, t);
+
+            // 중간 지점에서 크기가 0이 되었다가 다시 커지는 효과
+            // t=0 → scale 1, t=0.5 → scale 0, t=1 → scale 1
+            float scaleCurve = Mathf.Abs(2f * t - 1f);  // V자 커브: 1→0→1
+            scaleCurve = Mathf.SmoothStep(0f, 1f, scaleCurve);  // 부드럽게
+            transform.localScale = originalScale * scaleCurve;
+
+            yield return null;
         }
 
-        // Move champion and camera during dark screen
+        transform.position = endPos;
+        transform.localScale = originalScale;
         currentRoom = newRoom;
-        transform.position = newRoom.transform.position;
-
-        CameraController cameraController = FindFirstObjectByType<CameraController>();
-        if (cameraController != null)
-        {
-            cameraController.FocusOnPosition(transform.position);
-        }
 
         Debug.Log($"{championData.championName} moved to room at {newRoom.GridPosition}");
-
-        // Wait while screen is completely black (scaled by speed)
-        yield return new WaitForSeconds(0.5f / speedMultiplier);
-
-        // Fade in (brighten screen)
-        if (FadeEffect.Instance != null)
-        {
-            yield return FadeEffect.Instance.FadeIn(speedMultiplier);
-        }
     }
+
+    // === 기존 페이드 방식 (주석 처리) ===
+    // private IEnumerator MoveToRoomWithFade(Room newRoom, float speedMultiplier = 1f)
+    // {
+    //     // Fade out (darken screen)
+    //     if (FadeEffect.Instance != null)
+    //     {
+    //         yield return FadeEffect.Instance.FadeOut(speedMultiplier);
+    //     }
+    //
+    //     // Move champion and camera during dark screen
+    //     currentRoom = newRoom;
+    //     transform.position = newRoom.transform.position;
+    //
+    //     CameraController cameraController = FindFirstObjectByType<CameraController>();
+    //     if (cameraController != null)
+    //     {
+    //         cameraController.FocusOnPosition(transform.position);
+    //     }
+    //
+    //     Debug.Log($"{championData.championName} moved to room at {newRoom.GridPosition}");
+    //
+    //     // Wait while screen is completely black (scaled by speed)
+    //     yield return new WaitForSeconds(0.5f / speedMultiplier);
+    //
+    //     // Fade in (brighten screen)
+    //     if (FadeEffect.Instance != null)
+    //     {
+    //         yield return FadeEffect.Instance.FadeIn(speedMultiplier);
+    //     }
+    // }
 
     private void Die()
     {

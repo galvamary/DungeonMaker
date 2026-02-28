@@ -137,19 +137,20 @@ public class GameStateManager : MonoBehaviour
             Debug.LogWarning("ChampionSpawner not assigned!");
         }
 
-        // Focus camera on champion and disable manual control
+        // Focus camera on champion and start following
         if (cameraController != null && champion != null)
         {
             cameraController.FocusOnPosition(champion.transform.position);
             cameraController.ResetToDefaultZoom();
             cameraController.DisableManualControl();
+            cameraController.StartFollowing(champion.transform);
         }
 
-        // Enable fade image for exploration phase
-        if (FadeEffect.Instance != null)
-        {
-            FadeEffect.Instance.EnableFadeImage();
-        }
+        // === 기존 페이드 이미지 활성화 (주석 처리) ===
+        // if (FadeEffect.Instance != null)
+        // {
+        //     FadeEffect.Instance.EnableFadeImage();
+        // }
 
         // Start champion exploration
         if (championPathfinder != null && champion != null)
@@ -202,17 +203,18 @@ public class GameStateManager : MonoBehaviour
         GridClickHandler clickHandler = FindObjectOfType<GridClickHandler>();
         if (clickHandler != null) clickHandler.enabled = true;
 
-        // Enable manual camera control
+        // Stop following and enable manual camera control
         if (cameraController != null)
         {
+            cameraController.StopFollowing();
             cameraController.EnableManualControl();
         }
 
-        // Disable fade image for preparation phase (so it doesn't block grid clicks)
-        if (FadeEffect.Instance != null)
-        {
-            FadeEffect.Instance.DisableFadeImage();
-        }
+        // === 기존 페이드 이미지 비활성화 (주석 처리) ===
+        // if (FadeEffect.Instance != null)
+        // {
+        //     FadeEffect.Instance.DisableFadeImage();
+        // }
 
         // Note: Monster dragging is automatically enabled when IsPreparationPhase is true
     }

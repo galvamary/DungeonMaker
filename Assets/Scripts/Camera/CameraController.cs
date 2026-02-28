@@ -5,23 +5,27 @@ public class CameraController : MonoBehaviour
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float smoothTime = 0.1f;
-    
+
     [Header("Zoom Settings")]
     [SerializeField] private float zoomSpeed = 5f;
     [SerializeField] private float minZoom = 3f;
     [SerializeField] private float maxZoom = 10f;
     [SerializeField] private float defaultZoom = 3f;
 
+    [Header("Follow Settings")]
+    [SerializeField] private float followSmoothTime = 0.05f;
+
     private Camera cam;
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetPosition;
     private bool isManualControlEnabled = true;
-    
+    private Transform followTarget;
+
     private void Start()
     {
         cam = GetComponent<Camera>();
         targetPosition = transform.position;
-        
+
         if (cam != null)
         {
             cam.orthographicSize = defaultZoom;
@@ -33,6 +37,16 @@ public class CameraController : MonoBehaviour
         // Set camera position to focus on target
         targetPosition = new Vector3(position.x, position.y, transform.position.z);
         transform.position = targetPosition;
+    }
+
+    public void StartFollowing(Transform target)
+    {
+        followTarget = target;
+    }
+
+    public void StopFollowing()
+    {
+        followTarget = null;
     }
 
     public void EnableManualControl()
@@ -60,16 +74,27 @@ public class CameraController : MonoBehaviour
             cam.orthographicSize = defaultZoom;
         }
     }
-    
+
     private void Update()
     {
         HandleMovement();
         HandleZoom();
     }
-    
+
+    private void LateUpdate()
+    {
+        if (followTarget != null)
+        {
+            Vector3 desiredPos = new Vector3(followTarget.position.x, followTarget.position.y, transform.position.z);
+            transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref velocity, followSmoothTime);
+            targetPosition = transform.position;
+        }
+    }
+
     private void HandleMovement()
     {
         if (!isManualControlEnabled) return;
+        if (followTarget != null) return;
 
         // Manual camera movement with keyboard
         float horizontal = Input.GetAxis("Horizontal");
@@ -80,14 +105,14 @@ public class CameraController : MonoBehaviour
 
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, smoothTime);
     }
-    
+
     private void HandleZoom()
     {
 
         if (!isManualControlEnabled) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        
+
         if (scroll != 0 && cam != null)
         {
             float newSize = cam.orthographicSize - scroll * zoomSpeed;
