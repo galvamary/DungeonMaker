@@ -190,6 +190,12 @@ public class BattleEntity : MonoBehaviour
 
         Debug.Log($"{entityName} took {damage} damage! Remaining health: {currentHealth}/{maxHealth}");
 
+        // 데미지 플로팅 텍스트 표시
+        if (visual != null)
+        {
+            visual.ShowDamageText(damage);
+        }
+
         // Update status display
         if (BattleManager.Instance != null)
         {

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 /// <summary>
 /// Handles visual representation and effects for battle entities
@@ -25,6 +26,8 @@ public class BattleEntityVisual : MonoBehaviour
     [SerializeField] private float hpThresholdOrange = 0.1f; // 10%
 
     private BattleEntity entity;
+
+    private Coroutine floatingCoroutine;
 
     private void Awake()
     {
@@ -243,4 +246,64 @@ public class BattleEntityVisual : MonoBehaviour
     }
 
     public RectTransform RectTransform => rectTransform;
+
+    [Header("데미지 텍스트 설정")]
+    [SerializeField] private float floatDuration = 0.8f;
+    [SerializeField] private float floatDistance = 60f;
+
+    public void ShowDamageText(int damage)
+    {
+        if (BattleManager.Instance == null || BattleManager.Instance.DamageText == null) return;
+
+        // 이전 애니메이션 중단 (BattleManager에서 실행 중이므로 거기서 중단)
+        if (floatingCoroutine != null)
+        {
+            BattleManager.Instance.StopCoroutine(floatingCoroutine);
+        }
+
+        TextMeshProUGUI tmp = BattleManager.Instance.DamageText;
+        tmp.text = damage.ToString();
+
+        // 데미지를 받은 엔티티 위치에 텍스트 배치
+        RectTransform rt = tmp.rectTransform;
+        rt.position = rectTransform.position;
+
+        // 초기 상태 복원
+        Color c = tmp.color;
+        c.a = 1f;
+        tmp.color = c;
+        tmp.gameObject.SetActive(true);
+
+        floatingCoroutine = BattleManager.Instance.StartCoroutine(FloatAndFadeCoroutine());
+    }
+
+    private IEnumerator FloatAndFadeCoroutine()
+    {
+        TextMeshProUGUI tmp = BattleManager.Instance.DamageText;
+        RectTransform rt = tmp.rectTransform;
+        Vector2 startPos = rt.anchoredPosition;
+
+        float elapsed = 0f;
+        while (elapsed < floatDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / floatDuration;
+
+            // 위로 이동
+            rt.anchoredPosition = startPos + new Vector2(0f, floatDistance * t);
+
+            // 후반부에 페이드 아웃 (40% 지점부터 시작)
+            if (t > 0.4f)
+            {
+                Color c = tmp.color;
+                c.a = Mathf.Lerp(1f, 0f, (t - 0.4f) / 0.6f);
+                tmp.color = c;
+            }
+
+            yield return null;
+        }
+
+        tmp.gameObject.SetActive(false);
+        floatingCoroutine = null;
+    }
 }
