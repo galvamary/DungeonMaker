@@ -49,11 +49,28 @@ public class GridClickHandler : MonoBehaviour
 
         Debug.Log($"Left clicked grid position: {gridPos}");
 
-        // Cycle through room types
-        if (roomManager != null)
+        if (roomManager == null) return;
+
+        // 선택된 방 타입
+        RoomType selectedType = RoomSelectionPanel.Instance != null
+            ? RoomSelectionPanel.Instance.SelectedRoomType
+            : RoomType.Battle;
+
+        // 이미 방이 있으면 종류 변경
+        if (roomManager.IsPositionOccupied(gridPos))
         {
-            roomManager.CycleRoomAt(gridPos);
+            roomManager.ChangeRoomType(gridPos, selectedType);
+            return;
         }
+
+        // 인접한 방이 없으면 배치 불가
+        if (!roomManager.IsValidPlacement(gridPos))
+        {
+            Debug.Log($"Cannot place room at {gridPos} - must be adjacent to existing room!");
+            return;
+        }
+
+        roomManager.PlaceRoom(gridPos, selectedType);
     }
     
     private void HandleRightClick()

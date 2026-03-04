@@ -152,6 +152,44 @@ public class RoomManager : MonoBehaviour
         return placedRooms.ContainsKey(gridPosition);
     }
     
+    public bool ChangeRoomType(Vector2Int gridPosition, RoomType newType)
+    {
+        Room room = GetRoomAt(gridPosition);
+        if (room == null) return false;
+        if (room.Type == RoomType.Entrance) return false;
+        if (room.Type == newType) return false;
+
+        int oldCost = GetRoomCost(room.Type);
+        int newCost = GetRoomCost(newType);
+        int diff = newCost - oldCost;
+
+        if (diff > 0 && !GameManager.Instance.CanAfford(diff))
+        {
+            Debug.Log($"Not enough gold! Need {diff} more gold to change to {newType}");
+            return false;
+        }
+
+        if (diff > 0)
+            GameManager.Instance.SpendGold(diff);
+        else if (diff < 0)
+            GameManager.Instance.AddGold(-diff);
+
+        // 보물 방으로 변경 시 몬스터를 인벤토리로 반환
+        if (newType == RoomType.Treasure && room.HasMonster)
+        {
+            foreach (MonsterData monster in room.PlacedMonsters)
+            {
+                ShopManager.Instance.ReturnMonsterToInventory(monster);
+                Debug.Log($"Returned {monster.monsterName} to inventory (room changed to Treasure)");
+            }
+            room.RemoveAllMonsters();
+        }
+
+        room.Initialize(newType, gridPosition, GetRoomSprite(newType));
+        Debug.Log($"Changed room at {gridPosition} to {newType}");
+        return true;
+    }
+
     public void CycleRoomAt(Vector2Int gridPosition)
     {
         Room existingRoom = GetRoomAt(gridPosition);
@@ -239,7 +277,7 @@ public class RoomManager : MonoBehaviour
         }
     }
     
-    private int GetRoomCost(RoomType roomType)
+    public int GetRoomCost(RoomType roomType)
     {
         switch (roomType)
         {
@@ -254,7 +292,7 @@ public class RoomManager : MonoBehaviour
         }
     }
     
-    private bool IsValidPlacement(Vector2Int position)
+    public bool IsValidPlacement(Vector2Int position)
     {
         // Check if this position is adjacent to any existing room
         Vector2Int[] adjacentOffsets = new Vector2Int[]
