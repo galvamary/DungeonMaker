@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class MonsterDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class MonsterDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     private MonsterData monsterData;
     private int monsterCount;
@@ -38,6 +38,17 @@ public class MonsterDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler
     {
         monsterData = data;
         monsterCount = count;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Right) return;
+        if (monsterData == null || monsterCount <= 0) return;
+
+        if (ShopManager.Instance != null && ShopManager.Instance.SellMonster(monsterData))
+        {
+            Debug.Log($"Sold {monsterData.monsterName} for {monsterData.cost} gold!");
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -87,49 +98,20 @@ public class MonsterDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.Log($"OnEndDrag called. draggedIcon null? {draggedIcon == null}");
-
-        // Clean up drag visuals first
         CleanupDrag();
 
         if (monsterData == null || monsterCount <= 0) return;
 
-        // Check if we dropped on ShopUI (ShopUI will handle the sale via IDropHandler)
-        // If dropped on ShopUI, the ShopUI.OnDrop will be called automatically
-        // We just need to check if it wasn't handled by ShopUI, then try room placement
-
-        // Check if dropped on a UI element
-        if (eventData.pointerEnter != null)
-        {
-            Debug.Log($"Dropped on UI element: {eventData.pointerEnter.name}");
-
-            // Check if the UI element or its parent is ShopUI
-            ShopUI shopUI = eventData.pointerEnter.GetComponentInParent<ShopUI>();
-            if (shopUI != null)
-            {
-                Debug.Log("Dropped on shop - ShopUI.OnDrop will handle it");
-                // Dropped on shop - ShopUI.OnDrop will handle it
-                return;
-            }
-        }
-
-        // Not dropped on shop, try to place in room
+        // 드롭 위치의 방에 몬스터 배치 시도
         Vector2 worldPos = mainCamera.ScreenToWorldPoint(eventData.position);
         Vector2Int gridPos = GridManager.Instance.WorldToGridPosition(worldPos);
 
-        // Check if there's a room at this position
         Room room = RoomManager.Instance.GetRoomAtPosition(gridPos);
         if (room != null && room.Type != RoomType.Entrance && room.Type != RoomType.Treasure)
         {
-            // Place the monster in the room
             if (room.PlaceMonster(monsterData))
             {
-                // Decrease monster count in inventory
                 ShopManager.Instance.UseMonsterFromInventory(monsterData);
-            }
-            else
-            {
-                Debug.Log("Cannot place monster in this room");
             }
         }
     }

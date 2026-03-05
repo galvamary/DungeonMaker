@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class ShopUI : MonoBehaviour, IDropHandler
+public class ShopUI : MonoBehaviour
 {
     public static ShopUI Instance { get; private set; }
 
@@ -167,31 +167,4 @@ public class ShopUI : MonoBehaviour, IDropHandler
         }
     }
 
-    /// <summary>
-    /// Called when monster is dropped on the shop UI
-    /// </summary>
-    public void OnDrop(PointerEventData eventData)
-    {
-        // Get the dragged monster data from the drag handler
-        GameObject draggedObject = eventData.pointerDrag;
-        if (draggedObject == null) return;
-
-        MonsterDragHandler dragHandler = draggedObject.GetComponent<MonsterDragHandler>();
-        if (dragHandler != null && dragHandler.MonsterData != null)
-        {
-            // Sell the monster
-            if (ShopManager.Instance != null)
-            {
-                bool sold = ShopManager.Instance.SellMonster(dragHandler.MonsterData);
-                if (sold)
-                {
-                    int sellPrice = dragHandler.MonsterData.cost;
-                    Debug.Log($"Sold {dragHandler.MonsterData.monsterName} for {sellPrice} gold!");
-                }
-            }
-
-            // Clean up the drag operation (since OnEndDrag won't be called when OnDrop handles it)
-            dragHandler.CleanupDrag();
-        }
-    }
 }

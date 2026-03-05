@@ -12,7 +12,7 @@ public class RoomSelectionPanel : MonoBehaviour
     [SerializeField] private GameObject roomItemPrefab;
 
     [Header("선택 표시 색상")]
-    [SerializeField] private Color selectedColor = new Color(1f, 0.85f, 0.3f, 1f);
+    [SerializeField] private Color selectedColor = new Color(0.3f, 1f, 0.3f, 1f);
     [SerializeField] private Color normalColor = new Color(1f, 1f, 1f, 1f);
 
     private RoomType selectedRoomType = RoomType.Battle;
