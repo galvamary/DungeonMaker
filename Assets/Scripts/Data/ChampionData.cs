@@ -15,6 +15,10 @@ public class ChampionData : ScriptableObject
     [Tooltip("Sprite when fatigue > 90%")]
     public Sprite exhaustedSprite;
 
+    [Header("Fatigue Effect")]
+    [Tooltip("Animator Controller for fatigue effect (Image.controller)")]
+    public RuntimeAnimatorController fatigueEffectController;
+
     [Header("Stats")]
     public int maxHealth = 100;
     public int maxMP = 50;

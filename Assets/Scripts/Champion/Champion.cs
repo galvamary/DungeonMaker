@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -14,6 +15,7 @@ public class Champion : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Room currentRoom;
     private Sprite currentSprite; // Current sprite based on fatigue
+    private FatigueEffect fatigueEffect; // 피로도 이펙트
 
     [Header("Skills")]
     private List<SkillData> availableSkills = new List<SkillData>(); // Filtered skills based on treasure room count
@@ -95,6 +97,9 @@ public class Champion : MonoBehaviour
             spriteRenderer.sortingOrder = 3; // Above monsters
         }
 
+        // 피로도 이펙트 자식 오브젝트 생성
+        CreateFatigueEffect();
+
         // Position at room center
         if (currentRoom != null)
         {
@@ -139,6 +144,51 @@ public class Champion : MonoBehaviour
     }
 
     /// <summary>
+    /// 피로도 이펙트 자식 오브젝트 생성
+    /// </summary>
+    private void CreateFatigueEffect()
+    {
+        if (championData.fatigueEffectController == null) return;
+
+        // 스프라이트 bounds로 크기 계산
+        Bounds spriteBounds = spriteRenderer.sprite.bounds;
+
+        // World Space Canvas 생성
+        GameObject canvasObj = new GameObject("FatigueEffectCanvas");
+        canvasObj.transform.SetParent(transform);
+        canvasObj.transform.localPosition = Vector3.zero;
+        canvasObj.transform.localScale = Vector3.one;
+
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.WorldSpace;
+        canvas.sortingOrder = spriteRenderer.sortingOrder + 1;
+
+        RectTransform canvasRect = canvasObj.GetComponent<RectTransform>();
+        canvasRect.sizeDelta = new Vector2(spriteBounds.size.x, spriteBounds.size.y);
+
+        // Image + Animator 자식 오브젝트
+        GameObject imageObj = new GameObject("EffectImage");
+        imageObj.transform.SetParent(canvasObj.transform, false);
+
+        Image image = imageObj.AddComponent<Image>();
+        image.raycastTarget = false;
+
+        RectTransform imageRect = imageObj.GetComponent<RectTransform>();
+        imageRect.anchorMin = Vector2.zero;
+        imageRect.anchorMax = Vector2.one;
+        imageRect.sizeDelta = Vector2.zero;
+        imageRect.anchoredPosition = Vector2.zero;
+
+        Animator anim = imageObj.AddComponent<Animator>();
+        anim.runtimeAnimatorController = championData.fatigueEffectController;
+
+        // FatigueEffect 컴포넌트로 제어
+        fatigueEffect = canvasObj.AddComponent<FatigueEffect>();
+        fatigueEffect.SetAnimator(anim);
+        canvasObj.SetActive(false);
+    }
+
+    /// <summary>
     /// Updates champion sprite based on current fatigue level
     /// </summary>
     private void UpdateSpriteByFatigue()
@@ -180,6 +230,30 @@ public class Champion : MonoBehaviour
             }
 
             Debug.Log($"{championData.championName} sprite changed (Fatigue: {fatiguePercentage:F1}%)");
+        }
+
+        // 피로도 이펙트 제어
+        UpdateFatigueEffect(fatiguePercentage);
+    }
+
+    /// <summary>
+    /// 피로도 이펙트 활성화/비활성화 및 속도 제어
+    /// </summary>
+    private void UpdateFatigueEffect(float fatiguePercentage)
+    {
+        if (fatigueEffect == null) return;
+
+        if (fatiguePercentage < 50f)
+        {
+            fatigueEffect.Hide();
+        }
+        else if (fatiguePercentage < 90f)
+        {
+            fatigueEffect.Show(1f); // 기본 속도
+        }
+        else
+        {
+            fatigueEffect.Show(2f); // 90% 이상: 2배속
         }
     }
 

@@ -23,6 +23,10 @@ public class BattleEntity : MonoBehaviour
     private SkillData basicAttackSkill;
     private List<SkillData> availableSkills = new List<SkillData>();
 
+    [Header("Fatigue")]
+    private float fatiguePercentage;
+    private RuntimeAnimatorController fatigueEffectController;
+
     [Header("Status Effects")]
     private bool isDefending = false;
     private int defendingTurnsRemaining = 0;
@@ -92,6 +96,10 @@ public class BattleEntity : MonoBehaviour
         speed = champion.EffectiveSpeed;
         isChampion = true;
 
+        // 피로도 이펙트 정보 저장
+        fatiguePercentage = champion.CurrentFatigue;
+        fatigueEffectController = champion.Data.fatigueEffectController;
+
         Debug.Log($"{entityName} battle stats (Fatigue: {champion.CurrentFatigue:F1}%) - " +
                   $"ATK: {attack}, DEF: {defense}, SPD: {speed}");
 
@@ -148,6 +156,12 @@ public class BattleEntity : MonoBehaviour
         // Initialize visual component
         visual.Initialize(this);
         visual.SetupVisual(entitySprite, isChampion);
+
+        // 챔피언이면 피로도 이펙트 설정
+        if (isChampion && fatigueEffectController != null)
+        {
+            visual.SetupFatigueEffect(fatigueEffectController, fatiguePercentage);
+        }
 
         // Initialize animator component
         animator.Initialize(isChampion);

@@ -26,6 +26,7 @@ public class BattleEntityVisual : MonoBehaviour
     [SerializeField] private float hpThresholdOrange = 0.1f; // 10%
 
     private BattleEntity entity;
+    private FatigueEffect fatigueEffect;
 
     private Coroutine floatingCoroutine;
 
@@ -242,6 +243,49 @@ public class BattleEntityVisual : MonoBehaviour
             nameDisplay.SetActive(true);
             nameText.text = entity.EntityName;
             nameText.color = nameColorOrange;
+        }
+    }
+
+    /// <summary>
+    /// 전투 UI에서 피로도 이펙트 생성 (챔피언 전용)
+    /// 이미 Canvas 안에 있으므로 Image + Animator만 자식으로 추가
+    /// </summary>
+    public void SetupFatigueEffect(RuntimeAnimatorController controller, float fatiguePercent)
+    {
+        if (controller == null) return;
+
+        // 이펙트 컨테이너 (부모 크기에 맞춤)
+        GameObject effectObj = new GameObject("FatigueEffect", typeof(RectTransform));
+        RectTransform effectRect = effectObj.GetComponent<RectTransform>();
+        effectRect.SetParent(rectTransform, false);
+        effectRect.anchorMin = Vector2.zero;
+        effectRect.anchorMax = Vector2.one;
+        effectRect.sizeDelta = Vector2.zero;
+        effectRect.anchoredPosition = Vector2.zero;
+
+        // Image + Animator
+        Image effectImage = effectObj.AddComponent<Image>();
+        effectImage.raycastTarget = false;
+
+        Animator anim = effectObj.AddComponent<Animator>();
+        anim.runtimeAnimatorController = controller;
+
+        // FatigueEffect 컴포넌트로 제어
+        fatigueEffect = effectObj.AddComponent<FatigueEffect>();
+        fatigueEffect.SetAnimator(anim);
+
+        // 현재 피로도에 따라 즉시 표시
+        if (fatiguePercent >= 90f)
+        {
+            fatigueEffect.Show(2f);
+        }
+        else if (fatiguePercent >= 50f)
+        {
+            fatigueEffect.Show(1f);
+        }
+        else
+        {
+            fatigueEffect.Hide();
         }
     }
 
