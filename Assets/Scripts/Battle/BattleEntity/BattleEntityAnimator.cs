@@ -49,8 +49,8 @@ public class BattleEntityAnimator : MonoBehaviour
         Vector3 targetPos = targetVisual.RectTransform.position;
 
         // Calculate attack position with offset
-        // Champion attacks from left (positive offset), Monster from right (negative offset)
-        float xOffset = isChampion ? 400f : -400f;
+        // Champion attacks from right (negative offset), Monster from left (positive offset)
+        float xOffset = isChampion ? -400f : 400f;
         Vector3 attackPos = new Vector3(targetPos.x + xOffset, targetPos.y, targetPos.z);
 
         Debug.Log($"Attack Animation - Start: {startPos}, Target: {targetPos}, AttackPos: {attackPos}");
@@ -103,7 +103,7 @@ public class BattleEntityAnimator : MonoBehaviour
         }
 
         Vector3 startPos = originalPosition;
-        Vector3 targetPos = originalPosition + new Vector3(250f, 0f, 0f); // Move 50 pixels to the right
+        Vector3 targetPos = originalPosition + new Vector3(-250f, 0f, 0f); // Move to the left (toward champion)
 
         float duration = 0.15f;
         float elapsed = 0f;

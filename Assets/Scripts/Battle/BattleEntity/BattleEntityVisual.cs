@@ -186,8 +186,8 @@ public class BattleEntityVisual : MonoBehaviour
         RectTransform nameRect = nameDisplay.GetComponent<RectTransform>();
         nameRect.SetParent(rectTransform, false);
 
-        // 챔피언은 스프라이트가 Y축 180도 회전되어 있으므로 텍스트도 보정
-        if (isChampion)
+        // 몬스터는 스프라이트가 Y축 180도 회전되어 있으므로 텍스트도 보정
+        if (!isChampion)
         {
             nameRect.eulerAngles = new Vector3(0f, 180f, 0f);
         }

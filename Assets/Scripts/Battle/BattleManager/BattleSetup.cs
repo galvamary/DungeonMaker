@@ -80,7 +80,7 @@ public class BattleSetup : MonoBehaviour
         // Position champion
         RectTransform rectTransform = championObj.GetComponent<RectTransform>();
         PositionEntity(rectTransform, championContainer);
-        rectTransform.eulerAngles = new Vector3(0f, 180f, 0f); // Face right
+        // 챔피언은 회전 없음 (기본 방향)
 
         // Save original position
         championEntity.SaveOriginalPosition();
@@ -153,6 +153,7 @@ public class BattleSetup : MonoBehaviour
             // Position monster
             RectTransform rectTransform = monsterObj.GetComponent<RectTransform>();
             PositionEntity(rectTransform, containerTransform);
+            rectTransform.eulerAngles = new Vector3(0f, 180f, 0f); // Face left
 
             // Save original position
             monsterEntity.SaveOriginalPosition();

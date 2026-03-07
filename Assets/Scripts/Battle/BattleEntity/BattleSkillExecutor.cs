@@ -149,8 +149,8 @@ public class BattleSkillExecutor : MonoBehaviour
             }
         }
 
-        // Rotate effect 180 degrees if used by a monster
-        if (entity != null && entity.IsMonster)
+        // Rotate effect 180 degrees if used by a champion
+        if (entity != null && entity.IsChampion)
         {
             effect.transform.eulerAngles = new Vector3(0f, 180f, 0f);
         }
