@@ -75,11 +75,8 @@ public class BattleEntityVisual : MonoBehaviour
         // Create defense indicator (initially hidden)
         CreateDefenseIndicator();
 
-        // Create name display for champions (initially hidden)
-        if (isChampion)
-        {
-            CreateNameDisplay();
-        }
+        // Create name display for all entities (always visible)
+        CreateNameDisplay(isChampion);
     }
 
     /// <summary>
@@ -177,9 +174,9 @@ public class BattleEntityVisual : MonoBehaviour
     }
 
     /// <summary>
-    /// Creates the name display UI for champions (positioned above the head)
+    /// Creates the name display UI for all entities (positioned above the head)
     /// </summary>
-    private void CreateNameDisplay()
+    private void CreateNameDisplay(bool isChampion)
     {
         // Create a child GameObject for the name text
         nameDisplay = new GameObject("NameDisplay", typeof(RectTransform));
@@ -189,8 +186,12 @@ public class BattleEntityVisual : MonoBehaviour
         RectTransform nameRect = nameDisplay.GetComponent<RectTransform>();
         nameRect.SetParent(rectTransform, false);
 
-        // Position above the entity's head
-        nameRect.eulerAngles = new Vector3(0f, 180f, 0f);
+        // 챔피언은 스프라이트가 Y축 180도 회전되어 있으므로 텍스트도 보정
+        if (isChampion)
+        {
+            nameRect.eulerAngles = new Vector3(0f, 180f, 0f);
+        }
+
         nameRect.anchorMin = new Vector2(0.5f, 0.5f);
         nameRect.anchorMax = new Vector2(0.5f, 0.5f);
         nameRect.anchoredPosition = Vector2.zero;
@@ -200,7 +201,7 @@ public class BattleEntityVisual : MonoBehaviour
         // Setup text properties
         nameText.alignment = TextAlignmentOptions.Center;
         nameText.fontSize = 30;
-        nameText.fontStyle = FontStyles.Bold;
+        nameText.color = Color.white;
 
         // Set custom font from BattleManager if assigned
         if (BattleManager.Instance != null && BattleManager.Instance.ChampionNameFont != null)
@@ -208,17 +209,18 @@ public class BattleEntityVisual : MonoBehaviour
             nameText.font = BattleManager.Instance.ChampionNameFont;
         }
 
-        // Initially hidden (will show when HP <= 50%)
-        nameDisplay.SetActive(false);
+        // 이름 설정 및 즉시 표시
+        nameText.text = entity.EntityName;
+        nameDisplay.SetActive(true);
     }
 
     /// <summary>
-    /// Updates the name display based on champion's HP percentage
-    /// Hidden when HP > 50%, yellow when HP <= 50%, orange when HP <= 10%
+    /// Updates the champion name display color based on HP percentage
+    /// White when HP > 50%, yellow when HP <= 50%, orange when HP <= 10%
     /// </summary>
     public void UpdateChampionNameDisplay()
     {
-        if (entity == null || !entity.IsChampion || nameDisplay == null || nameText == null)
+        if (entity == null || !entity.IsChampion || nameText == null)
         {
             return;
         }
@@ -227,21 +229,14 @@ public class BattleEntityVisual : MonoBehaviour
 
         if (hpPercentage > hpThresholdYellow)
         {
-            // HP > 50%: Hide name
-            nameDisplay.SetActive(false);
+            nameText.color = Color.white;
         }
         else if (hpPercentage > hpThresholdOrange)
         {
-            // 10% < HP <= 50%: Show name in yellow
-            nameDisplay.SetActive(true);
-            nameText.text = entity.EntityName;
             nameText.color = nameColorYellow;
         }
         else
         {
-            // HP <= 10%: Show name in orange
-            nameDisplay.SetActive(true);
-            nameText.text = entity.EntityName;
             nameText.color = nameColorOrange;
         }
     }
