@@ -5,7 +5,7 @@ using TMPro;
 public class ReputationUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI reputationText;
-    [SerializeField] private string reputationFormat = "Reputation: {0}";
+    [SerializeField] private string reputationFormat = "Reputation: {0} X";
 
     private void Start()
     {

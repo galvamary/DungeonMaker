@@ -3982,7 +3982,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ReputationUI
   reputationText: {fileID: 1850915850}
-  reputationFormat: 'Reputation: {0}'
+  reputationFormat: 'Reputation: {0} X'
 --- !u!114 &687066133
 MonoBehaviour:
   m_ObjectHideFlags: 0

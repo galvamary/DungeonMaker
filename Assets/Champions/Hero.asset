@@ -17,7 +17,7 @@ MonoBehaviour:
   tiredSprite: {fileID: 8408883270026636152, guid: 95a8135814f1f4edb94df76bf1898e8e, type: 3}
   exhaustedSprite: {fileID: 5825993557141261907, guid: a1073e4c432264fa88a46763b676e549, type: 3}
   fatigueEffectController: {fileID: 9100000, guid: ed008566ee8c64c90babf20a5c3d9725, type: 2}
-  maxHealth: 70
+  maxHealth: 60
   maxMP: 20
   attack: 11
   defense: 5
