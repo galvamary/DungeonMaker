@@ -2184,12 +2184,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   sfxSource: {fileID: 0}
-  normalBgmSource: {fileID: 0}
-  battleBgmSource: {fileID: 0}
-  backgroundMusic: {fileID: 8300000, guid: 85746d66809c84529be067578b2b3066, type: 3}
-  battleMusic: {fileID: 8300000, guid: 215746bd5d58242659d175e0eab5cb45, type: 3}
+  bgmSource: {fileID: 0}
+  preparationMusic: {fileID: 8300000, guid: 85746d66809c84529be067578b2b3066, type: 3}
+  explorationMusic: {fileID: 8300000, guid: 215746bd5d58242659d175e0eab5cb45, type: 3}
   bgmVolume: 0.5
-  fadeDuration: 1.5
+  fadeDuration: 1
 --- !u!4 &403342029
 Transform:
   m_ObjectHideFlags: 0

@@ -106,6 +106,12 @@ public class GameStateManager : MonoBehaviour
         currentPhase = GamePhase.Exploration;
         Debug.Log("Starting exploration phase!");
 
+        // Switch to exploration music
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StartExplorationMusic();
+        }
+
         // Save game state before exploration starts
         if (GameManager.Instance != null)
         {
@@ -173,6 +179,12 @@ public class GameStateManager : MonoBehaviour
 
         currentPhase = GamePhase.Preparation;
         Debug.Log("Returning to preparation phase!");
+
+        // Switch back to preparation music
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.StopExplorationMusic();
+        }
 
         // Stop champion exploration
         if (championPathfinder != null)

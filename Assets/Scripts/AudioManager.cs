@@ -9,16 +9,15 @@ public class AudioManager : MonoBehaviour
 
     [Header("Audio Sources")]
     [SerializeField] private AudioSource sfxSource;
-    [SerializeField] private AudioSource normalBgmSource;
-    [SerializeField] private AudioSource battleBgmSource;
+    [SerializeField] private AudioSource bgmSource;
 
     [Header("Background Music")]
-    [SerializeField] private AudioClip backgroundMusic;
-    [SerializeField] private AudioClip battleMusic;
+    [SerializeField] private AudioClip preparationMusic;
+    [SerializeField] private AudioClip explorationMusic;
     [SerializeField] private float bgmVolume = 0.5f;
     [SerializeField] private float fadeDuration = 1.5f;
 
-    private bool isBattleMusic = false;
+    private bool isExplorationMusic = false;
     private Coroutine fadeCoroutine;
 
     private void Awake()
@@ -34,34 +33,22 @@ public class AudioManager : MonoBehaviour
             return;
         }
 
-        // Create SFX AudioSource if not assigned
         if (sfxSource == null)
         {
             sfxSource = gameObject.AddComponent<AudioSource>();
             sfxSource.playOnAwake = false;
         }
 
-        // Create Normal BGM AudioSource if not assigned
-        if (normalBgmSource == null)
+        if (bgmSource == null)
         {
-            normalBgmSource = gameObject.AddComponent<AudioSource>();
-            normalBgmSource.playOnAwake = false;
-            normalBgmSource.loop = true;  // Loop background music
-        }
-
-        // Create Battle BGM AudioSource if not assigned
-        if (battleBgmSource == null)
-        {
-            battleBgmSource = gameObject.AddComponent<AudioSource>();
-            battleBgmSource.playOnAwake = false;
-            battleBgmSource.loop = true;  // Loop battle music
-            battleBgmSource.volume = 0f;  // Start silent
+            bgmSource = gameObject.AddComponent<AudioSource>();
+            bgmSource.playOnAwake = false;
+            bgmSource.loop = true;
         }
     }
 
     private void Start()
     {
-        // Start playing background music
         PlayBGM();
     }
 
@@ -77,35 +64,16 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Plays a sound effect with custom volume
-    /// </summary>
-    public void PlaySFX(AudioClip clip, float volume)
-    {
-        if (clip != null && sfxSource != null)
-        {
-            sfxSource.PlayOneShot(clip, volume);
-        }
-    }
-
-    /// <summary>
-    /// Starts playing background music
+    /// Starts playing preparation background music
     /// </summary>
     private void PlayBGM()
     {
-        if (backgroundMusic != null && normalBgmSource != null)
+        if (preparationMusic != null && bgmSource != null)
         {
-            normalBgmSource.clip = backgroundMusic;
-            normalBgmSource.volume = bgmVolume;
-            normalBgmSource.Play();
-            Debug.Log("Background music started playing");
-        }
-
-        // Prepare battle music (silent)
-        if (battleMusic != null && battleBgmSource != null)
-        {
-            battleBgmSource.clip = battleMusic;
-            battleBgmSource.volume = 0f;
-            battleBgmSource.Play();  // Play but silent, so it's ready
+            bgmSource.clip = preparationMusic;
+            bgmSource.volume = bgmVolume;
+            bgmSource.Play();
+            Debug.Log("Preparation music started playing");
         }
     }
 
@@ -114,13 +82,9 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     public void StopBGM()
     {
-        if (normalBgmSource != null)
+        if (bgmSource != null)
         {
-            normalBgmSource.Stop();
-        }
-        if (battleBgmSource != null)
-        {
-            battleBgmSource.Stop();
+            bgmSource.Stop();
         }
     }
 
@@ -131,14 +95,9 @@ public class AudioManager : MonoBehaviour
     {
         bgmVolume = Mathf.Clamp01(volume);
 
-        // Update current playing BGM
-        if (isBattleMusic && battleBgmSource != null)
+        if (bgmSource != null)
         {
-            battleBgmSource.volume = bgmVolume;
-        }
-        else if (!isBattleMusic && normalBgmSource != null)
-        {
-            normalBgmSource.volume = bgmVolume;
+            bgmSource.volume = bgmVolume;
         }
     }
 
@@ -154,98 +113,80 @@ public class AudioManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Switches to battle music with crossfade
+    /// Switches to exploration music with crossfade
     /// </summary>
-    public void StartBattleMusic()
+    public void StartExplorationMusic()
     {
-        if (battleMusic == null || isBattleMusic)
+        if (explorationMusic == null || isExplorationMusic)
             return;
 
-        isBattleMusic = true;
+        isExplorationMusic = true;
 
-        // Stop any ongoing fade
         if (fadeCoroutine != null)
         {
             StopCoroutine(fadeCoroutine);
         }
 
-        fadeCoroutine = StartCoroutine(CrossfadeToBattle());
+        fadeCoroutine = StartCoroutine(CrossfadeTo(explorationMusic));
     }
 
     /// <summary>
-    /// Returns to normal background music with crossfade
+    /// Returns to preparation music with crossfade
     /// </summary>
-    public void StopBattleMusic()
+    public void StopExplorationMusic()
     {
-        if (!isBattleMusic)
+        if (!isExplorationMusic)
             return;
 
-        isBattleMusic = false;
+        isExplorationMusic = false;
 
-        // Stop any ongoing fade
         if (fadeCoroutine != null)
         {
             StopCoroutine(fadeCoroutine);
         }
 
-        fadeCoroutine = StartCoroutine(CrossfadeToNormal());
+        fadeCoroutine = StartCoroutine(CrossfadeTo(preparationMusic));
     }
 
     /// <summary>
-    /// Crossfades from normal BGM to battle music
+    /// Crossfades: fade out → swap clip → fade in
     /// </summary>
-    private System.Collections.IEnumerator CrossfadeToBattle()
+    private System.Collections.IEnumerator CrossfadeTo(AudioClip newClip)
     {
-        if (normalBgmSource == null || battleBgmSource == null || battleMusic == null)
+        if (bgmSource == null || newClip == null)
             yield break;
 
-        float elapsed = 0f;
-        float startVolumeNormal = normalBgmSource.volume;
-        float startVolumeBattle = battleBgmSource.volume;
+        float halfDuration = fadeDuration / 2f;
 
-        // Crossfade: normal fades out, battle fades in
-        while (elapsed < fadeDuration)
+        // Fade out
+        float elapsed = 0f;
+        float startVolume = bgmSource.volume;
+
+        while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / fadeDuration;
-
-            normalBgmSource.volume = Mathf.Lerp(startVolumeNormal, 0f, t);
-            battleBgmSource.volume = Mathf.Lerp(startVolumeBattle, bgmVolume, t);
-
+            float t = elapsed / halfDuration;
+            bgmSource.volume = Mathf.Lerp(startVolume, 0f, t);
             yield return null;
         }
 
-        normalBgmSource.volume = 0f;
-        battleBgmSource.volume = bgmVolume;
-        fadeCoroutine = null;
-    }
+        // Swap clip
+        bgmSource.Stop();
+        bgmSource.clip = newClip;
+        bgmSource.volume = 0f;
+        bgmSource.Play();
 
-    /// <summary>
-    /// Crossfades from battle music back to normal BGM
-    /// </summary>
-    private System.Collections.IEnumerator CrossfadeToNormal()
-    {
-        if (normalBgmSource == null || battleBgmSource == null || backgroundMusic == null)
-            yield break;
-
-        float elapsed = 0f;
-        float startVolumeNormal = normalBgmSource.volume;
-        float startVolumeBattle = battleBgmSource.volume;
-
-        // Crossfade: battle fades out, normal fades in
-        while (elapsed < fadeDuration)
+        // Fade in
+        elapsed = 0f;
+        while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
-            float t = elapsed / fadeDuration;
-
-            normalBgmSource.volume = Mathf.Lerp(startVolumeNormal, bgmVolume, t);
-            battleBgmSource.volume = Mathf.Lerp(startVolumeBattle, 0f, t);
-
+            float t = elapsed / halfDuration;
+            bgmSource.volume = Mathf.Lerp(0f, bgmVolume, t);
             yield return null;
         }
 
-        normalBgmSource.volume = bgmVolume;
-        battleBgmSource.volume = 0f;
+        bgmSource.volume = bgmVolume;
         fadeCoroutine = null;
     }
 }
