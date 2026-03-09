@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 /// <summary>
 /// Handles skill execution, effects, and damage calculation for battle entities
@@ -38,6 +39,12 @@ public class BattleSkillExecutor : MonoBehaviour
 
         entity.UseMP(skill.mpCost);
         Debug.Log($"{entity.EntityName} uses {skill.skillName}!");
+
+        if (skill.mpCost > 0)
+        {
+        // Show skill name text
+        ShowSkillNameText(skill.skillName);
+        }
 
         // Play skill sound effect
         if (skill.soundEffect != null && AudioManager.Instance != null)
@@ -237,5 +244,51 @@ public class BattleSkillExecutor : MonoBehaviour
                 Debug.LogWarning($"Target type {skill.targetType} not supported for heal skills!");
                 break;
         }
+    }
+
+    private static Coroutine skillNameCoroutine;
+
+    private void ShowSkillNameText(string skillName)
+    {
+        if (BattleManager.Instance == null || BattleManager.Instance.SkillNameText == null) return;
+
+        // 이전 페이드 중단
+        if (skillNameCoroutine != null)
+        {
+            BattleManager.Instance.StopCoroutine(skillNameCoroutine);
+        }
+
+        TextMeshProUGUI tmp = BattleManager.Instance.SkillNameText;
+        tmp.text = $"-{skillName}-";
+        Color c = tmp.color;
+        c.a = 1f;
+        tmp.color = c;
+        tmp.gameObject.SetActive(true);
+
+        skillNameCoroutine = BattleManager.Instance.StartCoroutine(SkillNameFadeOut());
+    }
+
+    private static IEnumerator SkillNameFadeOut()
+    {
+        TextMeshProUGUI tmp = BattleManager.Instance.SkillNameText;
+
+        // 유지 시간
+        yield return new WaitForSeconds(1.2f);
+
+        // 빠르게 페이드 아웃
+        float fadeDuration = 0.2f;
+        float elapsed = 0f;
+        Color c = tmp.color;
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            c.a = Mathf.Lerp(1f, 0f, elapsed / fadeDuration);
+            tmp.color = c;
+            yield return null;
+        }
+
+        tmp.gameObject.SetActive(false);
+        skillNameCoroutine = null;
     }
 }

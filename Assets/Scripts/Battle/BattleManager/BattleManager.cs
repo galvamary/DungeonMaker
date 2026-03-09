@@ -26,6 +26,9 @@ public class BattleManager : MonoBehaviour
     [Header("데미지 텍스트")]
     [SerializeField] private TextMeshProUGUI damageText;
 
+    [Header("스킬 이름 텍스트")]
+    [SerializeField] private TextMeshProUGUI skillNameText;
+
     [Header("UI Panels")]
     [SerializeField] private MonsterActionPanel monsterActionPanel;
     [SerializeField] private MonsterStatusPanel monsterStatusPanel;
@@ -41,6 +44,7 @@ public class BattleManager : MonoBehaviour
     public BattleEntity CurrentTurnEntity => turnSystem?.CurrentTurnEntity;
     public TMP_FontAsset ChampionNameFont => championNameFont;
     public TextMeshProUGUI DamageText => damageText;
+    public TextMeshProUGUI SkillNameText => skillNameText;
 
     private void Awake()
     {
