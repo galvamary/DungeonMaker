@@ -79,6 +79,9 @@ public class ChampionPathfinder : MonoBehaviour
                 // Start battle
                 if (BattleManager.Instance != null)
                 {
+                    // 전투 시작 전 첫 번째 몬스터 스프라이트 저장
+                    Sprite firstMonsterSprite = currentRoom.PlacedMonsters.Count > 0 ? currentRoom.PlacedMonsters[0].icon : null;
+
                     BattleManager.Instance.StartBattle(champion, currentRoom);
 
                     // Wait for battle to finish
@@ -92,7 +95,7 @@ public class ChampionPathfinder : MonoBehaviour
                         // Restore all treasure rooms since champion died
                         RestoreTreasureRooms();
 
-                        VictoryUI.Instance.ShowVictory(champion);
+                        VictoryUI.Instance.ShowVictory(champion, firstMonsterSprite);
                         yield break;
                     }
                 }
@@ -269,6 +272,9 @@ public class ChampionPathfinder : MonoBehaviour
                 // Start battle
                 if (BattleManager.Instance != null)
                 {
+                    // 전투 시작 전 첫 번째 몬스터 스프라이트 저장
+                    Sprite firstMonsterSprite = nextRoom.PlacedMonsters.Count > 0 ? nextRoom.PlacedMonsters[0].icon : null;
+
                     BattleManager.Instance.StartBattle(champion, nextRoom);
 
                     // Wait for battle to finish
@@ -282,7 +288,7 @@ public class ChampionPathfinder : MonoBehaviour
                         // Restore all treasure rooms since champion died
                         RestoreTreasureRooms();
 
-                        VictoryUI.Instance.ShowVictory(champion);
+                        VictoryUI.Instance.ShowVictory(champion, firstMonsterSprite);
                         yield break;
                     }
                 }

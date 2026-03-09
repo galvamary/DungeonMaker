@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Manages the victory UI panel shown when the player defeats all monsters
@@ -9,6 +10,7 @@ public class VictoryUI : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject victoryPanel;
+    [SerializeField] private Image monsterImage;
     private ChampionData currentChampionData;
 
     private void Awake()
@@ -35,12 +37,23 @@ public class VictoryUI : MonoBehaviour
     /// <summary>
     /// Shows the victory panel
     /// </summary>
-    public void ShowVictory(Champion champion)
+    public void ShowVictory(Champion champion, Sprite monsterSprite = null)
     {
         currentChampionData = champion.Data;
         if (victoryPanel != null)
         {
             victoryPanel.SetActive(true);
+        }
+
+        // 승리한 몬스터의 스프라이트 표시
+        if (monsterImage != null && monsterSprite != null)
+        {
+            monsterImage.sprite = monsterSprite;
+            monsterImage.enabled = true;
+        }
+        else if (monsterImage != null)
+        {
+            monsterImage.enabled = false;
         }
     }
 
