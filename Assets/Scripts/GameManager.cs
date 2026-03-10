@@ -9,9 +9,6 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int currentGold = 1000;
     [SerializeField] private int currentReputation = 1;
 
-    // Save state for exploration
-    private SaveState currentSaveState;
-
     public int CurrentGold => currentGold;
     public int CurrentReputation => currentReputation;
 
@@ -83,33 +80,6 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Decreases reputation when champion escapes successfully
-    /// </summary>
-    public void DecreaseReputation(int amount = 1)
-    {
-        if (amount > 0)
-        {
-            currentReputation -= amount;
-            OnReputationChanged?.Invoke(currentReputation);
-            Debug.Log($"Reputation decreased by {amount}. Current reputation: {currentReputation}");
-        }
-    }
-
-    /// <summary>
-    /// Removes gold without checking if player can afford it (can go negative)
-    /// Used for defeat penalties
-    /// </summary>
-    public void RemoveGold(int amount)
-    {
-        if (amount > 0)
-        {
-            currentGold -= amount;
-            OnGoldChanged?.Invoke(currentGold);
-            Debug.Log($"Gold removed: -{amount}. Current gold: {currentGold}");
-        }
-    }
-
-    /// <summary>
     /// Triggers the game over event
     /// </summary>
     public void TriggerGameOver()
@@ -167,74 +137,6 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("========== GAME RESTART COMPLETE ==========");
-    }
-
-    /// <summary>
-    /// Saves the current game state (called at exploration start)
-    /// </summary>
-    public void SaveGameState()
-    {
-        if (currentSaveState == null)
-        {
-            currentSaveState = new SaveState();
-        }
-        else
-        {
-            currentSaveState.Clear();
-        }
-
-        // Save GameManager state
-        currentSaveState.savedGold = currentGold;
-        currentSaveState.savedReputation = currentReputation;
-
-        // Save RoomManager state
-        if (RoomManager.Instance != null)
-        {
-            RoomManager.Instance.SaveRoomState(currentSaveState);
-        }
-
-        // Save ShopManager state (inventory)
-        if (ShopManager.Instance != null)
-        {
-            ShopManager.Instance.SaveInventoryState(currentSaveState);
-        }
-
-        Debug.Log($"Game state saved! Gold: {currentGold}, Reputation: {currentReputation}, Rooms: {currentSaveState.savedRooms.Count}");
-    }
-
-    /// <summary>
-    /// Restores the saved game state (called on defeat)
-    /// </summary>
-    public void RestoreGameState()
-    {
-        if (currentSaveState == null)
-        {
-            Debug.LogWarning("No saved state to restore!");
-            return;
-        }
-
-        Debug.Log("========== RESTORING GAME STATE ==========");
-
-        // Restore GameManager state
-        currentGold = currentSaveState.savedGold;
-        currentReputation = currentSaveState.savedReputation;
-        OnGoldChanged?.Invoke(currentGold);
-        OnReputationChanged?.Invoke(currentReputation);
-
-        // Restore RoomManager state
-        if (RoomManager.Instance != null)
-        {
-            RoomManager.Instance.RestoreRoomState(currentSaveState);
-        }
-
-        // Restore ShopManager state (inventory)
-        if (ShopManager.Instance != null)
-        {
-            ShopManager.Instance.RestoreInventoryState(currentSaveState);
-        }
-
-        Debug.Log($"Game state restored! Gold: {currentGold}, Reputation: {currentReputation}");
-        Debug.Log("========== RESTORE COMPLETE ==========");
     }
 
     /// <summary>

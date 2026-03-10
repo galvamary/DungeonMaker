@@ -112,12 +112,6 @@ public class GameStateManager : MonoBehaviour
             AudioManager.Instance.StartExplorationMusic();
         }
 
-        // Save game state before exploration starts
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.SaveGameState();
-        }
-
         // Disable preparation UI
         if (shopUI != null) shopUI.SetActive(false);
         if (monsterInventoryUI != null) monsterInventoryUI.SetActive(false);
