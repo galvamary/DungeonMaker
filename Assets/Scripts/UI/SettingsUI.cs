@@ -54,10 +54,10 @@ public class SettingsUI : MonoBehaviour
 
     private void Update()
     {
-        // Toggle settings panel with ESC key (only in preparation phase)
+        // Toggle settings panel with ESC key
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            // Only allow settings in preparation phase
+            // GameStateManager가 있는 씬에서만 ESC로 토글 허용 (준비 단계에서만)
             if (GameStateManager.Instance != null && GameStateManager.Instance.IsPreparationPhase)
             {
                 ToggleSettings();
