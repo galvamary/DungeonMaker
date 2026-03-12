@@ -170,7 +170,7 @@ public class BattleSetup : MonoBehaviour
     /// </summary>
     private void PositionEntity(RectTransform entityTransform, RectTransform container)
     {
-        entityTransform.SetParent(container);
+        entityTransform.SetParent(container, false);
         entityTransform.localPosition = Vector3.zero;
         entityTransform.anchorMin = new Vector2(0.5f, 0.5f);
         entityTransform.anchorMax = new Vector2(0.5f, 0.5f);
