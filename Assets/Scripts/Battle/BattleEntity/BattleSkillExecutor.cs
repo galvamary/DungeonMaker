@@ -80,6 +80,10 @@ public class BattleSkillExecutor : MonoBehaviour
                 break;
         }
 
+        // Apply secondary effects
+        if (skill.fatigueAmount > 0f)
+            ApplyFatigueEffect(skill, target, allTargets);
+
         // Wait a bit to see the impact
         yield return new WaitForSeconds(1.0f);
 
@@ -182,6 +186,31 @@ public class BattleSkillExecutor : MonoBehaviour
         }
 
         Destroy(effect, destroyTime);
+    }
+
+    /// <summary>
+    /// Applies fatigue to champion targets
+    /// </summary>
+    private void ApplyFatigueEffect(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
+    {
+        switch (skill.targetType)
+        {
+            case SkillTarget.SingleEnemy:
+                if (target != null && target.IsAlive && target.SourceChampion != null)
+                    target.SourceChampion.AddFatigue(skill.fatigueAmount);
+                break;
+
+            case SkillTarget.AllEnemies:
+                if (allTargets != null)
+                {
+                    foreach (var enemy in allTargets)
+                    {
+                        if (enemy != null && enemy.IsAlive && enemy.SourceChampion != null)
+                            enemy.SourceChampion.AddFatigue(skill.fatigueAmount);
+                    }
+                }
+                break;
+        }
     }
 
     /// <summary>

@@ -21,6 +21,10 @@ public class SkillData : ScriptableObject
     public GameObject effectPrefab;  // Visual effect prefab
     public AudioClip soundEffect;  // Sound effect to play when skill is used
 
+    [Header("Secondary Effects")]
+    [Tooltip("피로도 증가량 (0이면 효과 없음, 챔피언 대상 스킬에만 적용)")]
+    public float fatigueAmount = 0f;
+
     [Header("Description")]
     [TextArea(2, 4)]
     public string description;

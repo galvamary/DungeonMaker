@@ -20,6 +20,7 @@ public class BattleEntity : MonoBehaviour
     private int baseDefense; // Store original defense value
     private int speed;
     private bool isChampion;
+    private Champion sourceChampion;
     private SkillData basicAttackSkill;
     private List<SkillData> availableSkills = new List<SkillData>();
 
@@ -48,6 +49,7 @@ public class BattleEntity : MonoBehaviour
     public bool IsChampion => isChampion;
     public bool IsMonster => !isChampion;
     public bool IsAlive => currentHealth > 0;
+    public Champion SourceChampion => sourceChampion;
     public SkillData BasicAttackSkill => basicAttackSkill;
     public List<SkillData> AvailableSkills => availableSkills;
     public bool IsDefending => isDefending;
@@ -79,6 +81,7 @@ public class BattleEntity : MonoBehaviour
     /// </summary>
     public void InitializeFromChampion(Champion champion)
     {
+        sourceChampion = champion;
         entityName = champion.Data.championName;
         entitySprite = champion.CurrentSprite; // Use current sprite based on fatigue
         currentHealth = champion.CurrentHealth;
