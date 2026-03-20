@@ -157,6 +157,15 @@ public class BattleEntityVisual : MonoBehaviour
     }
 
     /// <summary>
+    /// Updates the displayed sprite (e.g. after fatigue changes)
+    /// </summary>
+    public void UpdateSprite(Sprite sprite)
+    {
+        if (entityImage != null && sprite != null)
+            entityImage.sprite = sprite;
+    }
+
+    /// <summary>
     /// Hides the entity sprite when dead
     /// </summary>
     public void HideSprite()
@@ -282,6 +291,18 @@ public class BattleEntityVisual : MonoBehaviour
         {
             fatigueEffect.Hide();
         }
+    }
+
+    public void UpdateFatigueEffect(float fatiguePercent)
+    {
+        if (fatigueEffect == null) return;
+
+        if (fatiguePercent >= 90f)
+            fatigueEffect.Show(2f);
+        else if (fatiguePercent >= 50f)
+            fatigueEffect.Show(1f);
+        else
+            fatigueEffect.Hide();
     }
 
     public RectTransform RectTransform => rectTransform;

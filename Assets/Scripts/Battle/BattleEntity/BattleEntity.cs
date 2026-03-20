@@ -50,6 +50,7 @@ public class BattleEntity : MonoBehaviour
     public bool IsMonster => !isChampion;
     public bool IsAlive => currentHealth > 0;
     public Champion SourceChampion => sourceChampion;
+    public BattleEntityVisual Visual => visual;
     public SkillData BasicAttackSkill => basicAttackSkill;
     public List<SkillData> AvailableSkills => availableSkills;
     public bool IsDefending => isDefending;

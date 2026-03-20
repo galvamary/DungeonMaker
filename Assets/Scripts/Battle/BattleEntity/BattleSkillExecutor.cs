@@ -197,7 +197,15 @@ public class BattleSkillExecutor : MonoBehaviour
         {
             case SkillTarget.SingleEnemy:
                 if (target != null && target.IsAlive && target.SourceChampion != null)
+                {
                     target.SourceChampion.AddFatigue(skill.fatigueAmount);
+                    BattleEntityVisual targetVisual = target.Visual;
+                    if (targetVisual != null)
+                    {
+                        targetVisual.UpdateSprite(target.SourceChampion.CurrentSprite);
+                        targetVisual.UpdateFatigueEffect(target.SourceChampion.CurrentFatigue);
+                    }
+                }
                 break;
 
             case SkillTarget.AllEnemies:
@@ -206,7 +214,14 @@ public class BattleSkillExecutor : MonoBehaviour
                     foreach (var enemy in allTargets)
                     {
                         if (enemy != null && enemy.IsAlive && enemy.SourceChampion != null)
+                        {
                             enemy.SourceChampion.AddFatigue(skill.fatigueAmount);
+                            if (enemy.Visual != null)
+                            {
+                                enemy.Visual.UpdateSprite(enemy.SourceChampion.CurrentSprite);
+                                enemy.Visual.UpdateFatigueEffect(enemy.SourceChampion.CurrentFatigue);
+                            }
+                        }
                     }
                 }
                 break;
