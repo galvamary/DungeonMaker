@@ -6,7 +6,9 @@ public enum RoomType
     Battle,
     Treasure,
     Boss,
-    Entrance
+    Entrance,
+    Fire,   // 불꽃 방: 불 속성 스킬 데미지/피로도 1.5배
+    Ice     // 얼음 방: 얼음 속성 스킬 데미지/피로도 1.5배
 }
 
 public class Room : MonoBehaviour

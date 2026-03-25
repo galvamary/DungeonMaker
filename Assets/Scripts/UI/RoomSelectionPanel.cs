@@ -49,8 +49,8 @@ public class RoomSelectionPanel : MonoBehaviour
 
         roomItemImages.Clear();
 
-        // Battle, Treasure, Boss 순서로 생성 (Entrance 제외)
-        RoomType[] roomTypes = { RoomType.Battle, RoomType.Treasure};
+        // Battle, Fire, Ice, Treasure 순서로 생성 (Entrance 제외)
+        RoomType[] roomTypes = { RoomType.Battle, RoomType.Fire, RoomType.Ice, RoomType.Treasure };
 
         foreach (RoomType roomType in roomTypes)
         {
@@ -119,6 +119,8 @@ public class RoomSelectionPanel : MonoBehaviour
             RoomType.Battle => "전투",
             RoomType.Treasure => "보물",
             RoomType.Boss => "보스",
+            RoomType.Fire => "불꽃",
+            RoomType.Ice => "얼음",
             _ => roomType.ToString()
         };
     }

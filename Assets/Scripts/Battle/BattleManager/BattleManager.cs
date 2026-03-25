@@ -41,6 +41,7 @@ public class BattleManager : MonoBehaviour
 
     // Public properties
     public bool IsBattleActive => isBattleActive;
+    public Room CurrentRoom => currentRoom;
     public BattleEntity CurrentTurnEntity => turnSystem?.CurrentTurnEntity;
     public TMP_FontAsset ChampionNameFont => championNameFont;
     public TextMeshProUGUI DamageText => damageText;

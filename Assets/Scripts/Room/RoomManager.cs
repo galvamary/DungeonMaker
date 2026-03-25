@@ -13,11 +13,15 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Sprite treasureRoomSprite;
     [SerializeField] private Sprite bossRoomSprite;
     [SerializeField] private Sprite entranceRoomSprite;
-    
+    [SerializeField] private Sprite fireRoomSprite;
+    [SerializeField] private Sprite iceRoomSprite;
+
     [Header("Room Costs")]
     [SerializeField] private int battleRoomCost = 10;
     [SerializeField] private int treasureRoomCost = 30;
     [SerializeField] private int bossRoomCost = 50;
+    [SerializeField] private int fireRoomCost = 20;
+    [SerializeField] private int iceRoomCost = 20;
     
     private Dictionary<Vector2Int, Room> placedRooms = new Dictionary<Vector2Int, Room>();
     private Transform roomContainer;
@@ -190,76 +194,6 @@ public class RoomManager : MonoBehaviour
         return true;
     }
 
-    public void CycleRoomAt(Vector2Int gridPosition)
-    {
-        Room existingRoom = GetRoomAt(gridPosition);
-        
-        if (existingRoom == null)
-        {
-            // Check if position is valid for placement
-            if (!IsValidPlacement(gridPosition))
-            {
-                Debug.Log($"Cannot place room at {gridPosition} - must be adjacent to existing room!");
-                return;
-            }
-            
-            // Check if player can afford a battle room
-            if (!GameManager.Instance.CanAfford(battleRoomCost))
-            {
-                Debug.Log($"Not enough gold for Battle room! Cost: {battleRoomCost}, Current Gold: {GameManager.Instance.CurrentGold}");
-                return;
-            }
-            
-            // Empty -> Battle
-            PlaceRoom(gridPosition, RoomType.Battle);
-        }
-        else
-        {
-            // Don't allow changing entrance rooms
-            if (existingRoom.Type == RoomType.Entrance)
-            {
-                Debug.Log("Cannot change entrance room!");
-                return;
-            }
-
-            // Don't allow changing rooms with monsters
-            if (existingRoom.HasMonster)
-            {
-                Debug.Log("Cannot change room type while monsters are placed! Remove monsters first.");
-                return;
-            }
-
-            switch (existingRoom.Type)
-            {
-                case RoomType.Battle:
-                    // Battle -> Treasure
-                    // Check if player can afford the difference (30 - 10 = 20 more gold)
-                    int upgradeCost = treasureRoomCost - battleRoomCost;
-                    if (!GameManager.Instance.CanAfford(upgradeCost))
-                    {
-                        Debug.Log($"Not enough gold to upgrade to Treasure room! Need {upgradeCost} more gold");
-                        return;
-                    }
-                    
-                    // Spend the difference
-                    GameManager.Instance.SpendGold(upgradeCost);
-                    
-                    // Change sprite without removing the room
-                    existingRoom.Initialize(RoomType.Treasure, gridPosition, GetRoomSprite(RoomType.Treasure));
-                    break;
-                    
-                case RoomType.Treasure:
-                    // Treasure rooms stay as treasure (no cycling)
-                    Debug.Log("Treasure room cannot be cycled. Use right-click to remove.");
-                    break;
-                    
-                default:
-                    // Any other type stays as is
-                    break;
-            }
-        }
-    }
-    
     public Sprite GetRoomSprite(RoomType roomType)
     {
         switch (roomType)
@@ -272,6 +206,10 @@ public class RoomManager : MonoBehaviour
                 return bossRoomSprite;
             case RoomType.Entrance:
                 return entranceRoomSprite;
+            case RoomType.Fire:
+                return fireRoomSprite;
+            case RoomType.Ice:
+                return iceRoomSprite;
             default:
                 return battleRoomSprite;
         }
@@ -287,6 +225,10 @@ public class RoomManager : MonoBehaviour
                 return treasureRoomCost;
             case RoomType.Boss:
                 return bossRoomCost;
+            case RoomType.Fire:
+                return fireRoomCost;
+            case RoomType.Ice:
+                return iceRoomCost;
             default:
                 return 0;
         }

@@ -21,6 +21,9 @@ public class SkillData : ScriptableObject
     public GameObject effectPrefab;  // Visual effect prefab
     public AudioClip soundEffect;  // Sound effect to play when skill is used
 
+    [Header("Element")]
+    public SkillElement element = SkillElement.None;
+
     [Header("Secondary Effects")]
     [Tooltip("피로도 증가량 (0이면 효과 없음, 챔피언 대상 스킬에만 적용)")]
     public float fatigueAmount = 0f;
@@ -28,6 +31,13 @@ public class SkillData : ScriptableObject
     [Header("Description")]
     [TextArea(2, 4)]
     public string description;
+}
+
+public enum SkillElement
+{
+    None,   // 속성 없음
+    Fire,   // 불
+    Ice     // 얼음
 }
 
 public enum SkillType

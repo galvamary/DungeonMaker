@@ -193,12 +193,15 @@ public class BattleSkillExecutor : MonoBehaviour
     /// </summary>
     private void ApplyFatigueEffect(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
     {
+        float multiplier = GetElementMultiplier(skill);
+        float fatigue = skill.fatigueAmount * multiplier;
+
         switch (skill.targetType)
         {
             case SkillTarget.SingleEnemy:
                 if (target != null && target.IsAlive && target.SourceChampion != null)
                 {
-                    target.SourceChampion.AddFatigue(skill.fatigueAmount);
+                    target.SourceChampion.AddFatigue(fatigue);
                     BattleEntityVisual targetVisual = target.Visual;
                     if (targetVisual != null)
                     {
@@ -215,7 +218,7 @@ public class BattleSkillExecutor : MonoBehaviour
                     {
                         if (enemy != null && enemy.IsAlive && enemy.SourceChampion != null)
                         {
-                            enemy.SourceChampion.AddFatigue(skill.fatigueAmount);
+                            enemy.SourceChampion.AddFatigue(fatigue);
                             if (enemy.Visual != null)
                             {
                                 enemy.Visual.UpdateSprite(enemy.SourceChampion.CurrentSprite);
@@ -229,10 +232,28 @@ public class BattleSkillExecutor : MonoBehaviour
     }
 
     /// <summary>
+    /// 현재 방의 속성이 스킬 속성과 일치하면 1.5 배율 반환
+    /// </summary>
+    private float GetElementMultiplier(SkillData skill)
+    {
+        if (skill.element == SkillElement.None || BattleManager.Instance == null) return 1f;
+        Room room = BattleManager.Instance.CurrentRoom;
+        if (room == null) return 1f;
+
+        if ((skill.element == SkillElement.Fire && room.Type == RoomType.Fire) ||
+            (skill.element == SkillElement.Ice  && room.Type == RoomType.Ice))
+            return 1.5f;
+
+        return 1f;
+    }
+
+    /// <summary>
     /// Executes an attack skill with damage calculation
     /// </summary>
     private void ExecuteAttackSkill(SkillData skill, BattleEntity target, List<BattleEntity> allTargets)
     {
+        float multiplier = GetElementMultiplier(skill);
+
         switch (skill.targetType)
         {
             case SkillTarget.SingleEnemy:
@@ -240,7 +261,7 @@ public class BattleSkillExecutor : MonoBehaviour
                 {
                     // Damage = skill power + attacker's attack - target's defense (minimum 1)
                     int totalDamage = skill.power + entity.Attack;
-                    int damage = Mathf.Max(1, totalDamage - target.Defense);
+                    int damage = Mathf.Max(1, Mathf.RoundToInt((totalDamage - target.Defense) * multiplier));
                     target.TakeDamage(damage);
                 }
                 break;
@@ -253,7 +274,7 @@ public class BattleSkillExecutor : MonoBehaviour
                         if (enemy != null && enemy.IsAlive)
                         {
                             int totalDamage = skill.power + entity.Attack;
-                            int damage = Mathf.Max(1, totalDamage - enemy.Defense);
+                            int damage = Mathf.Max(1, Mathf.RoundToInt((totalDamage - enemy.Defense) * multiplier));
                             enemy.TakeDamage(damage);
                         }
                     }

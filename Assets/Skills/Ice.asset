@@ -17,8 +17,10 @@ MonoBehaviour:
   requiredTreasureRooms: 0
   mpCost: 5
   skillType: 0
-  power: 3
+  power: 2
   targetType: 0
   effectPrefab: {fileID: 4974191049809314345, guid: 4e33d616c5ff64812970067394af78d7, type: 3}
   soundEffect: {fileID: 8300000, guid: 84199e1f5c7574fb4aad3794f9068122, type: 3}
+  element: 2
+  fatigueAmount: 5
   description: 
