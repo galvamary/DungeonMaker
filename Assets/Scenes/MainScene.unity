@@ -3847,6 +3847,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleUI
   battleBackgroundImage: {fileID: 533742805}
+  battleRoomBackground: {fileID: 21300000, guid: dfce6b7656338c244aefe65269df8585, type: 3}
+  bossRoomBackground: {fileID: 0}
+  fireRoomBackground: {fileID: 3447976948374788438, guid: c46ef292258314c9dbfb1e81cfa3b022, type: 3}
+  iceRoomBackground: {fileID: 7224999619624954533, guid: ad1e6f384a99d44a3bad0cbbbead6c6a, type: 3}
+  defaultBackground: {fileID: 0}
   championPositionContainer: {fileID: 2006676891}
   monsterPositionContainers:
   - {fileID: 386173112}

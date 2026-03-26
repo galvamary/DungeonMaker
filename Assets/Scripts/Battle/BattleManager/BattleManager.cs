@@ -157,7 +157,7 @@ public class BattleManager : MonoBehaviour
         // Show battle UI
         if (BattleUI.Instance != null)
         {
-            BattleUI.Instance.ShowBattleBackground();
+            BattleUI.Instance.ShowBattleBackground(room.Type);
         }
 
         // Start battle setup sequence

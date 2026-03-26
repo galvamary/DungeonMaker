@@ -9,6 +9,13 @@ public class BattleUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Image battleBackgroundImage;
 
+    [Header("Room Type Background Sprites")]
+    [SerializeField] private Sprite battleRoomBackground;   // 일반 전투 방
+    [SerializeField] private Sprite bossRoomBackground;     // 보스 방
+    [SerializeField] private Sprite fireRoomBackground;     // 불꽃 방
+    [SerializeField] private Sprite iceRoomBackground;      // 얼음 방
+    [SerializeField] private Sprite defaultBackground;      // 기본 배경
+
     [Header("Entity Position Containers")]
     [SerializeField] private RectTransform championPositionContainer;
     [SerializeField] private RectTransform[] monsterPositionContainers = new RectTransform[3];
@@ -40,13 +47,32 @@ public class BattleUI : MonoBehaviour
         }
     }
 
-    public void ShowBattleBackground()
+    public void ShowBattleBackground(RoomType roomType = RoomType.Battle)
     {
         if (battleBackgroundImage != null)
         {
+            // 방 종류에 따라 배경 스프라이트 변경
+            Sprite bgSprite = GetBackgroundForRoomType(roomType);
+            if (bgSprite != null)
+            {
+                battleBackgroundImage.sprite = bgSprite;
+            }
+
             battleBackgroundImage.gameObject.SetActive(true);
             StartCoroutine(FadeInBackground());
         }
+    }
+
+    private Sprite GetBackgroundForRoomType(RoomType roomType)
+    {
+        return roomType switch
+        {
+            RoomType.Fire => fireRoomBackground,
+            RoomType.Ice => iceRoomBackground,
+            RoomType.Boss => bossRoomBackground,
+            RoomType.Battle => battleRoomBackground,
+            _ => defaultBackground != null ? defaultBackground : battleRoomBackground,
+        };
     }
 
     public void HideBattleBackground()
