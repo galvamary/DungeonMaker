@@ -12,7 +12,13 @@ public class ShopUI : MonoBehaviour
     [SerializeField] private Button shopToggleButton;
     [SerializeField] private Transform shopItemContainer;
     [SerializeField] private GameObject shopItemPrefab;
+
+    [Header("Scroll")]
+    [SerializeField] private ScrollRect scrollRect;
+
     private bool isInitialized = false;
+
+    public bool IsShopOpen => shopPanel != null && shopPanel.activeSelf;
 
     private void Awake()
     {
@@ -25,12 +31,13 @@ public class ShopUI : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-                // Close shop on start - do this in Start to ensure proper initialization
+        // Close shop on start - do this in Start to ensure proper initialization
         if (shopPanel != null && isInitialized)
         {
             shopPanel.SetActive(false);
         }
     }
+
  
     public void ToggleShop()
     {
@@ -83,6 +90,12 @@ public class ShopUI : MonoBehaviour
                 GameObject item = Instantiate(shopItemPrefab, shopItemContainer);
                 SetupShopItem(item, monster);
             }
+        }
+
+        // 스크롤 위치 초기화 (왼쪽 끝으로)
+        if (scrollRect != null)
+        {
+            scrollRect.horizontalNormalizedPosition = 0f;
         }
     }
     

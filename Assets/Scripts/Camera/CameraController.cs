@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CameraController : MonoBehaviour
 {
@@ -108,8 +109,8 @@ public class CameraController : MonoBehaviour
 
     private void HandleZoom()
     {
-
         if (!isManualControlEnabled) return;
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject()) return;
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
