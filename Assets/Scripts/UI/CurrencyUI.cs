@@ -52,7 +52,7 @@ public class CurrencyUI : MonoBehaviour
             if (isInitialized)
             {
                 int delta = gold - previousGold;
-                if (delta < 0)
+                if (delta != 0)
                 {
                     ShowFloatingText(delta);
                 }
@@ -84,9 +84,10 @@ public class CurrencyUI : MonoBehaviour
         }
 
         // 텍스트 설정 및 초기 상태 복원
-        floatingGoldText.text = $"{delta}G";
+        floatingGoldText.text = delta > 0 ? $"+{delta}G" : $"{delta}G";
         floatingGoldText.rectTransform.anchoredPosition = floatingStartPos;
-        Color c = floatingGoldText.color;
+        // 골드 획득은 초록색, 차감은 빨간색
+        Color c = delta > 0 ? Color.green : Color.red;
         c.a = 1f;
         floatingGoldText.color = c;
         floatingGoldText.gameObject.SetActive(true);
