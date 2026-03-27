@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GameOverUI : MonoBehaviour
 {
@@ -10,9 +11,13 @@ public class GameOverUI : MonoBehaviour
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private Image fadeImage;
     [SerializeField] private GameObject restartButton;
+    [SerializeField] private TextMeshProUGUI reputationText;  // 최종 명성 표시
 
     [Header("Fade Settings")]
     [SerializeField] private float fadeDuration = 2f;
+
+    [Header("Sound Effects")]
+    [SerializeField] private AudioClip gameOverTextSFX;    // 게임 오버 텍스트 등장 시
 
     private void Awake()
     {
@@ -77,10 +82,21 @@ public class GameOverUI : MonoBehaviour
             yield return StartCoroutine(FadeIn());
         }
 
-        // Activate panel first (but transparent)
+        // 최종 명성 텍스트 업데이트
+        if (reputationText != null && GameManager.Instance != null)
+        {
+            reputationText.gameObject.SetActive(true);
+            reputationText.text = $"Final Reputaion: {GameManager.Instance.CurrentReputation}";
+        }
+
+        // 게임 오버 텍스트 패널 등장 + 사운드
         if (gameOverPanel != null)
         {
             gameOverPanel.SetActive(true);
+            if (AudioManager.Instance != null && gameOverTextSFX != null)
+            {
+                AudioManager.Instance.PlaySFX(gameOverTextSFX);
+            }
         }
 
         if (restartButton != null)
@@ -144,6 +160,11 @@ public class GameOverUI : MonoBehaviour
         if (restartButton != null)
         {
             restartButton.SetActive(false);
+        }
+
+        if (reputationText != null)
+        {
+            reputationText.gameObject.SetActive(false);
         }
     }
 }
