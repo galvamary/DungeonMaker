@@ -23,5 +23,6 @@ MonoBehaviour:
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills:
   - {fileID: 11400000, guid: 4642ab532962c46b4968902a9ef7c54f, type: 2}
+  unlockReputation: 1
   canRespawn: 0
   description: A bad wizard who focuses on healing magic

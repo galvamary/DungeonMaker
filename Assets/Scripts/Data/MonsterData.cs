@@ -20,6 +20,10 @@ public class MonsterData : ScriptableObject
     public SkillData basicAttack;  // Basic attack (0 MP cost)
     public List<SkillData> skills = new List<SkillData>();  // Special skills
 
+    [Header("Unlock")]
+    [Tooltip("해금에 필요한 최대 명성 (0이면 처음부터 해금)")]
+    public int unlockReputation = 0;
+
     [Header("Respawn Settings")]
     [Tooltip("If true, this monster will respawn in the room after being defeated, allowing champions to fight it again")]
     public bool canRespawn = false;

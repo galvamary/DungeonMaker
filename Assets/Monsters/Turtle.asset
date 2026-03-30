@@ -23,5 +23,6 @@ MonoBehaviour:
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills:
   - {fileID: 11400000, guid: c436f658ffbcc435f9b001c03e220961, type: 2}
+  unlockReputation: 3
   canRespawn: 0
   description: A turtle that breathes cold air from its mouth

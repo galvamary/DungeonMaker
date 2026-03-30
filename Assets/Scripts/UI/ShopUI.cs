@@ -166,6 +166,38 @@ public class ShopUI : MonoBehaviour
                 buttonText.text = $"{monster.cost}G";
             }
         }
+
+        // 해금 여부 확인
+        bool isUnlocked = GameManager.Instance == null || GameManager.Instance.IsUnlocked(monster.unlockReputation);
+
+        if (!isUnlocked)
+        {
+            // BlackImage 활성화로 전체 어둡게
+            Transform blackImage = item.transform.Find("BlackImage");
+            if (blackImage != null)
+            {
+                blackImage.gameObject.SetActive(true);
+            }
+
+            // 구매 버튼 비활성화
+            if (buyButtonTransform != null)
+            {
+                Button buyButton = buyButtonTransform.GetComponent<Button>();
+                if (buyButton != null) buyButton.interactable = false;
+            }
+
+            // 필요 명성 텍스트 표시
+            Transform lockTextTransform = item.transform.Find("LockText");
+            if (lockTextTransform != null)
+            {
+                lockTextTransform.gameObject.SetActive(true);
+                TextMeshProUGUI lockText = lockTextTransform.GetComponent<TextMeshProUGUI>();
+                if (lockText != null)
+                {
+                    lockText.text = $"need {monster.unlockReputation} reputaion";
+                }
+            }
+        }
     }
     
     private void OnBuyButtonClicked(MonsterData monster)

@@ -22,5 +22,6 @@ MonoBehaviour:
   speed: 4
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills: []
+  unlockReputation: 2
   canRespawn: 1
   description: A ghoul leaving only bones. Even if it fall, it get back up again.

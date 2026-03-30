@@ -17,6 +17,7 @@ public class RoomSelectionPanel : MonoBehaviour
 
     private RoomType selectedRoomType = RoomType.Battle;
     private readonly Dictionary<RoomType, Image> roomItemImages = new();
+    private readonly HashSet<RoomType> lockedRoomTypes = new();
 
     public RoomType SelectedRoomType => selectedRoomType;
 
@@ -35,6 +36,25 @@ public class RoomSelectionPanel : MonoBehaviour
     private void Start()
     {
         PopulateRoomItems();
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnReputationChanged += OnReputationChanged;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnReputationChanged -= OnReputationChanged;
+        }
+    }
+
+    private void OnReputationChanged(int newReputation)
+    {
+        // 명성 변경 시 잠금 상태 재확인
+        PopulateRoomItems();
     }
 
     private void PopulateRoomItems()
@@ -48,9 +68,10 @@ public class RoomSelectionPanel : MonoBehaviour
         }
 
         roomItemImages.Clear();
+        lockedRoomTypes.Clear();
 
         // Battle, Fire, Ice, Treasure 순서로 생성 (Entrance 제외)
-        RoomType[] roomTypes = { RoomType.Battle, RoomType.Fire, RoomType.Ice, RoomType.Treasure };
+        RoomType[] roomTypes = { RoomType.Battle, RoomType.Treasure, RoomType.Fire, RoomType.Ice};
 
         foreach (RoomType roomType in roomTypes)
         {
@@ -87,18 +108,51 @@ public class RoomSelectionPanel : MonoBehaviour
             }
         }
 
+        // 해금 여부 확인
+        bool isUnlocked = RoomManager.Instance.IsRoomUnlocked(roomType);
+
         // 버튼 클릭 이벤트
         Button button = item.GetComponent<Button>();
         if (button != null)
         {
-            RoomType capturedType = roomType;
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => SelectRoom(capturedType));
+            if (isUnlocked)
+            {
+                RoomType capturedType = roomType;
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => SelectRoom(capturedType));
+            }
+            else
+            {
+                button.interactable = false;
+                lockedRoomTypes.Add(roomType);
+            }
+        }
+
+        // 잠금 상태면 어둡게 + 필요 명성 텍스트
+        if (!isUnlocked)
+        {
+            // BlackImage 활성화로 전체 어둡게
+            Transform blackImage = item.transform.Find("BlackImage");
+            if (blackImage != null)
+            {
+                blackImage.gameObject.SetActive(true);
+            }
+
+            int requiredRep = RoomManager.Instance.GetRoomUnlockReputation(roomType);
+            Transform lockTextTransform = item.transform.Find("LockText");
+            TextMeshProUGUI lockText;
+            if (lockTextTransform != null)
+            {
+                lockTextTransform.gameObject.SetActive(true);
+                lockText = lockTextTransform.GetComponent<TextMeshProUGUI>();
+                lockText.text = $"{requiredRep}";
+            }
         }
     }
 
     private void SelectRoom(RoomType roomType)
     {
+        if (lockedRoomTypes.Contains(roomType)) return;
         selectedRoomType = roomType;
         UpdateSelectionVisual();
         Debug.Log($"방 선택: {GetRoomName(roomType)}");
@@ -108,6 +162,7 @@ public class RoomSelectionPanel : MonoBehaviour
     {
         foreach (var kvp in roomItemImages)
         {
+            if (lockedRoomTypes.Contains(kvp.Key)) continue;  // 잠금 상태는 색상 유지
             kvp.Value.color = kvp.Key == selectedRoomType ? selectedColor : normalColor;
         }
     }

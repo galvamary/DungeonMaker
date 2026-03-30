@@ -23,5 +23,6 @@ MonoBehaviour:
   basicAttack: {fileID: 11400000, guid: c83563f2d64154a7dac1659a58e0c2cd, type: 2}
   skills:
   - {fileID: 11400000, guid: ebd915dba13334bf2bbd4a2b2e7786fa, type: 2}
+  unlockReputation: 1
   canRespawn: 0
   description: A small dragon that spits out flame brass

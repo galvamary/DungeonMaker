@@ -2142,6 +2142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentGold: 200
   currentReputation: 1
+  maxReputation: 0
 --- !u!4 &350618304
 Transform:
   m_ObjectHideFlags: 0
@@ -5667,9 +5668,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   availableMonsters:
   - {fileID: 11400000, guid: a89492ebf841143ae909794a7a4e1c78, type: 2}
-  - {fileID: 11400000, guid: 206cc5ed30bda40f3bd9572ceb6e4c35, type: 2}
   - {fileID: 11400000, guid: f5676c83f8618494194b4a6ba5b5a0e4, type: 2}
   - {fileID: 11400000, guid: 48f73c2f1bfaf4ff4829a879cfa1f92b, type: 2}
+  - {fileID: 11400000, guid: 206cc5ed30bda40f3bd9572ceb6e4c35, type: 2}
   - {fileID: 11400000, guid: d0ca3494d318a407ea7b83de37a544ad, type: 2}
 --- !u!4 &840603463
 Transform:
@@ -10875,6 +10876,11 @@ MonoBehaviour:
   bossRoomCost: 50
   fireRoomCost: 20
   iceRoomCost: 20
+  battleRoomUnlock: 1
+  treasureRoomUnlock: 1
+  bossRoomUnlock: 5
+  fireRoomUnlock: 3
+  iceRoomUnlock: 3
 --- !u!4 &1773358325
 Transform:
   m_ObjectHideFlags: 0

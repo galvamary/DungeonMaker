@@ -22,6 +22,13 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private int bossRoomCost = 50;
     [SerializeField] private int fireRoomCost = 20;
     [SerializeField] private int iceRoomCost = 20;
+
+    [Header("Room Unlock Reputation (0 = 처음부터 해금)")]
+    [SerializeField] private int battleRoomUnlock = 0;
+    [SerializeField] private int treasureRoomUnlock = 0;
+    [SerializeField] private int bossRoomUnlock = 5;
+    [SerializeField] private int fireRoomUnlock = 3;
+    [SerializeField] private int iceRoomUnlock = 3;
     
     private Dictionary<Vector2Int, Room> placedRooms = new Dictionary<Vector2Int, Room>();
     private Transform roomContainer;
@@ -65,6 +72,13 @@ public class RoomManager : MonoBehaviour
         if (placedRooms.ContainsKey(gridPosition))
         {
             Debug.Log($"Grid position {gridPosition} is already occupied!");
+            return false;
+        }
+
+        // 해금 여부 확인 (비용 차감 모드일 때만, 로드 시에는 스킵)
+        if (deductCost && roomType != RoomType.Entrance && !IsRoomUnlocked(roomType))
+        {
+            Debug.Log($"{roomType} 방은 아직 해금되지 않았습니다. (필요 명성: {GetRoomUnlockReputation(roomType)})");
             return false;
         }
 
@@ -233,7 +247,26 @@ public class RoomManager : MonoBehaviour
                 return 0;
         }
     }
-    
+
+    public int GetRoomUnlockReputation(RoomType roomType)
+    {
+        return roomType switch
+        {
+            RoomType.Battle => battleRoomUnlock,
+            RoomType.Treasure => treasureRoomUnlock,
+            RoomType.Boss => bossRoomUnlock,
+            RoomType.Fire => fireRoomUnlock,
+            RoomType.Ice => iceRoomUnlock,
+            _ => 0,
+        };
+    }
+
+    public bool IsRoomUnlocked(RoomType roomType)
+    {
+        if (GameManager.Instance == null) return true;
+        return GameManager.Instance.IsUnlocked(GetRoomUnlockReputation(roomType));
+    }
+
     public bool IsValidPlacement(Vector2Int position)
     {
         // Check if this position is adjacent to any existing room

@@ -8,9 +8,11 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private int currentGold = 1000;
     [SerializeField] private int currentReputation = 1;
+    [SerializeField] private int maxReputation = 0;  // 역대 최고 명성 (해금 기준)
 
     public int CurrentGold => currentGold;
     public int CurrentReputation => currentReputation;
+    public int MaxReputation => maxReputation;
 
     public delegate void GoldChangedDelegate(int newGold);
     public event GoldChangedDelegate OnGoldChanged;
@@ -20,6 +22,14 @@ public class GameManager : MonoBehaviour
 
     public delegate void GameOverDelegate();
     public event GameOverDelegate OnGameOver;
+
+    /// <summary>
+    /// 필요 명성이 최대 명성 이하인지 확인
+    /// </summary>
+    public bool IsUnlocked(int requiredReputation)
+    {
+        return requiredReputation <= maxReputation;
+    }
     
     private void Awake()
     {
@@ -38,6 +48,12 @@ public class GameManager : MonoBehaviour
     {
         // Try to load saved game state from PlayerPrefs
         LoadGameStateFromDisk();
+
+        // maxReputation이 currentReputation보다 낮으면 동기화
+        if (maxReputation < currentReputation)
+        {
+            maxReputation = currentReputation;
+        }
     }
 
     public bool SpendGold(int amount)
@@ -74,8 +90,12 @@ public class GameManager : MonoBehaviour
         if (amount > 0)
         {
             currentReputation += amount;
+            if (currentReputation > maxReputation)
+            {
+                maxReputation = currentReputation;
+            }
             OnReputationChanged?.Invoke(currentReputation);
-            Debug.Log($"Reputation increased by {amount}. Current reputation: {currentReputation}");
+            Debug.Log($"Reputation increased by {amount}. Current reputation: {currentReputation}, Max: {maxReputation}");
         }
     }
 
@@ -146,6 +166,7 @@ public class GameManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("SavedGold", currentGold);
         PlayerPrefs.SetInt("SavedReputation", currentReputation);
+        PlayerPrefs.SetInt("SavedMaxReputation", maxReputation);
 
         // Save room data
         if (RoomManager.Instance != null)
@@ -209,6 +230,7 @@ public class GameManager : MonoBehaviour
         // Load gold and reputation
         currentGold = PlayerPrefs.GetInt("SavedGold", 200);
         currentReputation = PlayerPrefs.GetInt("SavedReputation", 1);
+        maxReputation = PlayerPrefs.GetInt("SavedMaxReputation", 0);
         OnGoldChanged?.Invoke(currentGold);
         OnReputationChanged?.Invoke(currentReputation);
 

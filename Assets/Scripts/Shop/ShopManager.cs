@@ -27,7 +27,14 @@ public class ShopManager : MonoBehaviour
     public bool PurchaseMonster(MonsterData monster)
     {
         if (monster == null) return false;
-        
+
+        // 해금 여부 확인
+        if (GameManager.Instance != null && !GameManager.Instance.IsUnlocked(monster.unlockReputation))
+        {
+            Debug.Log($"{monster.monsterName}은(는) 아직 해금되지 않았습니다. (필요 명성: {monster.unlockReputation})");
+            return false;
+        }
+
         if (GameManager.Instance.CanAfford(monster.cost))
         {
             GameManager.Instance.SpendGold(monster.cost);
