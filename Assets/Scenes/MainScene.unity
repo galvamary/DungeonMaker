@@ -10871,16 +10871,20 @@ MonoBehaviour:
   entranceRoomSprite: {fileID: -8688411044103038410, guid: bf2cc2ae4bd764f17b6bc3fdb3bf7c1a, type: 3}
   fireRoomSprite: {fileID: 1931008548805733302, guid: 2e9f676e5bcc94b11a0c6b22cfe434bc, type: 3}
   iceRoomSprite: {fileID: -3947608937431965534, guid: 075995bfa2f774af3a79edba74998903, type: 3}
+  lockRoomSprite: {fileID: -4384279937198210203, guid: 46374af9f0c9a4b2d93ba2a221dfcb83, type: 3}
+  keyRoomSprite: {fileID: 8016032623619956426, guid: b1e3b652d6b9047c8a9f8386625f57f4, type: 3}
   battleRoomCost: 10
   treasureRoomCost: 50
   bossRoomCost: 50
   fireRoomCost: 20
   iceRoomCost: 20
+  lockRoomCost: 15
   battleRoomUnlock: 1
   treasureRoomUnlock: 1
   bossRoomUnlock: 5
   fireRoomUnlock: 3
   iceRoomUnlock: 3
+  lockRoomUnlock: 1
 --- !u!4 &1773358325
 Transform:
   m_ObjectHideFlags: 0

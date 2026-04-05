@@ -86,7 +86,7 @@ public class GameOverUI : MonoBehaviour
         if (reputationText != null && GameManager.Instance != null)
         {
             reputationText.gameObject.SetActive(true);
-            reputationText.text = $"Final Reputaion: {GameManager.Instance.CurrentReputation}";
+            reputationText.text = $"Final Reputation: {GameManager.Instance.CurrentReputation}";
         }
 
         // 게임 오버 텍스트 패널 등장 + 사운드

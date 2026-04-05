@@ -12,6 +12,7 @@ public class ChampionPathfinder : MonoBehaviour
     private Stack<Room> pathStack = new Stack<Room>();
     private HashSet<Room> visitedRooms = new HashSet<Room>();
     private HashSet<Room> visitedTreasureRooms = new HashSet<Room>();
+    private List<Room> unlockedLockKeyRooms = new List<Room>();  // 탐험 중 해제된 Lock/Key 방
     private int totalTreasureRooms = 0;
     private bool isExploring = false;
 
@@ -27,6 +28,7 @@ public class ChampionPathfinder : MonoBehaviour
         pathStack.Clear();
         visitedRooms.Clear();
         visitedTreasureRooms.Clear();
+        unlockedLockKeyRooms.Clear();
 
         // Count total treasure rooms in the dungeon
         totalTreasureRooms = RoomManager.Instance?.GetTreasureRoomCount() ?? 0;
@@ -71,6 +73,12 @@ public class ChampionPathfinder : MonoBehaviour
                 }
             }
 
+            // 열쇠방 진입 시 연결된 잠금방과 함께 전투방으로 전환
+            if (currentRoom.Type == RoomType.Key)
+            {
+                ConvertKeyAndLockToBattle(currentRoom);
+            }
+
             // Handle combat if there are monsters
             if (currentRoom.HasMonster)
             {
@@ -92,8 +100,9 @@ public class ChampionPathfinder : MonoBehaviour
                     {
                         Debug.Log($"{champion.Data.championName} was defeated in battle!");
 
-                        // Restore all treasure rooms since champion died
+                        // Restore all treasure rooms and lock/key rooms since champion died
                         RestoreTreasureRooms();
+                        RestoreLockKeyRooms();
 
                         VictoryUI.Instance.ShowVictory(champion, firstMonsterSprite);
                         yield break;
@@ -171,11 +180,55 @@ public class ChampionPathfinder : MonoBehaviour
 
             if (neighborRoom != null && !visitedRooms.Contains(neighborRoom))
             {
+                // 잠금방은 해제되지 않았으면 진입 불가
+                if (neighborRoom.Type == RoomType.Lock && !neighborRoom.IsUnlocked)
+                    continue;
+
                 adjacentRooms.Add(neighborRoom);
             }
         }
 
         return adjacentRooms;
+    }
+
+    /// <summary>
+    /// 열쇠방 진입 시 스프라이트만 전투방으로 변경 (타입은 유지)
+    /// </summary>
+    private void ConvertKeyAndLockToBattle(Room keyRoom)
+    {
+        if (keyRoom == null || keyRoom.Type != RoomType.Key) return;
+
+        Sprite battleSprite = RoomManager.Instance.GetRoomSprite(RoomType.Battle);
+        if (battleSprite == null) return;
+
+        // 연결된 잠금방 스프라이트 변경
+        Room lockRoom = keyRoom.LinkedRoom;
+        if (lockRoom != null && lockRoom.Type == RoomType.Lock)
+        {
+            lockRoom.UnlockRoom(battleSprite);
+            unlockedLockKeyRooms.Add(lockRoom);
+            Debug.Log($"잠금방 at {lockRoom.GridPosition} → 해제 (스프라이트만 변경)");
+        }
+
+        // 열쇠방 스프라이트 변경
+        keyRoom.UnlockRoom(battleSprite);
+        unlockedLockKeyRooms.Add(keyRoom);
+        Debug.Log($"열쇠방 at {keyRoom.GridPosition} → 해제 (스프라이트만 변경)");
+    }
+
+    /// <summary>
+    /// 승리 시 해제된 Lock/Key 방의 스프라이트를 원래대로 복원
+    /// </summary>
+    private void RestoreLockKeyRooms()
+    {
+        foreach (Room room in unlockedLockKeyRooms)
+        {
+            if (room == null) continue;
+            Sprite originalSprite = RoomManager.Instance.GetRoomSprite(room.Type);
+            room.RestoreLockKeySprite(originalSprite);
+            Debug.Log($"Lock/Key 방 at {room.GridPosition} 스프라이트 복원");
+        }
+        unlockedLockKeyRooms.Clear();
     }
 
     /// <summary>
@@ -285,8 +338,9 @@ public class ChampionPathfinder : MonoBehaviour
                     {
                         Debug.Log($"{champion.Data.championName} was defeated while returning to entrance!");
 
-                        // Restore all treasure rooms since champion died
+                        // Restore all treasure rooms and lock/key rooms since champion died
                         RestoreTreasureRooms();
+                        RestoreLockKeyRooms();
 
                         VictoryUI.Instance.ShowVictory(champion, firstMonsterSprite);
                         yield break;
@@ -337,6 +391,10 @@ public class ChampionPathfinder : MonoBehaviour
 
                 if (neighborRoom != null && !visited.Contains(neighborRoom))
                 {
+                    // 잠금방은 해제되지 않았으면 경로에서 제외
+                    if (neighborRoom.Type == RoomType.Lock && !neighborRoom.IsUnlocked)
+                        continue;
+
                     visited.Add(neighborRoom);
                     cameFrom[neighborRoom] = current;
                     queue.Enqueue(neighborRoom);

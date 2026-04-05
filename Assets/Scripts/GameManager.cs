@@ -189,6 +189,9 @@ public class GameManager : MonoBehaviour
                         if (monster != null) roomData.monsterNames.Add(monster.name);
                     }
                 }
+                roomData.hasLinkedRoom = roomState.hasLinkedRoom;
+                roomData.linkedPosX = roomState.linkedRoomPosition.x;
+                roomData.linkedPosY = roomState.linkedRoomPosition.y;
                 roomDataList.rooms.Add(roomData);
             }
             PlayerPrefs.SetString("SavedRooms", JsonUtility.ToJson(roomDataList));
@@ -244,6 +247,7 @@ public class GameManager : MonoBehaviour
                 if (roomDataList?.rooms != null)
                 {
                     RoomManager.Instance.ResetAllRooms();
+                    // 1차: 방 배치 + 몬스터 복원
                     foreach (var roomData in roomDataList.rooms)
                     {
                         Vector2Int gridPos = new Vector2Int(roomData.posX, roomData.posY);
@@ -257,6 +261,21 @@ public class GameManager : MonoBehaviour
                             {
                                 MonsterData monsterData = ShopManager.Instance.GetMonsterByName(monsterName);
                                 if (monsterData != null) room.PlaceMonster(monsterData);
+                            }
+                        }
+                    }
+                    // 2차: Lock-Key 연결 복원
+                    foreach (var roomData in roomDataList.rooms)
+                    {
+                        if (roomData.hasLinkedRoom)
+                        {
+                            Vector2Int pos = new Vector2Int(roomData.posX, roomData.posY);
+                            Vector2Int linkedPos = new Vector2Int(roomData.linkedPosX, roomData.linkedPosY);
+                            Room room = RoomManager.Instance.GetRoomAt(pos);
+                            Room linkedRoom = RoomManager.Instance.GetRoomAt(linkedPos);
+                            if (room != null && linkedRoom != null)
+                            {
+                                room.SetLinkedRoom(linkedRoom);
                             }
                         }
                     }
@@ -304,6 +323,10 @@ public class GameManager : MonoBehaviour
         public int posY;
         public int roomType;
         public List<string> monsterNames;
+        // Lock-Key 연결
+        public bool hasLinkedRoom = false;
+        public int linkedPosX;
+        public int linkedPosY;
     }
 
     [Serializable]

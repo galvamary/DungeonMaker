@@ -91,6 +91,18 @@ public class GameStateManager : MonoBehaviour
             }
         }
 
+        // Check if waiting for key room placement
+        if (RoomSelectionPanel.Instance != null && RoomSelectionPanel.Instance.IsWaitingForKeyPlacement)
+        {
+            string message = "Key room must be placed before starting exploration";
+            Debug.LogWarning(message);
+            if (WarningMessageUI.Instance != null)
+            {
+                WarningMessageUI.Instance.ShowWarning(message);
+            }
+            return;
+        }
+
         // Check if all rooms are connected
         if (RoomManager.Instance != null && !RoomManager.Instance.AreAllRoomsConnected())
         {

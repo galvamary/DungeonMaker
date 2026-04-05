@@ -15,6 +15,8 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private Sprite entranceRoomSprite;
     [SerializeField] private Sprite fireRoomSprite;
     [SerializeField] private Sprite iceRoomSprite;
+    [SerializeField] private Sprite lockRoomSprite;
+    [SerializeField] private Sprite keyRoomSprite;
 
     [Header("Room Costs")]
     [SerializeField] private int battleRoomCost = 10;
@@ -22,6 +24,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private int bossRoomCost = 50;
     [SerializeField] private int fireRoomCost = 20;
     [SerializeField] private int iceRoomCost = 20;
+    [SerializeField] private int lockRoomCost = 15;
 
     [Header("Room Unlock Reputation (0 = 처음부터 해금)")]
     [SerializeField] private int battleRoomUnlock = 0;
@@ -29,6 +32,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private int bossRoomUnlock = 5;
     [SerializeField] private int fireRoomUnlock = 3;
     [SerializeField] private int iceRoomUnlock = 3;
+    [SerializeField] private int lockRoomUnlock = 2;
     
     private Dictionary<Vector2Int, Room> placedRooms = new Dictionary<Vector2Int, Room>();
     private Transform roomContainer;
@@ -136,6 +140,28 @@ public class RoomManager : MonoBehaviour
     {
         if (placedRooms.TryGetValue(gridPosition, out Room room))
         {
+            // Lock/Key 연결된 방도 함께 삭제
+            Room linked = room.LinkedRoom;
+            if (linked != null)
+            {
+                RemoveRoomInternal(linked.GridPosition);
+            }
+
+            // 잠금방 삭제 시 열쇠방 대기 상태 해제
+            if (room.Type == RoomType.Lock && RoomSelectionPanel.Instance != null
+                && RoomSelectionPanel.Instance.IsWaitingForKeyPlacement)
+            {
+                RoomSelectionPanel.Instance.CancelKeyPlacement();
+            }
+
+            RemoveRoomInternal(gridPosition);
+        }
+    }
+
+    private void RemoveRoomInternal(Vector2Int gridPosition)
+    {
+        if (placedRooms.TryGetValue(gridPosition, out Room room))
+        {
             // Return all monsters in this room to inventory
             if (room.HasMonster)
             {
@@ -154,6 +180,7 @@ public class RoomManager : MonoBehaviour
                 Debug.Log($"Refunded {refund} gold for removing {room.Type} room");
             }
 
+            room.ClearLinkedRoom();
             Destroy(room.gameObject);
             placedRooms.Remove(gridPosition);
         }
@@ -175,6 +202,7 @@ public class RoomManager : MonoBehaviour
         Room room = GetRoomAt(gridPosition);
         if (room == null) return false;
         if (room.Type == RoomType.Entrance) return false;
+        if (room.Type == RoomType.Lock || room.Type == RoomType.Key) return false;
         if (room.Type == newType) return false;
 
         int oldCost = GetRoomCost(room.Type);
@@ -192,8 +220,8 @@ public class RoomManager : MonoBehaviour
         else if (diff < 0)
             GameManager.Instance.AddGold(-diff);
 
-        // 보물 방으로 변경 시 몬스터를 인벤토리로 반환
-        if (newType == RoomType.Treasure && room.HasMonster)
+        // 보물/잠금/열쇠 방으로 변경 시 몬스터를 인벤토리로 반환
+        if ((newType == RoomType.Treasure || newType == RoomType.Lock || newType == RoomType.Key) && room.HasMonster)
         {
             foreach (MonsterData monster in room.PlacedMonsters)
             {
@@ -224,11 +252,15 @@ public class RoomManager : MonoBehaviour
                 return fireRoomSprite;
             case RoomType.Ice:
                 return iceRoomSprite;
+            case RoomType.Lock:
+                return lockRoomSprite;
+            case RoomType.Key:
+                return keyRoomSprite;
             default:
                 return battleRoomSprite;
         }
     }
-    
+
     public int GetRoomCost(RoomType roomType)
     {
         switch (roomType)
@@ -243,6 +275,9 @@ public class RoomManager : MonoBehaviour
                 return fireRoomCost;
             case RoomType.Ice:
                 return iceRoomCost;
+            case RoomType.Lock:
+            case RoomType.Key:
+                return lockRoomCost;
             default:
                 return 0;
         }
@@ -257,6 +292,8 @@ public class RoomManager : MonoBehaviour
             RoomType.Boss => bossRoomUnlock,
             RoomType.Fire => fireRoomUnlock,
             RoomType.Ice => iceRoomUnlock,
+            RoomType.Lock => lockRoomUnlock,
+            RoomType.Key => lockRoomUnlock,
             _ => 0,
         };
     }
@@ -265,6 +302,19 @@ public class RoomManager : MonoBehaviour
     {
         if (GameManager.Instance == null) return true;
         return GameManager.Instance.IsUnlocked(GetRoomUnlockReputation(roomType));
+    }
+
+    /// <summary>
+    /// Lock/Key 방을 서로 연결
+    /// </summary>
+    public void LinkLockAndKeyRooms(Room lockRoom, Room keyRoom)
+    {
+        if (lockRoom != null && keyRoom != null)
+        {
+            lockRoom.SetLinkedRoom(keyRoom);
+            keyRoom.SetLinkedRoom(lockRoom);
+            Debug.Log($"Linked Lock room at {lockRoom.GridPosition} with Key room at {keyRoom.GridPosition}");
+        }
     }
 
     public bool IsValidPlacement(Vector2Int position)
@@ -471,10 +521,14 @@ public class RoomManager : MonoBehaviour
             Room room = kvp.Value;
             if (room != null)
             {
+                bool hasLinked = room.LinkedRoom != null;
+                Vector2Int linkedPos = hasLinked ? room.LinkedRoom.GridPosition : Vector2Int.zero;
                 SaveState.RoomState roomState = new SaveState.RoomState(
                     room.GridPosition,
                     room.Type,
-                    room.PlacedMonsters
+                    room.PlacedMonsters,
+                    hasLinked,
+                    linkedPos
                 );
                 saveState.savedRooms.Add(roomState);
             }

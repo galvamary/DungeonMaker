@@ -59,7 +59,20 @@ public class GridClickHandler : MonoBehaviour
         // 이미 방이 있으면 종류 변경
         if (roomManager.IsPositionOccupied(gridPos))
         {
-            roomManager.ChangeRoomType(gridPos, selectedType);
+            bool changed = roomManager.ChangeRoomType(gridPos, selectedType);
+            if (changed && RoomSelectionPanel.Instance != null)
+            {
+                if (selectedType == RoomType.Lock)
+                {
+                    Room lockRoom = roomManager.GetRoomAt(gridPos);
+                    RoomSelectionPanel.Instance.SwitchToKeyPlacement(lockRoom);
+                }
+                else if (selectedType == RoomType.Key)
+                {
+                    Room keyRoom = roomManager.GetRoomAt(gridPos);
+                    RoomSelectionPanel.Instance.OnKeyPlaced(keyRoom);
+                }
+            }
             return;
         }
 
@@ -70,15 +83,32 @@ public class GridClickHandler : MonoBehaviour
             return;
         }
 
-        roomManager.PlaceRoom(gridPos, selectedType);
+        // 방 배치
+        bool placed = roomManager.PlaceRoom(gridPos, selectedType);
+
+        if (placed && RoomSelectionPanel.Instance != null)
+        {
+            // 잠금방 배치 완료 → 열쇠방 배치 모드로 전환
+            if (selectedType == RoomType.Lock)
+            {
+                Room lockRoom = roomManager.GetRoomAt(gridPos);
+                RoomSelectionPanel.Instance.SwitchToKeyPlacement(lockRoom);
+            }
+            // 열쇠방 배치 완료 → 잠금방 모드로 복귀
+            else if (selectedType == RoomType.Key)
+            {
+                Room keyRoom = roomManager.GetRoomAt(gridPos);
+                RoomSelectionPanel.Instance.OnKeyPlaced(keyRoom);
+            }
+        }
     }
     
     private void HandleRightClick()
     {
         Vector2Int gridPos = GetGridPositionFromMouse();
-        
+
         Debug.Log($"Right clicked grid position: {gridPos}");
-        
+
         // Remove room at this position
         if (roomManager != null)
         {
@@ -94,6 +124,7 @@ public class GridClickHandler : MonoBehaviour
             }
         }
     }
+
     
     private Vector2Int GetGridPositionFromMouse()
     {

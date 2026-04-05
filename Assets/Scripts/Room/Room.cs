@@ -8,7 +8,9 @@ public enum RoomType
     Boss,
     Entrance,
     Fire,   // 불꽃 방: 불 속성 스킬 데미지/피로도 1.5배
-    Ice     // 얼음 방: 얼음 속성 스킬 데미지/피로도 1.5배
+    Ice,    // 얼음 방: 얼음 속성 스킬 데미지/피로도 1.5배
+    Lock,   // 잠금 방: 열쇠방 진입 전까지 통과 불가
+    Key     // 열쇠 방: 진입 시 연결된 잠금방과 함께 전투방으로 전환
 }
 
 public class Room : MonoBehaviour
@@ -23,14 +25,46 @@ public class Room : MonoBehaviour
     private List<GameObject> monsterVisuals = new List<GameObject>();
     private const int MAX_MONSTERS = 3;
 
+    // Lock-Key 연결: 잠금방은 열쇠방을, 열쇠방은 잠금방을 참조
+    private Room linkedRoom;
+    private bool isUnlocked = false;  // 열쇠방 진입으로 해제된 상태
+
     private SpriteRenderer spriteRenderer;
 
     public RoomType Type => roomType;
     public Vector2Int GridPosition => gridPosition;
-    // public Vector2Int Size => roomSize;
     public List<MonsterData> PlacedMonsters => placedMonsters;
     public bool HasMonster => placedMonsters.Count > 0;
     public bool IsFullOfMonsters => placedMonsters.Count >= MAX_MONSTERS;
+    public Room LinkedRoom => linkedRoom;
+    public bool IsUnlocked => isUnlocked;
+
+    public void SetLinkedRoom(Room room) { linkedRoom = room; }
+    public void ClearLinkedRoom() { linkedRoom = null; }
+
+    /// <summary>
+    /// 탐험 중 열쇠방 진입 시 스프라이트만 전투방으로 변경
+    /// </summary>
+    public void UnlockRoom(Sprite battleSprite)
+    {
+        isUnlocked = true;
+        if (spriteRenderer != null && battleSprite != null)
+        {
+            spriteRenderer.sprite = battleSprite;
+        }
+    }
+
+    /// <summary>
+    /// 승리 시 원래 스프라이트로 복원
+    /// </summary>
+    public void RestoreLockKeySprite(Sprite originalSprite)
+    {
+        isUnlocked = false;
+        if (spriteRenderer != null && originalSprite != null)
+        {
+            spriteRenderer.sprite = originalSprite;
+        }
+    }
     
     private void Awake()
     {
@@ -79,6 +113,13 @@ public class Room : MonoBehaviour
 
     public bool PlaceMonster(MonsterData monster)
     {
+        // 잠금방/열쇠방에는 몬스터 배치 불가
+        if (roomType == RoomType.Lock || roomType == RoomType.Key)
+        {
+            Debug.Log("Lock/Key 방에는 몬스터를 배치할 수 없습니다!");
+            return false;
+        }
+
         if (IsFullOfMonsters)
         {
             Debug.Log($"Room is full! Already has {MAX_MONSTERS} monsters");

@@ -19,7 +19,12 @@ public class RoomSelectionPanel : MonoBehaviour
     private readonly Dictionary<RoomType, Image> roomItemImages = new();
     private readonly HashSet<RoomType> lockedRoomTypes = new();
 
+    // Lock→Key 전환 상태
+    private bool isWaitingForKeyPlacement = false;
+    private Room pendingLockRoom;  // 배치된 잠금방 (열쇠방 배치 대기 중)
+
     public RoomType SelectedRoomType => selectedRoomType;
+    public bool IsWaitingForKeyPlacement => isWaitingForKeyPlacement;
 
     private void Awake()
     {
@@ -70,8 +75,8 @@ public class RoomSelectionPanel : MonoBehaviour
         roomItemImages.Clear();
         lockedRoomTypes.Clear();
 
-        // Battle, Fire, Ice, Treasure 순서로 생성 (Entrance 제외)
-        RoomType[] roomTypes = { RoomType.Battle, RoomType.Treasure, RoomType.Fire, RoomType.Ice};
+        // Battle, Treasure, Fire, Ice, Lock 순서로 생성
+        RoomType[] roomTypes = { RoomType.Battle, RoomType.Treasure, RoomType.Fire, RoomType.Ice, RoomType.Lock };
 
         foreach (RoomType roomType in roomTypes)
         {
@@ -153,17 +158,85 @@ public class RoomSelectionPanel : MonoBehaviour
     private void SelectRoom(RoomType roomType)
     {
         if (lockedRoomTypes.Contains(roomType)) return;
+        // 열쇠방 배치 대기 중에는 다른 방 선택 불가
+        if (isWaitingForKeyPlacement) return;
+
         selectedRoomType = roomType;
         UpdateSelectionVisual();
         Debug.Log($"방 선택: {GetRoomName(roomType)}");
+    }
+
+    /// <summary>
+    /// 잠금방 배치 후 열쇠방 배치 모드로 전환
+    /// </summary>
+    public void SwitchToKeyPlacement(Room lockRoom)
+    {
+        isWaitingForKeyPlacement = true;
+        pendingLockRoom = lockRoom;
+        selectedRoomType = RoomType.Key;
+
+        // Lock 버튼 이미지를 열쇠방 스프라이트로 변경
+        if (roomItemImages.ContainsKey(RoomType.Lock))
+        {
+            roomItemImages[RoomType.Lock].sprite = RoomManager.Instance.GetRoomSprite(RoomType.Key);
+        }
+
+        UpdateSelectionVisual();
+        Debug.Log("열쇠방 배치 모드로 전환");
+    }
+
+    /// <summary>
+    /// 열쇠방 배치 완료 후 잠금방 모드로 복귀
+    /// </summary>
+    public void OnKeyPlaced(Room keyRoom)
+    {
+        // Lock-Key 연결
+        if (pendingLockRoom != null && keyRoom != null)
+        {
+            RoomManager.Instance.LinkLockAndKeyRooms(pendingLockRoom, keyRoom);
+        }
+
+        isWaitingForKeyPlacement = false;
+        pendingLockRoom = null;
+        selectedRoomType = RoomType.Lock;
+
+        // Lock 버튼 이미지를 잠금방 스프라이트로 복귀
+        if (roomItemImages.ContainsKey(RoomType.Lock))
+        {
+            roomItemImages[RoomType.Lock].sprite = RoomManager.Instance.GetRoomSprite(RoomType.Lock);
+        }
+
+        UpdateSelectionVisual();
+        Debug.Log("잠금방 모드로 복귀");
+    }
+
+    /// <summary>
+    /// 열쇠방 배치 취소 (잠금방 삭제 시 호출)
+    /// </summary>
+    public void CancelKeyPlacement()
+    {
+        isWaitingForKeyPlacement = false;
+        pendingLockRoom = null;
+        selectedRoomType = RoomType.Battle;
+
+        // Lock 버튼 이미지를 잠금방 스프라이트로 복귀
+        if (roomItemImages.ContainsKey(RoomType.Lock))
+        {
+            roomItemImages[RoomType.Lock].sprite = RoomManager.Instance.GetRoomSprite(RoomType.Lock);
+        }
+
+        UpdateSelectionVisual();
+        Debug.Log("열쇠방 배치 취소");
     }
 
     private void UpdateSelectionVisual()
     {
         foreach (var kvp in roomItemImages)
         {
-            if (lockedRoomTypes.Contains(kvp.Key)) continue;  // 잠금 상태는 색상 유지
-            kvp.Value.color = kvp.Key == selectedRoomType ? selectedColor : normalColor;
+            if (lockedRoomTypes.Contains(kvp.Key)) continue;
+            kvp.Value.color = kvp.Key == selectedRoomType ||
+                              (isWaitingForKeyPlacement && kvp.Key == RoomType.Lock)
+                              ? selectedColor : normalColor;
         }
     }
 
@@ -176,6 +249,8 @@ public class RoomSelectionPanel : MonoBehaviour
             RoomType.Boss => "보스",
             RoomType.Fire => "불꽃",
             RoomType.Ice => "얼음",
+            RoomType.Lock => "잠금",
+            RoomType.Key => "열쇠",
             _ => roomType.ToString()
         };
     }

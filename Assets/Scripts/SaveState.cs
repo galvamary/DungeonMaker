@@ -20,12 +20,16 @@ public class SaveState
         public Vector2Int gridPosition;
         public RoomType roomType;
         public List<MonsterData> placedMonsters;
+        public bool hasLinkedRoom = false;
+        public Vector2Int linkedRoomPosition;  // Lock-Key 연결
 
-        public RoomState(Vector2Int pos, RoomType type, List<MonsterData> monsters)
+        public RoomState(Vector2Int pos, RoomType type, List<MonsterData> monsters, bool hasLinked = false, Vector2Int linkedPos = default)
         {
             gridPosition = pos;
             roomType = type;
             placedMonsters = new List<MonsterData>(monsters);
+            hasLinkedRoom = hasLinked;
+            linkedRoomPosition = linkedPos;
         }
     }
     public List<RoomState> savedRooms;
