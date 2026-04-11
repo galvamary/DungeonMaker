@@ -30,6 +30,7 @@ public class Room : MonoBehaviour
     private bool isUnlocked = false;  // 열쇠방 진입으로 해제된 상태
 
     private SpriteRenderer spriteRenderer;
+    private Color pairColor = Color.white;
 
     public RoomType Type => roomType;
     public Vector2Int GridPosition => gridPosition;
@@ -42,6 +43,24 @@ public class Room : MonoBehaviour
     public void SetLinkedRoom(Room room) { linkedRoom = room; }
     public void ClearLinkedRoom() { linkedRoom = null; }
 
+    public void SetPairColor(Color color)
+    {
+        pairColor = color;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = color;
+        }
+    }
+
+    public void ClearPairColor()
+    {
+        pairColor = Color.white;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = Color.white;
+        }
+    }
+
     /// <summary>
     /// 탐험 중 열쇠방 진입 시 스프라이트만 전투방으로 변경
     /// </summary>
@@ -51,6 +70,7 @@ public class Room : MonoBehaviour
         if (spriteRenderer != null && battleSprite != null)
         {
             spriteRenderer.sprite = battleSprite;
+            spriteRenderer.color = Color.white;
         }
     }
 
@@ -63,6 +83,7 @@ public class Room : MonoBehaviour
         if (spriteRenderer != null && originalSprite != null)
         {
             spriteRenderer.sprite = originalSprite;
+            spriteRenderer.color = pairColor;
         }
     }
     

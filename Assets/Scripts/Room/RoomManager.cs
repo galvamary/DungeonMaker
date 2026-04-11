@@ -36,6 +36,7 @@ public class RoomManager : MonoBehaviour
     
     private Dictionary<Vector2Int, Room> placedRooms = new Dictionary<Vector2Int, Room>();
     private Transform roomContainer;
+    private int lockKeyPairCount = 0;
     
     private void Awake()
     {
@@ -305,7 +306,7 @@ public class RoomManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Lock/Key 방을 서로 연결
+    /// Lock/Key 방을 서로 연결하고 쌍 색상 틴트 적용
     /// </summary>
     public void LinkLockAndKeyRooms(Room lockRoom, Room keyRoom)
     {
@@ -313,8 +314,20 @@ public class RoomManager : MonoBehaviour
         {
             lockRoom.SetLinkedRoom(keyRoom);
             keyRoom.SetLinkedRoom(lockRoom);
-            Debug.Log($"Linked Lock room at {lockRoom.GridPosition} with Key room at {keyRoom.GridPosition}");
+
+            Color pairColor = GeneratePairColor(lockKeyPairCount);
+            lockRoom.SetPairColor(pairColor);
+            keyRoom.SetPairColor(pairColor);
+            lockKeyPairCount++;
+
+            Debug.Log($"Linked Lock room at {lockRoom.GridPosition} with Key room at {keyRoom.GridPosition} (pair color: {pairColor})");
         }
+    }
+
+    private Color GeneratePairColor(int pairIndex)
+    {
+        float hue = (pairIndex * 0.618033988749895f) % 1.0f;
+        return Color.HSVToRGB(hue, 0.5f, 1.0f);
     }
 
     public bool IsValidPlacement(Vector2Int position)
@@ -603,6 +616,7 @@ public class RoomManager : MonoBehaviour
 
         // Clear the placed rooms dictionary
         placedRooms.Clear();
+        lockKeyPairCount = 0;
 
         // Recreate entrance at (0,0)
         PlaceRoom(new Vector2Int(0, 0), RoomType.Entrance);

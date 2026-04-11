@@ -264,18 +264,27 @@ public class GameManager : MonoBehaviour
                             }
                         }
                     }
-                    // 2차: Lock-Key 연결 복원
+                    // 2차: Lock-Key 연결 복원 (색상 틴트도 함께 적용)
+                    HashSet<Vector2Int> linkedPositions = new HashSet<Vector2Int>();
                     foreach (var roomData in roomDataList.rooms)
                     {
                         if (roomData.hasLinkedRoom)
                         {
                             Vector2Int pos = new Vector2Int(roomData.posX, roomData.posY);
+                            if (linkedPositions.Contains(pos)) continue;
+
                             Vector2Int linkedPos = new Vector2Int(roomData.linkedPosX, roomData.linkedPosY);
                             Room room = RoomManager.Instance.GetRoomAt(pos);
                             Room linkedRoom = RoomManager.Instance.GetRoomAt(linkedPos);
                             if (room != null && linkedRoom != null)
                             {
-                                room.SetLinkedRoom(linkedRoom);
+                                if (room.Type == RoomType.Lock)
+                                    RoomManager.Instance.LinkLockAndKeyRooms(room, linkedRoom);
+                                else
+                                    RoomManager.Instance.LinkLockAndKeyRooms(linkedRoom, room);
+
+                                linkedPositions.Add(pos);
+                                linkedPositions.Add(linkedPos);
                             }
                         }
                     }
