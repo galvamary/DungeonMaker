@@ -485,6 +485,107 @@ public class RoomManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Lock/Key 메커니즘을 고려하여 입구에서 모든 보물방에 도달 가능한지 검증.
+    /// Key 방에 도달하면 연결된 Lock 방이 해제되는 것을 시뮬레이션하는 점진적 BFS.
+    /// </summary>
+    public bool CanReachAllTreasureRooms()
+    {
+        Room entrance = GetEntranceRoom();
+        if (entrance == null) return false;
+
+        if (GetTreasureRoomCount() == 0) return true;
+
+        HashSet<Vector2Int> reachable = new HashSet<Vector2Int>();
+        System.Collections.Generic.Queue<Vector2Int> frontier = new System.Collections.Generic.Queue<Vector2Int>();
+        HashSet<Vector2Int> unlockedLocks = new HashSet<Vector2Int>();
+
+        Vector2Int[] directions = new Vector2Int[]
+        {
+            new Vector2Int(0, 1),
+            new Vector2Int(0, -1),
+            new Vector2Int(-1, 0),
+            new Vector2Int(1, 0)
+        };
+
+        frontier.Enqueue(entrance.GridPosition);
+        reachable.Add(entrance.GridPosition);
+
+        bool changed = true;
+        while (changed)
+        {
+            changed = false;
+
+            while (frontier.Count > 0)
+            {
+                Vector2Int current = frontier.Dequeue();
+                Room currentRoom = GetRoomAtPosition(current);
+                if (currentRoom == null) continue;
+
+                // Key 방 도달 시 연결된 Lock 방 해제
+                if (currentRoom.Type == RoomType.Key && currentRoom.LinkedRoom != null)
+                {
+                    Room lockRoom = currentRoom.LinkedRoom;
+                    if (lockRoom.Type == RoomType.Lock && !unlockedLocks.Contains(lockRoom.GridPosition))
+                    {
+                        unlockedLocks.Add(lockRoom.GridPosition);
+                        changed = true;
+                    }
+                }
+
+                foreach (var dir in directions)
+                {
+                    Vector2Int neighborPos = current + dir;
+                    if (reachable.Contains(neighborPos)) continue;
+
+                    if (!placedRooms.ContainsKey(neighborPos)) continue;
+                    Room neighbor = placedRooms[neighborPos];
+
+                    // Entrance는 오른쪽으로만 연결
+                    if (currentRoom.Type == RoomType.Entrance && neighborPos != current + new Vector2Int(1, 0))
+                        continue;
+
+                    // 잠긴 Lock 방은 통과 불가
+                    if (neighbor.Type == RoomType.Lock && !unlockedLocks.Contains(neighborPos))
+                        continue;
+
+                    reachable.Add(neighborPos);
+                    frontier.Enqueue(neighborPos);
+                }
+            }
+
+            // 새로 해제된 Lock이 있으면, 도달 가능한 인접 방에서 BFS 재개
+            if (changed)
+            {
+                foreach (Vector2Int lockPos in unlockedLocks)
+                {
+                    if (reachable.Contains(lockPos)) continue;
+
+                    foreach (var dir in directions)
+                    {
+                        if (reachable.Contains(lockPos + dir))
+                        {
+                            reachable.Add(lockPos);
+                            frontier.Enqueue(lockPos);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 모든 보물방이 도달 가능한지 확인
+        foreach (Room room in placedRooms.Values)
+        {
+            if (room.Type == RoomType.Treasure && !reachable.Contains(room.GridPosition))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// Resets all rooms - destroys all placed rooms and recreates entrance at (0,0)
     /// </summary>
     public void ResetAllRooms()

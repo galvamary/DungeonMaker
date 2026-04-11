@@ -115,6 +115,18 @@ public class GameStateManager : MonoBehaviour
             return;
         }
 
+        // Lock/Key를 고려하여 보물방까지 도달 가능한지 시뮬레이션 검증
+        if (RoomManager.Instance != null && !RoomManager.Instance.CanReachAllTreasureRooms())
+        {
+            string message = "All treasure rooms can be reached";
+            Debug.LogWarning(message);
+            if (WarningMessageUI.Instance != null)
+            {
+                WarningMessageUI.Instance.ShowWarning(message);
+            }
+            return;
+        }
+
         currentPhase = GamePhase.Exploration;
         Debug.Log("Starting exploration phase!");
 
