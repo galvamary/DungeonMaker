@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wyvern
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterName: Wyvern
-  icon: {fileID: 21300006, guid: 988d560df8d322a468c97243cbfd76e8, type: 3}
+  icon: {fileID: -5655076743464301407, guid: b46af75d264ec4318af8e1966604c0a2, type: 3}
   cost: 8
   maxHealth: 7
   maxMP: 5

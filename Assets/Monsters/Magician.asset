@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Magician
   m_EditorClassIdentifier: Assembly-CSharp::MonsterData
   monsterName: Magician
-  icon: {fileID: 21300012, guid: 988d560df8d322a468c97243cbfd76e8, type: 3}
+  icon: {fileID: -6333285799462303747, guid: b46af75d264ec4318af8e1966604c0a2, type: 3}
   cost: 6
   maxHealth: 6
   maxMP: 6

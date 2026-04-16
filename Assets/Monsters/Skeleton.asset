@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Skeleton
   m_EditorClassIdentifier: 
   monsterName: Skeleton
-  icon: {fileID: 21300014, guid: 988d560df8d322a468c97243cbfd76e8, type: 3}
+  icon: {fileID: -3099694731142582523, guid: b46af75d264ec4318af8e1966604c0a2, type: 3}
   cost: 18
   maxHealth: 7
   maxMP: 0

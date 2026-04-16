@@ -10884,7 +10884,7 @@ MonoBehaviour:
   bossRoomUnlock: 5
   fireRoomUnlock: 3
   iceRoomUnlock: 3
-  lockRoomUnlock: 1
+  lockRoomUnlock: 4
 --- !u!4 &1773358325
 Transform:
   m_ObjectHideFlags: 0
